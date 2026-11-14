@@ -124,8 +124,8 @@ export default function NavigationPanel({
       </div>
 
       {/* Desktop side card */}
-      <div className="hidden w-80 shrink-0 lg:block">
-        <div className="sticky top-4 rounded-3xl border border-line bg-surface/95 p-4 shadow-lift backdrop-blur-md">
+      <div className="hidden lg:block">
+        <div className="absolute right-4 top-4 z-[1002] w-80 rounded-3xl border border-line bg-surface/95 p-4 shadow-lift backdrop-blur-md">
           <PanelBody
             nav={nav}
             state={state}

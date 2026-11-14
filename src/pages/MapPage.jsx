@@ -360,11 +360,13 @@ export default function MapPage() {
 
       <MapPanel {...panelProps} />
 
-      <MobileMapSheet
-        {...panelProps}
-        open={sheetOpen}
-        onToggle={() => setSheetOpen((value) => !value)}
-      />
+      {nav.state === 'idle' && (
+        <MobileMapSheet
+          {...panelProps}
+          open={sheetOpen}
+          onToggle={() => setSheetOpen((value) => !value)}
+        />
+      )}
 
       {nav.state === 'idle' ? (
         <div className="space-y-2">
