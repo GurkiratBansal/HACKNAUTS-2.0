@@ -1,26 +1,22 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Camera,
-  Clock,
-  ImagePlus,
-  MapPin,
-  Sparkles,
-  Trash2,
-  Upload,
-  UtensilsCrossed,
-} from 'lucide-react'
 import { useApp } from '../context/AppContext'
-import MapView from '../components/MapView'
 import DeclarationModal from '../components/DeclarationModal'
-import Button from '../components/ui/Button'
-import Field from '../components/ui/Field'
+import BasicsStep from '../components/donation/BasicsStep'
+import HandlingStep from '../components/donation/HandlingStep'
+import ListingPreview from '../components/donation/ListingPreview'
+import PhotoStep from '../components/donation/PhotoStep'
+import PickupStep from '../components/donation/PickupStep'
+import WizardNav from '../components/donation/WizardNav'
+import WizardSteps from '../components/donation/WizardSteps'
 import {
-  categoryLabel,
-  storageLabel,
-  toLocalDateTimeInput,
-} from '../utils/format'
-import { getSafetyHint, URGENCY_DISCLAIMER } from '../utils/urgency'
+  STEP_FIELDS,
+  buildStepValidators,
+  firstStepWithErrors,
+  validateAll,
+} from '../components/donation/validators'
+import { toLocalDateTimeInput } from '../utils/format'
+import { getSafetyHint } from '../utils/urgency'
 
 const now = new Date()
 const DEFAULTS = {
@@ -35,19 +31,6 @@ const DEFAULTS = {
   contactPhone: '',
   notes: '',
 }
-
-const CATEGORIES = [
-  { value: 'cooked', label: 'Cooked meal' },
-  { value: 'snacks', label: 'Snacks' },
-  { value: 'bakery', label: 'Bakery' },
-  { value: 'raw', label: 'Raw / packaged' },
-]
-
-const STORAGE = [
-  { value: 'room', label: 'Room temperature' },
-  { value: 'refrigerated', label: 'Refrigerated' },
-  { value: 'hot-holding', label: 'Hot holding' },
-]
 
 /** Compress to keep localStorage under quota while retaining a useful preview. */
 function compressImage(file) {
@@ -76,14 +59,20 @@ function compressImage(file) {
 export default function AddDonation() {
   const { currentUser, addDonation, addToast } = useApp()
   const navigate = useNavigate()
+  const [step, setStep] = useState(0)
   const [form, setForm] = useState(DEFAULTS)
-  const [location, setLocation] = useState(currentUser?.location || { lat: 28.6139, lng: 77.209 })
+  const [location, setLocation] = useState(
+    currentUser?.location || { lat: 28.6139, lng: 77.209 },
+  )
   const [preview, setPreview] = useState('')
   const [photo, setPhoto] = useState('')
   const [photoBusy, setPhotoBusy] = useState(false)
   const [errors, setErrors] = useState({})
   const [declarationOpen, setDeclarationOpen] = useState(false)
   const objectUrlRef = useRef('')
+  const cardRef = useRef(null)
+  const panelRef = useRef(null)
+  const mountedRef = useRef(false)
 
   const set = (key) => (e) => {
     setForm((prev) => ({ ...prev, [key]: e.target.value }))
@@ -94,6 +83,22 @@ export default function AddDonation() {
     () => getSafetyHint(form.category, form.storage),
     [form.category, form.storage],
   )
+
+  // Move focus to the new panel and bring it into view on every step change.
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true
+      return
+    }
+    panelRef.current?.focus({ preventScroll: true })
+    const reduceMotion = window.matchMedia?.(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+    cardRef.current?.scrollIntoView({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'start',
+    })
+  }, [step])
 
   const onPhoto = async (e) => {
     const file = e.target.files?.[0]
@@ -136,30 +141,41 @@ export default function AddDonation() {
     )
   }
 
-  const validate = () => {
-    const next = {}
-    if (!form.foodName.trim()) next.foodName = 'Give the food a clear name.'
-    if (!form.quantity || Number(form.quantity) <= 0) next.quantity = 'Enter the number of servings.'
-    if (!form.cookedAt) next.cookedAt = 'When was the food prepared?'
-    if (!form.deadline) next.deadline = 'Set a pickup deadline.'
-    if (form.cookedAt && form.deadline && new Date(form.deadline) <= new Date(form.cookedAt)) {
-      next.deadline = 'Pickup deadline must be after the food was cooked.'
-    }
-    if (form.deadline && new Date(form.deadline).getTime() <= Date.now()) {
-      next.deadline = 'Pickup deadline must be in the future.'
-    }
-    if (!form.address.trim()) next.address = 'Add a pickup address or landmark.'
-    if (!form.contactPhone.trim() || form.contactPhone.replace(/\D/g, '').length < 10) {
-      next.contactPhone = 'Enter a phone number with at least 10 digits.'
-    }
-    if (!location) next.location = 'Pick a pickup point on the map.'
-    setErrors(next)
-    return Object.keys(next).length === 0
+  // The same rules as the original single-page form, grouped by wizard step.
+  const stepValidators = buildStepValidators(form, location)
+
+  const validateStep = (index) => {
+    const next = stepValidators[index] ? stepValidators[index]() : {}
+    setErrors((prev) => {
+      const cleared = { ...prev }
+      STEP_FIELDS[index].forEach((field) => {
+        delete cleared[field]
+      })
+      return { ...cleared, ...next }
+    })
+    return next
   }
 
-  const openDeclaration = (e) => {
-    e.preventDefault()
-    if (validate()) setDeclarationOpen(true)
+  const goTo = (index) => setStep(Math.min(3, Math.max(0, index)))
+
+  const goNext = () => {
+    if (Object.keys(validateStep(step)).length > 0) return
+    goTo(step + 1)
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    if (step < 3) {
+      goNext()
+      return
+    }
+    const next = validateAll(stepValidators)
+    setErrors(next)
+    if (Object.keys(next).length > 0) {
+      goTo(firstStepWithErrors(next))
+      return
+    }
+    setDeclarationOpen(true)
   }
 
   const publish = () => {
@@ -172,161 +188,78 @@ export default function AddDonation() {
     <main className="bg-canvas">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-wider text-emerald-700">Add donation</p>
-          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+            Add donation
+          </p>
+          <h1 className="mt-1.5 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
             List surplus food
           </h1>
-          <p className="mt-2 text-slate-600">
-            Accurate details help NGOs decide quickly. You will confirm the donation
-            declaration before publishing.
+          <p className="mt-2 text-sm leading-relaxed text-ink-soft sm:text-base">
+            Four short steps, then a final declaration. Accurate details help
+            NGOs decide quickly and collect safely.
           </p>
         </div>
 
-        <form onSubmit={openDeclaration} className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_0.9fr]" noValidate>
-          <div className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <section>
-              <h2 className="text-base font-bold text-slate-900">What are you sharing?</h2>
-              <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                <Field id="food-name" label="Food name" value={form.foodName} onChange={set('foodName')} error={errors.foodName} placeholder="Veg biryani, sandwiches, fruit boxes…" required />
-                <Field as="select" id="food-category" label="Category" value={form.category} onChange={set('category')} required>
-                  {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                </Field>
-                <div>
-                  <span className="mb-1 block text-sm font-semibold text-slate-700">Diet <span className="text-red-600">*</span></span>
-                  <div className="flex gap-2">
-                    {[{ v: 'veg', l: 'Veg' }, { v: 'non-veg', l: 'Non-veg' }].map((d) => (
-                      <label key={d.v} className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${form.diet === d.v ? 'border-emerald-500 bg-emerald-50 text-emerald-800' : 'border-slate-300 text-slate-600 hover:bg-slate-50'}`}>
-                        <input type="radio" name="diet" value={d.v} checked={form.diet === d.v} onChange={set('diet')} className="sr-only" />
-                        {d.l}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <Field id="food-quantity" label="Quantity (servings)" type="number" min="1" value={form.quantity} onChange={set('quantity')} error={errors.quantity} placeholder="80" required />
-              </div>
-            </section>
+        <form
+          onSubmit={handleSubmit}
+          className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.3fr_0.9fr]"
+          noValidate
+        >
+          <div ref={cardRef} className="min-w-0 scroll-mt-24 space-y-4">
+            <div className="rounded-3xl border border-line bg-surface p-4 shadow-soft sm:p-5">
+              <WizardSteps current={step} onSelect={goTo} />
+            </div>
 
-            <section className="border-t border-slate-100 pt-5">
-              <h2 className="text-base font-bold text-slate-900">Handling &amp; pickup window</h2>
-              <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                <Field id="food-cooked" label="Cooked / packed at" type="datetime-local" value={form.cookedAt} onChange={set('cookedAt')} error={errors.cookedAt} required />
-                <div>
-                  <Field as="select" id="food-storage" label="Storage condition" value={form.storage} onChange={set('storage')} required>
-                    {STORAGE.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-                  </Field>
-                </div>
-                <Field id="food-deadline" label="Pickup deadline" type="datetime-local" value={form.deadline} onChange={set('deadline')} error={errors.deadline} required />
-                <Field id="food-phone" label="Contact phone" type="tel" value={form.contactPhone} onChange={set('contactPhone')} error={errors.contactPhone} placeholder="+91 98765 43210" required />
+            <div className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+              <div
+                key={step}
+                ref={panelRef}
+                tabIndex={-1}
+                role="region"
+                aria-labelledby="wizard-step-title"
+                className="animate-fade-up focus:outline-none"
+              >
+                {step === 0 && (
+                  <BasicsStep form={form} set={set} errors={errors} />
+                )}
+                {step === 1 && (
+                  <HandlingStep
+                    form={form}
+                    set={set}
+                    errors={errors}
+                    safetyHint={safetyHint}
+                  />
+                )}
+                {step === 2 && (
+                  <PickupStep
+                    form={form}
+                    set={set}
+                    errors={errors}
+                    location={location}
+                    onMapClick={(next) => {
+                      setLocation(next)
+                      setErrors((prev) => ({ ...prev, location: '' }))
+                    }}
+                    onUseLocation={useCurrentLocation}
+                  />
+                )}
+                {step === 3 && (
+                  <PhotoStep
+                    form={form}
+                    set={set}
+                    preview={preview}
+                    photoBusy={photoBusy}
+                    onPhoto={onPhoto}
+                    clearPhoto={clearPhoto}
+                  />
+                )}
               </div>
-              <p className="mt-3 rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs leading-relaxed text-warning-900 dark:border-warning-800 dark:bg-warning-900/30 dark:text-warning-100">
-                <Clock className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
-                {safetyHint}
-              </p>
-            </section>
 
-            <section className="border-t border-slate-100 pt-5">
-              <h2 className="text-base font-bold text-slate-900">Pickup point</h2>
-              <div className="mt-3">
-                <Field id="food-address" label="Address / landmark" value={form.address} onChange={set('address')} error={errors.address} placeholder="12, Connaught Place, New Delhi" required />
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Button type="button" variant="outline" size="sm" icon={MapPin} onClick={useCurrentLocation}>
-                  Use my current location
-                </Button>
-                <span className="text-xs text-ink-muted">or tap the map to place the pin</span>
-              </div>
-              <div className="mt-3">
-                <MapView
-                  center={[location?.lat || 28.6139, location?.lng || 77.209]}
-                  zoom={13}
-                  height="240px"
-                  onMapClick={(next) => {
-                    setLocation(next)
-                    setErrors((prev) => ({ ...prev, location: '' }))
-                  }}
-                  markers={location ? [{ id: 'pickup', lat: location.lat, lng: location.lng, color: '#059669', title: 'Pickup point', popup: <p className="text-xs font-semibold text-slate-800">Pickup point</p> }] : []}
-                />
-                {errors.location && <p className="mt-1 text-xs font-medium text-red-600">{errors.location}</p>}
-                <p className="mt-1 text-xs text-slate-500">
-                  Selected: {location?.lat.toFixed(4)}, {location?.lng.toFixed(4)}
-                </p>
-              </div>
-            </section>
-
-            <section className="border-t border-slate-100 pt-5">
-              <h2 className="text-base font-bold text-slate-900">Photo &amp; notes</h2>
-              <div className="mt-3 grid gap-4 sm:grid-cols-[1fr_1fr]">
-                <div>
-                  <label htmlFor="food-photo" className="mb-1 block text-sm font-semibold text-slate-700">Food photo <span className="font-normal text-slate-400">(optional)</span></label>
-                  <label htmlFor="food-photo" className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center hover:border-emerald-400 hover:bg-emerald-50/40">
-                    {preview ? (
-                      <img src={preview} alt="Selected food preview" className="h-32 w-full rounded-lg object-cover" />
-                    ) : (
-                      <>
-                        <ImagePlus className="h-6 w-6 text-slate-400" />
-                        <span className="mt-2 text-sm font-semibold text-slate-700">Upload a photo</span>
-                        <span className="mt-0.5 text-xs text-slate-500">JPG or PNG, shown to NGOs</span>
-                      </>
-                    )}
-                    <input id="food-photo" type="file" accept="image/*" onChange={onPhoto} className="sr-only" />
-                  </label>
-                  {photoBusy && <p className="mt-1 text-xs text-slate-500">Preparing preview…</p>}
-                  {preview && (
-                    <Button type="button" variant="ghostDanger" size="sm" icon={Trash2} onClick={clearPhoto} className="mt-2">
-                      Remove photo
-                    </Button>
-                  )}
-                </div>
-                <Field as="textarea" id="food-notes" label="Notes for the NGO (optional)" rows={6} value={form.notes} onChange={set('notes')} placeholder="Packaging, allergens, entrance instructions…" />
-              </div>
-            </section>
-
-            <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-ink-muted">You will confirm the Food Donation Declaration next.</p>
-              <Button type="submit" variant="primary" size="lg" icon={Upload}>
-                Review &amp; publish
-              </Button>
+              <WizardNav step={step} onBack={() => goTo(step - 1)} />
             </div>
           </div>
 
-          <aside className="space-y-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-                <UtensilsCrossed className="h-4 w-4 text-emerald-700" /> Listing preview
-              </h2>
-              <div className="mt-3 overflow-hidden rounded-xl bg-gradient-to-br from-emerald-100 to-orange-50">
-                {preview ? (
-                  <img src={preview} alt="Food preview" className="h-36 w-full object-cover" />
-                ) : (
-                  <div className="flex h-36 items-center justify-center text-emerald-700/50"><Camera className="h-9 w-9" /></div>
-                )}
-              </div>
-              <p className="mt-3 text-sm font-bold text-slate-900">{form.foodName || 'Your food name'}</p>
-              <p className="text-xs text-slate-500">
-                {categoryLabel(form.category)} · {form.diet === 'veg' ? 'Veg' : 'Non-veg'} · {storageLabel(form.storage)}
-              </p>
-              <p className="mt-1 text-xs text-slate-500">{form.quantity || '0'} servings · {form.address || 'Pickup address'}</p>
-              <div className="mt-3 rounded-lg bg-slate-50 p-2.5 text-xs text-slate-600">
-                <Sparkles className="mr-1 inline h-3.5 w-3.5 text-emerald-600" />
-                After publishing, the 3 nearest verified NGOs are alerted automatically.
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-dashed border-emerald-300 bg-emerald-50/60 p-5">
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">Future feature</p>
-              <h3 className="mt-1 flex items-center gap-2 text-base font-bold text-slate-900">
-                <Sparkles className="h-4 w-4 text-emerald-700" /> AI Food Safety Assistant
-              </h3>
-              <p className="mt-1.5 text-sm text-slate-600">
-                Coming soon: photo-based freshness checks and handling prompts.
-                This demo does not fake AI output.
-              </p>
-            </div>
-
-            <p className="rounded-xl bg-white p-3 text-xs leading-relaxed text-slate-500 ring-1 ring-slate-200">
-              {URGENCY_DISCLAIMER} Never list food you would not serve to your own family.
-            </p>
-          </aside>
+          <ListingPreview form={form} preview={preview} />
         </form>
       </div>
 

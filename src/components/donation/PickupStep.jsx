@@ -1,0 +1,93 @@
+import { MapPin, ShieldAlert } from 'lucide-react'
+import Button from '../ui/Button'
+import Field from '../ui/Field'
+import MapView from '../MapView'
+import StepHeading from './StepHeading'
+
+export default function PickupStep({
+  form,
+  set,
+  errors,
+  location,
+  onMapClick,
+  onUseLocation,
+}) {
+  return (
+    <section aria-labelledby="wizard-step-title">
+      <StepHeading eyebrow="Step 3 · Where" title="Set the pickup point">
+        Place the pin where your team can hand the food over, not a general
+        neighbourhood.
+      </StepHeading>
+
+      <div className="mt-5">
+        <Field
+          id="food-address"
+          label="Address / landmark"
+          value={form.address}
+          onChange={set('address')}
+          error={errors.address}
+          placeholder="12, Connaught Place, New Delhi"
+          required
+        />
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          icon={MapPin}
+          onClick={onUseLocation}
+        >
+          Use my current location
+        </Button>
+        <span className="text-xs text-ink-muted">
+          or tap the map to place the pin
+        </span>
+      </div>
+
+      <div className="mt-3">
+        <MapView
+          center={[location?.lat || 28.6139, location?.lng || 77.209]}
+          zoom={13}
+          height="260px"
+          onMapClick={onMapClick}
+          markers={
+            location
+              ? [
+                  {
+                    id: 'pickup',
+                    lat: location.lat,
+                    lng: location.lng,
+                    color: 'var(--fresh-urgency-fresh)',
+                    title: 'Pickup point',
+                    popup: (
+                      <p className="text-xs font-semibold text-ink">
+                        Pickup point
+                      </p>
+                    ),
+                  },
+                ]
+              : []
+          }
+        />
+        {errors.location && (
+          <p
+            role="alert"
+            className="mt-1.5 flex items-start gap-1.5 text-[13px] font-medium text-danger-600 dark:text-danger-400"
+          >
+            <ShieldAlert className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            {errors.location}
+          </p>
+        )}
+        <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-elevated px-3 py-1.5 text-xs text-ink-soft ring-1 ring-inset ring-line">
+          <MapPin
+            className="h-3.5 w-3.5 text-brand-600 dark:text-brand-300"
+            aria-hidden="true"
+          />
+          Selected: {location?.lat.toFixed(4)}, {location?.lng.toFixed(4)}
+        </p>
+      </div>
+    </section>
+  )
+}
