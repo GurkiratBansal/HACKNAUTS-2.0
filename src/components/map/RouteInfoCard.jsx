@@ -5,7 +5,7 @@ import { formatDistance } from '../../utils/format'
  * Small, non-interactive overlay that tells the user what the route line is.
  * It never blocks map clicks, so selecting another pin keeps working.
  */
-export default function RouteInfoCard({ info, fromLabel, toLabel }) {
+export default function RouteInfoCard({ info, fromLabel, toLabel, onStart, canStart }) {
   if (!info) return null
 
   const loading = info.status === 'loading'
@@ -56,6 +56,16 @@ export default function RouteInfoCard({ info, fromLabel, toLabel }) {
           <p className="mt-0.5 truncate text-[11px] text-ink-muted">
             {fromLabel} → {toLabel}
           </p>
+
+          {canStart && onStart && (
+            <button
+              type="button"
+              onClick={onStart}
+              className="pointer-events-auto mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-brand-600 px-3 text-xs font-bold text-white transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            >
+              Start navigation
+            </button>
+          )}
 
           {!loading && !fallback && (
             <p className="mt-0.5 text-[11px] text-ink-muted">

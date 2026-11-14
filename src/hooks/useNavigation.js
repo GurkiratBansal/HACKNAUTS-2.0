@@ -414,6 +414,7 @@ export function useNavigation({
 
   return {
     state,
+    route: currentRoute,
     position,
     snappedPosition,
     remainingKm,

@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useMemo, useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { ChevronRight, Phone, ShieldCheck } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import MapView from '../components/MapView'
@@ -7,6 +7,11 @@ import RouteLayer from '../components/RouteLayer'
 import MapPanel from '../components/map/MapPanel'
 import MobileMapSheet from '../components/map/MobileMapSheet'
 import RouteInfoCard from '../components/map/RouteInfoCard'
+import NavigationLayer from '../components/map/NavigationLayer'
+import FollowController from '../components/map/FollowController'
+import NavigationPanel from '../components/NavigationPanel'
+import { useRoute } from '../hooks/useRoute'
+import { useNavigation } from '../hooks/useNavigation'
 import UrgencyBadge from '../components/UrgencyBadge'
 import { haversineKm } from '../utils/distance'
 import { getUrgency } from '../utils/urgency'
@@ -21,7 +26,8 @@ const URGENCY_PIN = {
 }
 
 export default function MapPage() {
-  const { currentUser, donations, ngos } = useApp()
+  const { currentUser, donations, ngos, advanceStatus, addToast } = useApp()
+  const [searchParams] = useSearchParams()
   const role = currentUser?.role || 'donor'
   const [guestView, setGuestView] = useState('ngos')
   const view = currentUser ? (role === 'ngo' ? 'donations' : 'ngos') : guestView
@@ -31,6 +37,8 @@ export default function MapPage() {
   const [selectedId, setSelectedId] = useState(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [routeInfo, setRouteInfo] = useState(null)
+  const [follow, setFollow] = useState(true)
+  const demoMode = searchParams.get('demo') === '1'
 
   const origin = currentUser?.location || FALLBACK_ORIGIN
 
@@ -114,6 +122,33 @@ export default function MapPage() {
       : selectedItem.foodName
     : ''
 
+  useEffect(() => {
+    const focus = searchParams.get('focus') || searchParams.get('navigate')
+    if (!focus || focus === selectedId) return
+    const pool = view === 'ngos' ? visibleNgos : visibleDonations
+    if (pool.some((item) => item.id === focus)) setSelectedId(focus)
+  }, [searchParams, view, visibleNgos, visibleDonations, selectedId])
+
+  const routeResult = useRoute(routeFrom, routeTo)
+  const nav = useNavigation({
+    route: routeResult.route,
+    destination: routeTo,
+    destinationName: routeToLabel || 'destination',
+    role: currentUser?.role || 'donor',
+    destinationValid: Boolean(selectedItem),
+    onArrive: () => {
+      // no-op: arrival UI is driven by nav state
+    },
+  })
+
+  const reduceMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+  const center =
+    follow && nav.snappedPosition
+      ? [nav.snappedPosition.lat, nav.snappedPosition.lng]
+      : [origin.lat, origin.lng]
   const markers = useMemo(() => {
     const list =
       view === 'ngos'
@@ -235,6 +270,23 @@ export default function MapPage() {
     setSheetOpen(false)
   }
 
+  const handleStartNavigation = () => {
+    if (routeResult.route) nav.actions.start()
+    else addToast('Route is still loading. Try again in a moment.', 'info')
+  }
+
+  const handleStopNavigation = () => {
+    nav.actions.stop()
+    setFollow(true)
+  }
+
+  const handleMarkPickedUp = () => {
+    if (selectedId) {
+      const res = advanceStatus(selectedId)
+      if (res?.ok) nav.actions.stop()
+    }
+  }
+
   const panelProps = {
     view,
     count: items.length,
@@ -258,7 +310,7 @@ export default function MapPage() {
   return (
     <main className="relative h-[calc(100dvh-4.5rem)] overflow-hidden bg-canvas">
       <MapView
-        center={[origin.lat, origin.lng]}
+        center={center}
         zoom={12}
         height="100%"
         className="h-full"
@@ -268,11 +320,21 @@ export default function MapPage() {
         activeMarkerId={selectedId}
         onMarkerClick={setSelectedId}
       >
-        <RouteLayer
-          from={routeFrom}
-          to={routeTo}
-          onRouteInfo={setRouteInfo}
-        />
+        <FollowController onDrag={() => setFollow(false)} />
+        {nav.state === 'idle' ? (
+          <RouteLayer
+            from={routeFrom}
+            to={routeTo}
+            onRouteInfo={setRouteInfo}
+          />
+        ) : (
+          <NavigationLayer
+            route={nav.currentRoute || routeResult.route}
+            position={nav.position}
+            snappedPosition={nav.snappedPosition}
+            reducedMotion={reduceMotion}
+          />
+        )}
       </MapView>
 
       <MapPanel {...panelProps} />
@@ -283,11 +345,27 @@ export default function MapPage() {
         onToggle={() => setSheetOpen((value) => !value)}
       />
 
-      <RouteInfoCard
-        info={routeInfo}
-        fromLabel={routeFromLabel}
-        toLabel={routeToLabel}
-      />
+      {nav.state === 'idle' ? (
+        <RouteInfoCard
+          info={routeInfo}
+          fromLabel={routeFromLabel}
+          toLabel={routeToLabel}
+          onStart={handleStartNavigation}
+          canStart={Boolean(routeResult.route && routeTo)}
+        />
+      ) : (
+        <NavigationPanel
+          nav={nav}
+          destinationName={routeToLabel || 'destination'}
+          destination={routeTo}
+          role={currentUser?.role || 'donor'}
+          follow={follow}
+          onFollowChange={setFollow}
+          onMarkPickedUp={handleMarkPickedUp}
+          onStop={handleStopNavigation}
+          reducedMotion={reduceMotion}
+        />
+      )}
 
       <p className="pointer-events-none absolute bottom-4 right-4 z-[1001] hidden rounded-xl border border-line bg-surface/90 px-3 py-2 text-[11px] text-ink-muted shadow-soft backdrop-blur lg:block">
         OpenStreetMap tiles · sample data for demo

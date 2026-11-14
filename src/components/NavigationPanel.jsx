@@ -10,7 +10,7 @@ import {
   Square,
   Zap,
 } from 'lucide-react'
-import { formatDistance } from '../../utils/format'
+import { formatDistance } from '../utils/format'
 
 const SPEEDS = [1, 2, 4, 8]
 
