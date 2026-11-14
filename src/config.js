@@ -25,8 +25,9 @@ export const ENFORCE_INDIA_ONLY = true
 export const RADIUS_OPTIONS = [5, 10, 25, 50]
 export const DEFAULT_RADIUS_KM = 10
 
-// Emergency feed integration is intentionally disabled. Browser CORS rules
-// make direct RSS calls unreliable; a backend proxy is the real solution.
+// Emergency backend integration: keep local/simulated data by default so the UI
+// works without a running server and fails gracefully when requests fail.
+export const EMERGENCY_USE_MOCK = true
 export const EMERGENCY_SACHET_ENABLED = false
 // Temporary emergency multiplier; verify against current food-safety guidance.
 export const EMERGENCY_URGENCY_FACTOR = 0.5
