@@ -7,7 +7,20 @@
       name="description"
       content="FRESH connects surplus food donors with verified NGOs so good food reaches people instead of going to waste."
     />
+    <meta name="theme-color" content="#047857" />
     <title>FRESH – Food Reduction and Excess Sharing Hub</title>
+    <script>
+      // Apply the saved appearance before first paint to avoid a flash.
+      try {
+        var theme = localStorage.getItem('fresh_theme_v1')
+        if (
+          theme === 'dark' ||
+          (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+          document.documentElement.classList.add('dark')
+        }
+      } catch (error) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
