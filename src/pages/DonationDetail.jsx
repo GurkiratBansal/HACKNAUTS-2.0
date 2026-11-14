@@ -125,7 +125,7 @@ export default function DonationDetail() {
           <ArrowLeft className="h-4 w-4" /> Back to dashboard
         </Link>
 
-        <div className="mt-4 grid gap-6 lg:grid-cols-[1.35fr_0.85fr]">
+        <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[1.35fr_0.85fr]">
           <div className="space-y-6">
             <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="relative h-64 bg-gradient-to-br from-emerald-100 via-orange-50 to-emerald-50 sm:h-80">
@@ -210,11 +210,16 @@ export default function DonationDetail() {
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-700 ring-1 ring-slate-200">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <CountdownTimer deadline={donation.deadline} completed={donation.status === 'distributed'} />
-                    <span className="text-xs text-slate-500">Deadline: {formatDate(donation.deadline)}</span>
-                  </div>
+                <div className="mt-4 rounded-2xl border border-line bg-elevated p-4">
+                  <CountdownTimer
+                    deadline={donation.deadline}
+                    startAt={donation.createdAt}
+                    showProgress
+                    completed={donation.status === 'distributed'}
+                  />
+                  <p className="mt-2 text-xs text-ink-muted">
+                    Deadline: {formatDate(donation.deadline)}
+                  </p>
                 </div>
 
                 <div className="mt-4">
