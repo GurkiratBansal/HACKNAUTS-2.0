@@ -33,6 +33,7 @@ export default function MapPage() {
   const [maxDistance, setMaxDistance] = useState('all')
   const [urgency, setUrgency] = useState('all')
   const [selectedId, setSelectedId] = useState(null)
+  const [routeTargetId, setRouteTargetId] = useState(null)
   const [routeKey, setRouteKey] = useState(0)
   const [routeInfo, setRouteInfo] = useState(null)
 
@@ -104,34 +105,35 @@ export default function MapPage() {
 
   const items = view === 'ngos' ? visibleNgos : visibleDonations
 
-  // Selected pin is for reference only; routing is button‑triggered.
-  const selectedItem = useMemo(() => {
-    if (!selectedId || selectedId === 'my-ngo') return null
+  const routeItem = useMemo(() => {
+    if (!routeTargetId) return null
     const pool = view === 'ngos' ? visibleNgos : visibleDonations
-    return pool.find((item) => item.id === selectedId) || null
-  }, [selectedId, view, visibleNgos, visibleDonations])
+    return pool.find((item) => item.id === routeTargetId) || null
+  }, [routeTargetId, view, visibleNgos, visibleDonations])
 
   const routeFrom = place
-  const routeTo = selectedItem
+  const routeTo = routeItem
     ? view === 'ngos'
-      ? { lat: selectedItem.lat, lng: selectedItem.lng }
-      : selectedItem.location
+      ? { lat: routeItem.lat, lng: routeItem.lng }
+      : routeItem.location
     : null
   const routeFromLabel = place?.label || 'Your location'
-  const routeToLabel = selectedItem
+  const routeToLabel = routeItem
     ? view === 'ngos'
-      ? selectedItem.name
-      : selectedItem.foodName
+      ? routeItem.name
+      : routeItem.foodName
     : ''
 
   const selectItem = (id) => {
     setSelectedId(id)
+    setRouteTargetId(null)
     setRouteKey(0)
     setRouteInfo(null)
   }
 
   const requestRouteFor = (id) => {
-    setSelectedId(id)
+    setSelectedId(null)
+    setRouteTargetId(id)
     setRouteInfo(null)
     setRouteKey((key) => key + 1)
   }
@@ -275,7 +277,12 @@ export default function MapPage() {
     return list
   }, [view, visibleNgos, visibleDonations, currentUser, role, origin])
 
-  const clearSelection = () => setSelectedId(null)
+  const clearSelection = () => {
+    setSelectedId(null)
+    setRouteTargetId(null)
+    setRouteKey(0)
+    setRouteInfo(null)
+  }
 
   const changeQuery = (value) => {
     setQuery(value)
@@ -364,6 +371,8 @@ export default function MapPage() {
   }
 
   const clearRoute = () => {
+    setSelectedId(null)
+    setRouteTargetId(null)
     setRouteKey(0)
     setRouteInfo(null)
   }
