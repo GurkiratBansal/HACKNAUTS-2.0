@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+
+/* Custom toast entrance used by the Toast component. */
+@theme {
+  --animate-toast-in: toast-in 0.25s ease-out;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #fbfaf7;
+    color: #0f172a;
+    font-family:
+      ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid transparent;
+  }
+}
+
+/* Keep Leaflet's internal z-indexes inside the map container so page
+   overlays, the sticky navbar, toasts and modals stack correctly. */
+.leaflet-container {
+  z-index: 0;
+  font-family: inherit;
+  background: #e2e8f0;
+}
+
+.leaflet-container a {
+  color: #047857;
+}
+
+/* divIcon pins: remove Leaflet's default white box. */
+.fresh-map-pin {
+  background: transparent;
+  border: 0;
+}
+
+/* Slightly tighter attribution on small screens. */
+.leaflet-control-attribution {
+  font-size: 10px;
+}
