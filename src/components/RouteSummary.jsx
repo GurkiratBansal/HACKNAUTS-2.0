@@ -82,6 +82,11 @@ export default function RouteSummary({
               <p className="mt-0.5 text-[11px] text-ink-muted">
                 Driving route - OpenStreetMap
               </p>
+              {info.hazardWarning && (
+                <p className="mt-2 rounded-xl border border-warning-300 bg-warning-50 p-2 text-[11px] font-semibold leading-snug text-warning-950 dark:border-warning-700 dark:bg-warning-900/30 dark:text-warning-100">
+                  This route passes near a reported hazard area. Check local updates before travelling. Routes may not reflect road closures.
+                </p>
+              )}
             </>
           )}
 

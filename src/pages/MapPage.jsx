@@ -14,11 +14,13 @@ import RouteSummary from '../components/RouteSummary'
 import UrgencyBadge from '../components/UrgencyBadge'
 import ReliefTag from '../components/ReliefTag'
 import NeedsBoard from '../components/NeedsBoard'
+import HazardLayer from '../components/HazardLayer'
 import { haversineKm } from '../utils/distance'
 import { getUrgency } from '../utils/urgency'
 import { formatDistance } from '../utils/format'
 import demoLudhiana, { isDemoPlaceActive } from '../data/demoLudhiana'
 import { useEmergency } from '../context/EmergencyContext'
+import { makeSampleHazardZones } from '../data/hazardZones'
 
 const URGENCY_PIN = {
   fresh: 'var(--fresh-urgency-fresh)',
@@ -51,6 +53,7 @@ export default function MapPage() {
   const origin = place
   const demoActive = isDemoPlaceActive(place)
   const emergencyAlert = activeAlert(place)
+  const hazardZones = emergencyAlert ? makeSampleHazardZones(place) : []
 
   const verifiedNgos = useMemo(
     () =>
@@ -456,14 +459,16 @@ export default function MapPage() {
         onMarkerClick={handleMarkerClick}
         closePopupsKey={routeKey}
       >
-        <RouteLayer
+          <RouteLayer
           from={routeFrom}
           to={routeTo}
           route={selectedRoute}
           loading={routeResult.loading}
           error={routeResult.error}
-          onRouteInfo={setRouteInfo}
-        />
+            onRouteInfo={setRouteInfo}
+            hazardZones={hazardZones}
+          />
+          <HazardLayer zones={hazardZones} />
       </MapView>
 
       <NeedsBoard />

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Polyline, useMap } from 'react-leaflet'
+import { routeNearHazard } from '../utils/hazards'
 
 const ROAD_STYLE = {
   color: '#059669',
@@ -22,7 +23,7 @@ const isPoint = (point) =>
  *
  * Nothing is rendered when there is no route. No straight-line fallback.
  */
-export default function RouteLayer({ from, to, route, loading, error, onRouteInfo }) {
+export default function RouteLayer({ from, to, route, loading, error, onRouteInfo, hazardZones = [] }) {
   const map = useMap()
   const valid = isPoint(from) && isPoint(to)
   const fromLat = valid ? Number(from.lat) : NaN
@@ -42,6 +43,7 @@ export default function RouteLayer({ from, to, route, loading, error, onRouteInf
         status: 'ready',
         distanceKm: route.distanceKm,
         durationMin: route.durationMin,
+        hazardWarning: routeNearHazard(route.coords, hazardZones),
       })
       return
     }
@@ -62,7 +64,7 @@ export default function RouteLayer({ from, to, route, loading, error, onRouteInf
     }
 
     if (loading) onRouteInfo?.({ status: 'loading' })
-  }, [valid, route, loading, error, map, onRouteInfo, fromLat, fromLng, toLat, toLng])
+  }, [valid, route, loading, error, map, onRouteInfo, fromLat, fromLng, toLat, toLng, hazardZones])
 
   if (!valid || !route?.coords?.length) return null
 
