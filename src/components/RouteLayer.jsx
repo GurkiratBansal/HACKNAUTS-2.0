@@ -1,15 +1,25 @@
 import { useEffect } from 'react'
 import { Polyline, useMap } from 'react-leaflet'
-import { useRoute } from '../hooks/useRoute'
 import { haversineKm } from '../utils/distance'
+import { recommendRoute } from '../utils/routeScore'
 
-const ROAD_STYLE = {
+const SELECTED_STYLE = {
   color: '#059669',
   weight: 6,
-  opacity: 0.92,
+  opacity: 0.95,
   lineCap: 'round',
   lineJoin: 'round',
   interactive: false,
+}
+
+const ALTERNATIVE_STYLE = {
+  color: '#94a3b8',
+  weight: 3,
+  opacity: 0.85,
+  dashArray: '6 8',
+  lineCap: 'round',
+  lineJoin: 'round',
+  interactive: true,
 }
 
 const FALLBACK_STYLE = {
@@ -29,22 +39,26 @@ const isPoint = (point) =>
   Number.isFinite(Number(point.lat)) &&
   Number.isFinite(Number(point.lng))
 
-/**
- * Must be rendered inside a MapContainer.
- *
- * Draws the real OSRM road route, zooms the map to it, and reports a small
- * summary upward for the route card. If routing fails (offline, CORS, no
- * route) it draws a dashed straight line instead so a live demo never goes
- * blank, and labels that distance as a straight-line estimate.
- */
-export default function RouteLayer({ from, to, onRouteInfo }) {
+export default function RouteLayer({
+  from,
+  to,
+  routes,
+  loading,
+  error,
+  selectedRouteId,
+  onSelectRoute,
+  onRouteInfo,
+}) {
   const map = useMap()
-  const { route, loading, error } = useRoute(from, to)
   const valid = isPoint(from) && isPoint(to)
   const fromLat = valid ? Number(from.lat) : NaN
   const fromLng = valid ? Number(from.lng) : NaN
   const toLat = valid ? Number(to.lat) : NaN
   const toLng = valid ? Number(to.lng) : NaN
+
+  const routeList = Array.isArray(routes) ? routes : []
+  const selected =
+    routeList.find((route) => route.id === selectedRouteId) || routeList[0] || null
 
   useEffect(() => {
     if (!valid) {
@@ -52,12 +66,12 @@ export default function RouteLayer({ from, to, onRouteInfo }) {
       return
     }
 
-    if (route) {
-      map.fitBounds(route.coords, FIT_OPTIONS)
+    if (selected) {
+      map.fitBounds(selected.coords, FIT_OPTIONS)
       onRouteInfo?.({
         status: 'ready',
-        distanceKm: route.distanceKm,
-        durationMin: route.durationMin,
+        distanceKm: selected.distanceKm,
+        durationMin: selected.durationMin,
       })
       return
     }
@@ -85,7 +99,7 @@ export default function RouteLayer({ from, to, onRouteInfo }) {
     if (loading) onRouteInfo?.({ status: 'loading' })
   }, [
     valid,
-    route,
+    selected,
     loading,
     error,
     map,
@@ -98,13 +112,26 @@ export default function RouteLayer({ from, to, onRouteInfo }) {
 
   if (!valid) return null
 
-  if (route) {
+  if (selected) {
     return (
-      <Polyline
-        positions={route.coords}
-        pathOptions={ROAD_STYLE}
-        aria-label="Driving route"
-      />
+      <>
+        {routeList
+          .filter((route) => route.id !== selected.id)
+          .map((route) => (
+            <Polyline
+              key={route.id}
+              positions={route.coords}
+              pathOptions={ALTERNATIVE_STYLE}
+              eventHandlers={{
+                click: () => onSelectRoute?.(route.id),
+              }}
+            />
+          ))}
+        <Polyline
+          positions={selected.coords}
+          pathOptions={SELECTED_STYLE}
+        />
+      </>
     )
   }
 
@@ -116,7 +143,6 @@ export default function RouteLayer({ from, to, onRouteInfo }) {
           [toLat, toLng],
         ]}
         pathOptions={FALLBACK_STYLE}
-        aria-label="Straight-line fallback because no road route is available"
       />
     )
   }

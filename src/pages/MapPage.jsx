@@ -6,7 +6,7 @@ import MapView from '../components/MapView'
 import RouteLayer from '../components/RouteLayer'
 import MapPanel from '../components/map/MapPanel'
 import MobileMapSheet from '../components/map/MobileMapSheet'
-import RouteInfoCard from '../components/map/RouteInfoCard'
+import RouteSummary from '../components/RouteSummary'
 import NavigationLayer from '../components/map/NavigationLayer'
 import FollowController from '../components/map/FollowController'
 import NavigationPanel from '../components/NavigationPanel'
@@ -14,7 +14,7 @@ import { useRoute } from '../hooks/useRoute'
 import { useNavigation } from '../hooks/useNavigation'
 import UrgencyBadge from '../components/UrgencyBadge'
 import { haversineKm } from '../utils/distance'
-import { getUrgency } from '../utils/urgency'
+import { recommendRoute } from '../utils/routeScore'
 import { formatDistance } from '../utils/format'
 
 const FALLBACK_ORIGIN = { lat: 28.6139, lng: 77.209 }
@@ -38,6 +38,8 @@ export default function MapPage() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [routeInfo, setRouteInfo] = useState(null)
   const [follow, setFollow] = useState(true)
+  const [routeMode, setRouteMode] = useState('drive')
+  const [selectedRouteId, setSelectedRouteId] = useState(null)
   const demoMode = searchParams.get('demo') === '1'
 
   const origin = currentUser?.location || FALLBACK_ORIGIN
@@ -129,12 +131,26 @@ export default function MapPage() {
     if (pool.some((item) => item.id === focus)) setSelectedId(focus)
   }, [searchParams, view, visibleNgos, visibleDonations, selectedId])
 
-  const routeResult = useRoute(routeFrom, routeTo)
+  const routeResult = useRoute(routeFrom, routeTo, routeMode)
+
+  useEffect(() => {
+    if (routeResult.routes?.length) {
+      const result = recommendRoute(routeResult.routes)
+      setSelectedRouteId(result.recommended?.id ?? routeResult.routes[0].id)
+    } else {
+      setSelectedRouteId(null)
+    }
+  }, [routeResult.routes])
+
+  const selectedRoute =
+    routeResult.routes?.find((route) => route.id === selectedRouteId) ||
+    routeResult.route
   const nav = useNavigation({
-    route: routeResult.route,
+    route: selectedRoute,
     destination: routeTo,
     destinationName: routeToLabel || 'destination',
     role: currentUser?.role || 'donor',
+    mode: routeMode,
     destinationValid: Boolean(selectedItem),
     onArrive: () => {
       // no-op: arrival UI is driven by nav state
@@ -325,11 +341,16 @@ export default function MapPage() {
           <RouteLayer
             from={routeFrom}
             to={routeTo}
+            routes={routeResult.routes}
+            loading={routeResult.loading}
+            error={routeResult.error}
+            selectedRouteId={selectedRouteId}
+            onSelectRoute={setSelectedRouteId}
             onRouteInfo={setRouteInfo}
           />
         ) : (
           <NavigationLayer
-            route={nav.currentRoute || routeResult.route}
+            route={nav.route || selectedRoute}
             position={nav.position}
             snappedPosition={nav.snappedPosition}
             reducedMotion={reduceMotion}
@@ -346,13 +367,35 @@ export default function MapPage() {
       />
 
       {nav.state === 'idle' ? (
-        <RouteInfoCard
-          info={routeInfo}
-          fromLabel={routeFromLabel}
-          toLabel={routeToLabel}
-          onStart={handleStartNavigation}
-          canStart={Boolean(routeResult.route && routeTo)}
-        />
+        <div className="space-y-2">
+          <div className="flex items-center gap-1 rounded-2xl border border-line bg-surface/95 p-1 shadow-soft backdrop-blur-md">
+            {['drive', 'bike', 'walk'].map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setRouteMode(mode)}
+                aria-pressed={routeMode === mode}
+                className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-xl text-xs font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 ${
+                  routeMode === mode
+                    ? 'bg-brand-600 text-white'
+                    : 'text-ink-muted hover:text-ink'
+                }`}
+              >
+                {mode === 'drive' ? 'Drive' : mode === 'bike' ? 'Bike' : 'Walk'}
+              </button>
+            ))}
+          </div>
+          <RouteSummary
+            info={routeInfo}
+            fromLabel={routeFromLabel}
+            toLabel={routeToLabel}
+            routes={routeResult.routes}
+            selectedRouteId={selectedRouteId}
+            onSelectRoute={setSelectedRouteId}
+            onStart={handleStartNavigation}
+            canStart={Boolean(routeResult.routes?.length && routeTo)}
+          />
+        </div>
       ) : (
         <NavigationPanel
           nav={nav}

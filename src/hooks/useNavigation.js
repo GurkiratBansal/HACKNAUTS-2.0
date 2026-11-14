@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getRoute } from '../services/routing'
+import { recommendRoute } from '../utils/routeScore'
 import {
   snapToRoute,
   remainingDistance,
@@ -47,6 +48,7 @@ export function useNavigation({
   destination,
   destinationName = 'destination',
   role = 'donor',
+  mode = 'drive',
   destinationValid = true,
   onArrive,
 } = {}) {
@@ -147,12 +149,16 @@ export function useNavigation({
       abortRef.current = controller
 
       try {
-        const next = await getRoute(
+        const routes = await getRoute(
           { lat: fromPosition.lat, lng: fromPosition.lng },
           destination,
           controller.signal,
+          mode,
         )
         if (!mountedRef.current) return
+        const result = recommendRoute(routes)
+        const next = result.recommended || routes[0]
+        if (!next) throw new Error('No road route found between these points.')
         setCurrentRoute(next)
         setRemainingKm(next.distanceKm)
         setRemainingMin(next.durationMin)
@@ -170,7 +176,7 @@ export function useNavigation({
         abortRef.current = null
       }
     },
-    [currentRoute, destination],
+    [currentRoute, destination, mode],
   )
 
   const processPosition = useCallback(
