@@ -14,6 +14,7 @@ import { useRoute } from '../hooks/useRoute'
 import { useNavigation } from '../hooks/useNavigation'
 import UrgencyBadge from '../components/UrgencyBadge'
 import { haversineKm } from '../utils/distance'
+import { getUrgency } from '../utils/urgency'
 import { recommendRoute } from '../utils/routeScore'
 import { formatDistance } from '../utils/format'
 
