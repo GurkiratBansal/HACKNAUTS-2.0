@@ -17,13 +17,13 @@ const PIN_GLYPHS = {
   food:
     '<path d="M4 12h16a8 8 0 0 1-16 0Z"/><path d="M9 5c-1 1.2-1 2.3 0 3.5M13 4c-1 1.2-1 2.3 0 3.5"/>',
   ngo: '<path d="M12 20s-7-4.35-7-9a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 4.65-7 9-7 9Z"/>',
-  you: '<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
+  you: '<circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/>',
   pickup:
     '<path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/>',
 }
 
 function pinIcon(marker) {
-  const size = marker.selected ? 46 : 40
+  const size = marker.kind === 'you' ? 18 : marker.selected ? 46 : 40
   const glyph = PIN_GLYPHS[marker.kind] || PIN_GLYPHS.food
   return L.divIcon({
     className: 'fresh-map-pin',
