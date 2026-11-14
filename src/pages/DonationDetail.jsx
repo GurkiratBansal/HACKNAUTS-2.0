@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, UtensilsCrossed } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useUserLocation } from '../context/LocationContext'
@@ -12,10 +12,10 @@ import DetailHero from '../components/detail/DetailHero'
 import PickupMap from '../components/detail/PickupMap'
 import { haversineKm } from '../utils/distance'
 import { getUrgency } from '../utils/urgency'
+import { useRoute } from '../hooks/useRoute'
 
 export default function DonationDetail() {
   const { id } = useParams()
-  const navigate = useNavigate()
   const {
     donations,
     ngos,
@@ -27,6 +27,8 @@ export default function DonationDetail() {
   const { place } = useUserLocation()
   const [reportOpen, setReportOpen] = useState(false)
   const [now, setNow] = useState(Date.now())
+  const [routeKey, setRouteKey] = useState(0)
+  const [routeInfo, setRouteInfo] = useState(null)
 
   // Light ticker for the demo escalation countdown.
   useEffect(() => {
@@ -35,6 +37,7 @@ export default function DonationDetail() {
   }, [])
 
   const donation = donations.find((entry) => entry.id === id)
+  const routeResult = useRoute(place, donation?.location, routeKey)
 
   const alerted = useMemo(() => {
     if (!donation || !place) return []
@@ -132,15 +135,35 @@ export default function DonationDetail() {
               />
             )}
 
-            <PickupMap donation={donation} urgency={urgency} alerted={alerted} />
+            <PickupMap
+              donation={donation}
+              urgency={urgency}
+              alerted={alerted}
+              place={place}
+              route={routeResult.route}
+              routeLoading={routeResult.loading}
+              routeError={routeResult.error}
+              routeInfo={routeInfo}
+              onRouteInfo={setRouteInfo}
+              onRequestRoute={() => setRouteKey((key) => key + 1)}
+              onClearRoute={() => {
+                setRouteKey(0)
+                setRouteInfo(null)
+              }}
+              googleMapsUrl={
+                place
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${donation.location.lat},${donation.location.lng}`
+                  : undefined
+              }
+            />
             {isNgo && (
               <div className="flex flex-wrap gap-2">
                 <Button
-                  onClick={() => navigate(`/map?focus=${donation.id}`)}
+                  onClick={() => setRouteKey((key) => key + 1)}
                   variant="primary"
-                  size="sm"
+                  size="md"
                 >
-                  Start navigation
+                  Show route to pickup
                 </Button>
               </div>
             )}

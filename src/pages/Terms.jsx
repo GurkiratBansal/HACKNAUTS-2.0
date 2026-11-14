@@ -113,7 +113,7 @@ export default function Terms() {
                 browser&apos;s localStorage. Do not enter real sensitive information.
               </li>
               <li>
-                Live navigation keeps your current position in memory only: it is
+                Location sharing keeps your current position in memory only: it is
                 never written to localStorage, URLs or logs, and is never shared
                 with other users. Times shown are estimates.
               </li>

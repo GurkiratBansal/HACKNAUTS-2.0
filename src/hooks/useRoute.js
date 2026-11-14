@@ -14,7 +14,8 @@ export function useRoute(from, to, requestKey = 0) {
   const toLng = to ? Number(to.lng) : NaN
   const valid =
     finite(fromLat) && finite(fromLng) && finite(toLat) && finite(toLng)
-  const key = valid
+  const requested = valid && requestKey > 0
+  const key = requested
     ? `${fromLat},${fromLng}|${toLat},${toLng}|${requestKey}`
     : null
 
@@ -27,7 +28,7 @@ export function useRoute(from, to, requestKey = 0) {
   const current = entry.key === key ? entry : null
 
   useEffect(() => {
-    if (!valid) return undefined
+    if (!requested) return undefined
 
     const controller = new AbortController()
     let active = true
@@ -50,11 +51,11 @@ export function useRoute(from, to, requestKey = 0) {
       active = false
       controller.abort()
     }
-  }, [valid, key, fromLat, fromLng, toLat, toLng, requestKey])
+  }, [requested, key, fromLat, fromLng, toLat, toLng])
 
   return {
     route: current?.route || null,
-    loading: Boolean(valid && (!current || current.loading)),
+    loading: Boolean(requested && (!current || current.loading)),
     error: current?.error || null,
   }
 }

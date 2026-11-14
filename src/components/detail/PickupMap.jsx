@@ -2,7 +2,8 @@ import { MapPin } from 'lucide-react'
 import MapView from '../MapView'
 import LocationBar from '../LocationBar'
 import LocationPicker from '../LocationPicker'
-import { useUserLocation } from '../../context/LocationContext'
+import RouteLayer from '../RouteLayer'
+import RouteSummary from '../RouteSummary'
 
 const URGENCY_PIN = {
   fresh: 'var(--fresh-urgency-fresh)',
@@ -11,8 +12,20 @@ const URGENCY_PIN = {
   expired: 'var(--fresh-urgency-expired)',
 }
 
-export default function PickupMap({ donation, urgency, alerted }) {
-  const { place } = useUserLocation()
+export default function PickupMap({
+  donation,
+  urgency,
+  alerted,
+  route,
+  routeLoading,
+  routeError,
+  routeInfo,
+  onRouteInfo,
+  onRequestRoute,
+  onClearRoute,
+  googleMapsUrl,
+  place,
+}) {
   const markers = [
     {
       id: 'donation',
@@ -60,8 +73,27 @@ export default function PickupMap({ donation, urgency, alerted }) {
           zoom={13}
           height="280px"
           markers={markers}
-        />
+        >
+          <RouteLayer
+            from={place}
+            to={donation.location}
+            route={route}
+            loading={routeLoading}
+            error={routeError}
+            onRouteInfo={onRouteInfo}
+          />
+        </MapView>
       </div>
+      {routeInfo && (
+        <RouteSummary
+          info={routeInfo}
+          fromLabel={place.label}
+          toLabel={donation.foodName}
+          onRetry={onRequestRoute}
+          onClear={onClearRoute}
+          googleMapsUrl={googleMapsUrl}
+        />
+      )}
       <p className="mt-2 text-[11px] text-ink-muted">
         The pickup pin is approximate. Coordinate the exact entrance with the donor.
       </p>

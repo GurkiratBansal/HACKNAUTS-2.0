@@ -25,6 +25,10 @@ const isPoint = (point) =>
 export default function RouteLayer({ from, to, route, loading, error, onRouteInfo }) {
   const map = useMap()
   const valid = isPoint(from) && isPoint(to)
+  const fromLat = valid ? Number(from.lat) : NaN
+  const fromLng = valid ? Number(from.lng) : NaN
+  const toLat = valid ? Number(to.lat) : NaN
+  const toLng = valid ? Number(to.lng) : NaN
 
   useEffect(() => {
     if (!valid) {
@@ -45,8 +49,8 @@ export default function RouteLayer({ from, to, route, loading, error, onRouteInf
     if (error) {
       map.fitBounds(
         [
-          [Number(from.lat), Number(from.lng)],
-          [Number(to.lat), Number(to.lng)],
+          [fromLat, fromLng],
+          [toLat, toLng],
         ],
         FIT_OPTIONS,
       )
@@ -58,7 +62,7 @@ export default function RouteLayer({ from, to, route, loading, error, onRouteInf
     }
 
     if (loading) onRouteInfo?.({ status: 'loading' })
-  }, [valid, route, loading, error, map, onRouteInfo, Number(from?.lat), Number(from?.lng), Number(to?.lat), Number(to?.lng)])
+  }, [valid, route, loading, error, map, onRouteInfo, fromLat, fromLng, toLat, toLng])
 
   if (!valid || !route?.coords?.length) return null
 

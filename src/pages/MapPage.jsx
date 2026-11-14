@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useMemo, useState, useEffect } from 'react'
+import { useSearchParams, Link } from 'react-router-dom'
 import { ChevronRight, ShieldCheck } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useUserLocation } from '../context/LocationContext'
 import { useRoute } from '../hooks/useRoute'
+import { getRoute } from '../services/routing'
 import LocationPicker from '../components/LocationPicker'
 import LocationBar from '../components/LocationBar'
 import MapView from '../components/MapView'
@@ -14,6 +15,7 @@ import UrgencyBadge from '../components/UrgencyBadge'
 import { haversineKm } from '../utils/distance'
 import { getUrgency } from '../utils/urgency'
 import { formatDistance } from '../utils/format'
+import demoLudhiana, { isDemoPlaceActive } from '../data/demoLudhiana'
 
 const URGENCY_PIN = {
   fresh: 'var(--fresh-urgency-fresh)',
@@ -33,6 +35,13 @@ export default function MapPage() {
   const [selectedId, setSelectedId] = useState(null)
   const [routeKey, setRouteKey] = useState(0)
   const [routeInfo, setRouteInfo] = useState(null)
+
+  // ?demo=1 routing check panel state
+  const [demoRunning, setDemoRunning] = useState(false)
+  const [demoIndex, setDemoIndex] = useState(0)
+  const [demoResults, setDemoResults] = useState([])
+  const [demoRunId, setDemoRunId] = useState(0)
+  const [searchParams] = useSearchParams()
 
   const origin = place
 
@@ -114,6 +123,18 @@ export default function MapPage() {
       : selectedItem.foodName
     : ''
 
+  const selectItem = (id) => {
+    setSelectedId(id)
+    setRouteKey(0)
+    setRouteInfo(null)
+  }
+
+  const requestRouteFor = (id) => {
+    setSelectedId(id)
+    setRouteInfo(null)
+    setRouteKey((key) => key + 1)
+  }
+
   // useRoute returns { route, loading, error } and retries when requestKey changes.
   const routeResult = useRoute(routeFrom, routeTo, routeKey)
 
@@ -146,6 +167,13 @@ export default function MapPage() {
                   Sample NGO for the demo. Donors can call to coordinate a
                   drop-off.
                 </p>
+                <button
+                  type="button"
+                  onClick={() => requestRouteFor(ngo.id)}
+                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand-600 px-3 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+                >
+                  Route to NGO
+                </button>
               </div>
             ),
           }))
@@ -178,6 +206,13 @@ export default function MapPage() {
                   View details
                   <ChevronRight className="h-3 w-3" aria-hidden="true" />
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => requestRouteFor(donation.id)}
+                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand-600 px-3 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+                >
+                  Show route to pickup
+                </button>
               </div>
             ),
           }))
@@ -233,6 +268,57 @@ export default function MapPage() {
     clearSelection()
   }
 
+  const demoParam = searchParams.get('demo')
+  const demoActive = isDemoPlaceActive(place)
+
+  const startDemoRouting = () => {
+    setDemoResults([])
+    setDemoIndex(0)
+    setDemoRunning(true)
+    setDemoRunId((id) => id + 1)
+  }
+
+  useEffect(() => {
+    if (!demoRunning || !place || demoRunId === 0) return undefined
+    const controller = new AbortController()
+    let cancelled = false
+
+    async function run() {
+      const results = []
+      for (const entry of demoLudhiana) {
+        if (cancelled) return
+        try {
+          const route = await getRoute(place, { lat: entry.lat, lng: entry.lng }, controller.signal)
+          results.push({
+            name: entry.name,
+            ok: true,
+            distanceKm: route.distanceKm,
+            durationMin: route.durationMin,
+          })
+        } catch (error) {
+          if (error?.name === 'AbortError' || cancelled) return
+          results.push({
+            name: entry.name,
+            ok: false,
+            error: error?.message || 'Could not load a road route',
+            distanceKm: null,
+            durationMin: null,
+          })
+        }
+        setDemoResults([...results])
+        setDemoIndex(results.length)
+        await new Promise((resolve) => setTimeout(resolve, 1200))
+      }
+      if (!cancelled) setDemoRunning(false)
+    }
+
+    run()
+    return () => {
+      cancelled = true
+      controller.abort()
+    }
+  }, [demoRunId, demoRunning, place])
+
   // Button‑triggered routing: increment routeKey to fetch a fresh route.
   const triggerRoute = () => {
     if (!routeTo) {
@@ -243,7 +329,7 @@ export default function MapPage() {
   }
 
   const clearRoute = () => {
-    setRouteKey((k) => k + 1)
+    setRouteKey(0)
     setRouteInfo(null)
   }
 
@@ -262,7 +348,7 @@ export default function MapPage() {
     onReset: resetFilters,
     items,
     selectedId,
-    onSelect: null,
+    onSelect: selectItem,
     showDashboardCta: !currentUser,
     ownBase: Boolean(currentUser && role === 'ngo'),
   }
@@ -302,7 +388,7 @@ export default function MapPage() {
 
       <MapPanel {...panelProps} />
 
-      {routeResult.route && routeInfo?.status === 'ready' && (
+      {routeInfo && (
         <RouteSummary
           info={routeInfo}
           fromLabel={routeFromLabel}
@@ -310,12 +396,72 @@ export default function MapPage() {
           onStart={triggerRoute}
           canStart={true}
           onRetry={clearRoute}
+          onClear={clearRoute}
           googleMapsUrl={
             routeTo
               ? `https://www.google.com/maps/dir/?api=1&destination=${routeTo.lat},${routeTo.lng}`
               : undefined
           }
         />
+      )}
+
+      {demoParam === '1' && demoActive && (
+        <section
+          className="mt-6 rounded-2xl border border-line bg-surface/95 p-4 shadow-card sm:p-6"
+        >
+          <h3 className="font-display text-sm font-bold text-ink uppercase tracking-wider">
+            Routing check ({place.label})
+          </h3>
+          {demoRunning ? (
+            <div className="space-y-3">
+              <p className="text-[11px] text-ink-muted">
+                Routing to {demoLudhiana[demoIndex]?.name || 'entry'}…{demoIndex > 0 ? ` (${demoResults.length} completed)` : ''}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <button
+                onClick={startDemoRouting}
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-500"
+              >
+                Start routing check
+              </button>
+              <p className="mt-2 text-[11px] text-ink-muted">
+                Routes from your location to each Ludhiana demo entry one at a time.
+              </p>
+            </div>
+          )}
+          {demoResults.length > 0 && (
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr>
+                    <th className="text-left text-[11px] font-bold text-ink-soft">Name</th>
+                    <th className="text-left text-[11px] font-bold text-ink-soft">Status</th>
+                    <th className="text-left text-[11px] font-bold text-ink-soft">Distance (km)</th>
+                    <th className="text-left text-[11px] font-bold text-ink-soft">Minutes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {demoResults.map((r, i) => (
+                    <tr key={i} className="border-b">
+                      <td className="p-2 font-medium">{r.name}</td>
+                      <td className="p-2">
+                        {r.ok ? (
+                          <span className="text-ink">OK</span>
+                        ) : (
+                          <span className="text-danger-600">{r.error || 'Failed'}</span>
+                        )}
+                      </td>
+                      <td className="p-2">{r.distanceKm.toFixed(1)}</td>
+                      <td className="p-2">{r.durationMin}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       )}
 
       <p className="pointer-events-none absolute bottom-4 right-4 z-[1001] hidden rounded-xl border border-line bg-surface/90 px-3 py-2 text-[11px] text-ink-muted shadow-soft backdrop-blur lg:block">

@@ -18,6 +18,7 @@ export default function RouteSummary({
   onStart,
   canStart,
   onRetry,
+  onClear,
   googleMapsUrl,
 }) {
   if (!info) return null
@@ -122,6 +123,17 @@ export default function RouteSummary({
             >
               Open in Google Maps
             </a>
+          )}
+
+          {onClear && (
+            <button
+              type="button"
+              onClick={onClear}
+              className="pointer-events-auto mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-line bg-surface px-3 text-xs font-bold text-ink transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+              aria-label="Clear route"
+            >
+              Clear route
+            </button>
           )}
         </div>
       </div>
