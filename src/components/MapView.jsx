@@ -51,6 +51,16 @@ function ClickHandler({ onMapClick }) {
   return null
 }
 
+function ClosePopupsOnChange({ trigger }) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (trigger > 0) map.closePopup()
+  }, [map, trigger])
+
+  return null
+}
+
 function MarkerItem({ marker, active, onMarkerClick }) {
   const map = useMap()
   const markerRef = useRef(null)
@@ -96,6 +106,7 @@ export default function MapView({
   showZoomControl = true,
   zoomControlPosition = 'topleft',
   flat = false,
+  closePopupsKey = 0,
   children,
 }) {
   const lat = Array.isArray(center) ? center[0] : center?.lat
@@ -137,6 +148,7 @@ export default function MapView({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapRecenter center={mapCenter} zoom={13} />
+        <ClosePopupsOnChange trigger={closePopupsKey} />
         {onMapClick && <ClickHandler onMapClick={onMapClick} />}
         {children}
         {markers.map((marker) => (

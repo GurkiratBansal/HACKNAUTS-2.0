@@ -10,7 +10,7 @@ export default function LocationBar({ className = '' }) {
 
   return (
     <div
-      className={`flex items-center gap-2 rounded-2xl border border-line bg-surface/95 px-3 py-2 shadow-soft backdrop-blur-md ${className}`}
+      className={`fresh-location-bar flex items-center gap-2 rounded-2xl border border-line bg-surface/95 px-3 py-2 shadow-soft backdrop-blur-md ${className}`}
     >
       <span
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"

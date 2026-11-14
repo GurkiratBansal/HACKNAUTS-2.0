@@ -411,6 +411,7 @@ export default function MapPage() {
         markers={markers}
         activeMarkerId={selectedId}
         onMarkerClick={handleMarkerClick}
+        closePopupsKey={routeKey}
       >
         <RouteLayer
           from={routeFrom}
