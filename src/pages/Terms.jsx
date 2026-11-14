@@ -112,6 +112,11 @@ export default function Terms() {
                 All data in this build is sample data for demo and lives in the
                 browser&apos;s localStorage. Do not enter real sensitive information.
               </li>
+              <li>
+                Live navigation keeps your current position in memory only: it is
+                never written to localStorage, URLs or logs, and is never shared
+                with other users. Times shown are estimates.
+              </li>
             </ul>
           </Card>
 

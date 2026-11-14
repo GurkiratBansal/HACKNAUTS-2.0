@@ -198,6 +198,9 @@ function PanelBody({
       >
         {stateLabel}
       </p>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {nav?.announcement}
+      </div>
 
       {error && (
         <p role="alert" className="rounded-xl border border-danger-200 bg-danger-50 p-3 text-xs leading-relaxed text-danger-800 dark:border-danger-800 dark:bg-danger-900/20 dark:text-danger-200">

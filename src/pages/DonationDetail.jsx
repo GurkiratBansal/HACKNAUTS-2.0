@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, UtensilsCrossed } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import Button from '../components/ui/Button'
@@ -14,6 +14,7 @@ import { getUrgency } from '../utils/urgency'
 
 export default function DonationDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const {
     donations,
     ngos,
@@ -130,6 +131,17 @@ export default function DonationDetail() {
             )}
 
             <PickupMap donation={donation} urgency={urgency} alerted={alerted} />
+            {isNgo && (
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => navigate(`/map?focus=${donation.id}`)}
+                  variant="primary"
+                  size="sm"
+                >
+                  Start navigation
+                </Button>
+              </div>
+            )}
           </div>
 
           <DetailAside
