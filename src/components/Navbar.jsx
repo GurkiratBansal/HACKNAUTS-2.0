@@ -1,91 +1,100 @@
 import { useState } from 'react'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import {
-  BarChart3,
-  LayoutDashboard,
-  Leaf,
-  LogOut,
-  MapPin,
-  Menu,
-  PlusCircle,
-  X,
-} from 'lucide-react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { LogIn, LogOut, Menu, UserRound } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import Brand from './Brand'
+import ThemeToggle from './ThemeToggle'
+import MobileDrawer from './nav/MobileDrawer'
 
-const navLinkClass = ({ isActive }) =>
-  `rounded-lg px-3 py-2 text-sm font-medium transition ${
-    isActive
-      ? 'bg-emerald-50 text-emerald-800'
-      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-  }`
+const navLink =
+  'group relative rounded-lg px-3 py-2 text-sm font-medium text-ink-soft transition hover:text-ink ' +
+  'after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 ' +
+  'after:rounded-full after:bg-saffron-500 after:transition-transform after:duration-200 ' +
+  'hover:after:scale-x-100'
+
+const activeNavLink =
+  'text-brand-700 after:scale-x-100 dark:text-brand-200'
 
 export default function Navbar() {
   const { currentUser, logout } = useApp()
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
-  const location = useLocation()
-
+  const dashboardPath = currentUser?.role === 'ngo' ? '/ngo' : '/donor'
   const close = () => setOpen(false)
+
   const handleLogout = () => {
     logout()
     close()
     navigate('/')
   }
 
-  const dashboardPath =
-    currentUser?.role === 'ngo' ? '/ngo' : '/donor'
-
   return (
-    <header className="sticky top-0 z-[1100] border-b border-slate-200/80 bg-white/90 backdrop-blur">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
-        <Link to="/" className="flex items-center gap-2" onClick={close}>
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
-            <Leaf className="h-5 w-5" aria-hidden="true" />
-          </span>
-          <span className="leading-tight">
-            <span className="block text-base font-extrabold tracking-tight text-slate-900">FRESH</span>
-            <span className="hidden text-[10px] font-medium uppercase tracking-wider text-slate-500 sm:block">
-              Food · Reduce · Share
-            </span>
-          </span>
+    <header className="sticky top-0 z-[1100] border-b border-line/80 bg-surface/85 backdrop-blur-xl">
+      <nav
+        className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8"
+        aria-label="Main navigation"
+      >
+        <Link
+          to="/"
+          onClick={close}
+          className="shrink-0 rounded-xl transition hover:opacity-90 focus-visible:outline-brand-500"
+          aria-label="FRESH – Food Reduction and Excess Sharing Hub"
+        >
+          <Brand />
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
-          <NavLink to="/" className={navLinkClass} end>
+        <div className="hidden flex-1 items-center justify-center gap-0.5 lg:flex">
+          <NavLink to="/" end className={({ isActive }) => `${navLink} ${isActive ? activeNavLink : ''}`}>
             Home
           </NavLink>
-          <NavLink to="/map" className={navLinkClass}>
+          <NavLink to="/map" className={({ isActive }) => `${navLink} ${isActive ? activeNavLink : ''}`}>
             Map
           </NavLink>
-          <NavLink to="/impact" className={navLinkClass}>
+          <NavLink to="/impact" className={({ isActive }) => `${navLink} ${isActive ? activeNavLink : ''}`}>
             Impact
           </NavLink>
-          <NavLink to="/terms" className={navLinkClass}>
+          <NavLink to="/terms" className={({ isActive }) => `${navLink} ${isActive ? activeNavLink : ''}`}>
             Trust &amp; safety
           </NavLink>
           {currentUser && (
-            <NavLink to={dashboardPath} className={navLinkClass}>
+            <NavLink
+              to={dashboardPath}
+              className={({ isActive }) => `${navLink} ${isActive ? activeNavLink : ''}`}
+            >
               Dashboard
             </NavLink>
           )}
           {currentUser?.role === 'donor' && (
-            <NavLink to="/donor/add" className={navLinkClass}>
+            <NavLink
+              to="/donor/add"
+              className={({ isActive }) => `${navLink} ${isActive ? activeNavLink : ''}`}
+            >
               Add food
             </NavLink>
           )}
         </div>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden shrink-0 items-center gap-2 lg:flex">
+          <ThemeToggle />
           {currentUser ? (
             <>
-              <span className="max-w-[180px] truncate rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
-                {currentUser.role === 'donor' ? 'Donor' : 'NGO'} ·{' '}
-                {currentUser.orgName || currentUser.name}
+              <span className="flex max-w-[210px] items-center gap-2 rounded-full border border-line bg-elevated py-1 pl-1 pr-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white">
+                  <UserRound className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 leading-tight">
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
+                    {currentUser.role === 'donor' ? 'Donor' : 'NGO'}
+                  </span>
+                  <span className="block truncate text-xs font-semibold text-ink">
+                    {currentUser.orgName || currentUser.name}
+                  </span>
+                </span>
               </span>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-soft transition hover:bg-elevated hover:text-ink active:scale-95"
               >
                 <LogOut className="h-4 w-4" aria-hidden="true" />
                 Sign out
@@ -95,13 +104,14 @@ export default function Navbar() {
             <>
               <Link
                 to="/login"
-                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                className="inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold text-ink-soft transition hover:bg-elevated hover:text-ink active:scale-95"
               >
+                <LogIn className="h-4 w-4" aria-hidden="true" />
                 Log in
               </Link>
               <Link
                 to="/register"
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                className="inline-flex h-10 items-center rounded-full bg-saffron-500 px-4 text-sm font-bold text-brand-950 shadow-glow transition hover:bg-saffron-400 active:scale-95"
               >
                 Get started
               </Link>
@@ -109,76 +119,27 @@ export default function Navbar() {
           )}
         </div>
 
-        <button
-          type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 md:hidden"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-1 lg:hidden">
+          <ThemeToggle className="hidden sm:inline-flex" />
+          <button
+            type="button"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink transition hover:bg-elevated active:scale-95"
+            aria-label="Open menu"
+            aria-expanded={open}
+            onClick={() => setOpen(true)}
+          >
+            <Menu className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
       </nav>
 
-      {open && (
-        <div className="border-t border-slate-200 bg-white px-4 py-3 md:hidden">
-          <div className="flex flex-col gap-1">
-            <NavLink to="/" className={navLinkClass} end onClick={close}>
-              <span className="inline-flex items-center gap-2"><Leaf className="h-4 w-4" /> Home</span>
-            </NavLink>
-            <NavLink to="/map" className={navLinkClass} onClick={close}>
-              <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4" /> Map</span>
-            </NavLink>
-            <NavLink to="/impact" className={navLinkClass} onClick={close}>
-              <span className="inline-flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Impact</span>
-            </NavLink>
-            <NavLink to="/terms" className={navLinkClass} onClick={close}>
-              Trust &amp; safety
-            </NavLink>
-            {currentUser && (
-              <NavLink to={dashboardPath} className={navLinkClass} onClick={close}>
-                <span className="inline-flex items-center gap-2"><LayoutDashboard className="h-4 w-4" /> Dashboard</span>
-              </NavLink>
-            )}
-            {currentUser?.role === 'donor' && (
-              <NavLink to="/donor/add" className={navLinkClass} onClick={close}>
-                <span className="inline-flex items-center gap-2"><PlusCircle className="h-4 w-4" /> Add food</span>
-              </NavLink>
-            )}
-            <div className="mt-3 border-t border-slate-200 pt-3">
-              {currentUser ? (
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-600 hover:bg-slate-100"
-                >
-                  <LogOut className="h-4 w-4" /> Sign out
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <Link
-                    to="/login"
-                    onClick={close}
-                    className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-center text-sm font-semibold text-slate-700"
-                  >
-                    Log in
-                  </Link>
-                  <Link
-                    to="/register"
-                    onClick={close}
-                    className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-center text-sm font-semibold text-white"
-                  >
-                    Get started
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-      <span className="sr-only" aria-live="polite">
-        {location.pathname}
-      </span>
+      <MobileDrawer
+        open={open}
+        onClose={close}
+        currentUser={currentUser}
+        dashboardPath={dashboardPath}
+        onLogout={handleLogout}
+      />
     </header>
   )
 }

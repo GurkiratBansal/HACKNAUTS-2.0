@@ -2,30 +2,41 @@ import { useEffect, useState } from 'react'
 
 const THEME_KEY = 'fresh_theme_v1'
 
+let currentTheme =
+  typeof document !== 'undefined' &&
+  document.documentElement.classList.contains('dark')
+    ? 'dark'
+    : 'light'
+const listeners = new Set()
+
+function applyTheme(next) {
+  currentTheme = next
+  document.documentElement.classList.toggle('dark', next === 'dark')
+  try {
+    localStorage.setItem(THEME_KEY, next)
+  } catch {
+    // Theme persistence is a nice-to-have; the UI still works without it.
+  }
+  listeners.forEach((listener) => listener())
+}
+
 /**
- * Small, self-contained appearance preference. It never touches app data.
- * The inline script in index.html applies the stored class before paint.
+ * Shared appearance preference. Any toggle updates every mounted control
+ * without involving app state or touching the donation data flow.
  */
 export function useTheme() {
-  const [theme, setTheme] = useState(() =>
-    typeof document !== 'undefined' &&
-    document.documentElement.classList.contains('dark')
-      ? 'dark'
-      : 'light',
-  )
+  const [theme, setTheme] = useState(currentTheme)
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-    try {
-      localStorage.setItem(THEME_KEY, theme)
-    } catch {
-      // Theme persistence is a nice-to-have; the UI still works without it.
-    }
-  }, [theme])
+    const listener = () => setTheme(currentTheme)
+    listeners.add(listener)
+    listener()
+    return () => listeners.delete(listener)
+  }, [])
 
   return {
     theme,
     isDark: theme === 'dark',
-    toggle: () => setTheme((current) => (current === 'dark' ? 'light' : 'dark')),
+    toggle: () => applyTheme(currentTheme === 'dark' ? 'light' : 'dark'),
   }
 }
