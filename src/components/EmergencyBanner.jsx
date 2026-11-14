@@ -21,7 +21,11 @@ function formatTime(value) {
 
 export default function EmergencyBanner() {
   const { place } = useUserLocation()
-  const { activeAlert } = useEmergency()
+  const { activeAlert, reportConcern } = useEmergency()
+  const [formOpen, setFormOpen] = useState(false)
+  const [reason, setReason] = useState('Road access')
+  const [comment, setComment] = useState('')
+  const [reported, setReported] = useState(false)
   const alert = activeAlert(place)
   const [announcedId, setAnnouncedId] = useState(null)
 
@@ -52,6 +56,21 @@ export default function EmergencyBanner() {
             <span>Expires {formatTime(alert.expiresAt)}</span>
           </p>
           <p className="mt-1.5 font-semibold">In danger, call 112. FRESH does not replace official emergency services. Follow instructions from your State Disaster Management Authority.</p>
+          <button type="button" className="mt-2 min-h-11 rounded-xl border border-warning-400 px-3 text-xs font-bold" onClick={() => setFormOpen((value) => !value)}>
+            Report a concern
+          </button>
+          {formOpen && !reported && (
+            <form className="mt-2 grid gap-2 sm:grid-cols-[170px_1fr_auto]" onSubmit={(event) => { event.preventDefault(); reportConcern({ reason, comment }); setReported(true) }}>
+              <label className="sr-only" htmlFor="emergency-concern-reason">Concern reason</label>
+              <select id="emergency-concern-reason" className="min-h-11 rounded-xl border border-warning-400 bg-surface px-2 text-xs text-ink" value={reason} onChange={(event) => setReason(event.target.value)}>
+                <option>Road access</option><option>Incorrect alert</option><option>Other</option>
+              </select>
+              <label className="sr-only" htmlFor="emergency-concern-comment">Concern comment</label>
+              <input id="emergency-concern-comment" className="min-h-11 rounded-xl border border-warning-400 bg-surface px-3 text-xs text-ink" required value={comment} onChange={(event) => setComment(event.target.value)} placeholder="What should we know?" />
+              <button type="submit" className="min-h-11 rounded-xl bg-warning-600 px-3 text-xs font-bold text-white">Send report</button>
+            </form>
+          )}
+          {reported && <p className="mt-2 text-xs font-semibold">Concern recorded locally. It does not change emergency mode.</p>}
         </div>
         <ShieldAlert className="hidden h-5 w-5 shrink-0 text-warning-700 dark:text-warning-300 sm:block" aria-label="Emergency safety notice" />
       </div>

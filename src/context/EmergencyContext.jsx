@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useUserLocation } from './LocationContext'
-import { makeSampleNeeds } from '../data/emergencyNeeds'
+import { makeSampleNeeds, pledgeNeedAmount } from '../data/emergencyNeeds'
 
 const EmergencyContext = createContext(null)
 
@@ -16,6 +16,11 @@ export const EMERGENCY_HAZARDS = [
 const isDemoVisible = () => {
   if (import.meta.env.DEV) return true
   return new URLSearchParams(window.location.search).get('demo') === '1'
+}
+
+export function isEmergencyActive(alert, place, now = Date.now()) {
+  if (!alert || !place?.state || alert.expiresAt <= now) return false
+  return alert.state.toLowerCase() === place.state.toLowerCase()
 }
 
 function validAlert(alert) {
@@ -67,19 +72,13 @@ export function EmergencyProvider({ children }) {
     let result = { ok: false, message: 'Need not found.' }
     setNeeds((items) => items.map((need) => {
       if (need.id !== id) return need
-      const remaining = Math.max(0, Number(need.quantity) - Number(need.pledged || 0))
-      const pledge = Number(amount)
-      if (!Number.isInteger(pledge) || pledge < 1 || pledge > remaining) {
-        result = { ok: false, message: `Enter a whole number from 1 to ${remaining}.` }
+      const update = pledgeNeedAmount(need, amount)
+      if (!update.ok) {
+        result = update
         return need
       }
-      const pledged = Number(need.pledged || 0) + pledge
       result = { ok: true }
-      return {
-        ...need,
-        pledged,
-        status: pledged >= Number(need.quantity) ? 'fulfilled' : 'partly_pledged',
-      }
+      return update.need
     }))
     return result
   }, [])
@@ -99,8 +98,8 @@ export function EmergencyProvider({ children }) {
   const value = useMemo(() => ({
     alert,
     activeAlert: (place) => {
-      if (!validAlert(alert) || !place?.state) return null
-      return alert.state.toLowerCase() === place.state.toLowerCase() ? alert : null
+      if (!validAlert(alert) || !isEmergencyActive(alert, place)) return null
+      return alert
     },
     simulate,
     clear,

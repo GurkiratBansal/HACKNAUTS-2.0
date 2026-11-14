@@ -6,6 +6,19 @@ export const RELIEF_ITEMS = [
   ['baby_food', 'Baby food'],
 ]
 
+export function pledgeNeedAmount(need, amount) {
+  const remaining = Math.max(0, Number(need.quantity) - Number(need.pledged || 0))
+  const pledge = Number(amount)
+  if (!Number.isInteger(pledge) || pledge < 1 || pledge > remaining) {
+    return { ok: false, message: `Enter a whole number from 1 to ${remaining}.` }
+  }
+  const pledged = Number(need.pledged || 0) + pledge
+  return {
+    ok: true,
+    need: { ...need, pledged, status: pledged >= Number(need.quantity) ? 'fulfilled' : 'partly_pledged' },
+  }
+}
+
 export function makeSampleNeeds(place) {
   if (!place) return []
   const points = [
