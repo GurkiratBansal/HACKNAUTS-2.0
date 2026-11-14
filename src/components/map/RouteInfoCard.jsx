@@ -1,16 +1,22 @@
 import { AlertTriangle, Car, Loader2 } from 'lucide-react'
 import { formatDistance } from '../../utils/format'
 
-/**
- * Small, non-interactive overlay that tells the user what the route line is.
- * It never blocks map clicks, so selecting another pin keeps working.
- */
-export default function RouteInfoCard({ info, fromLabel, toLabel, onStart, canStart }) {
+export default function RouteInfoCard({
+  info,
+  fromLabel,
+  toLabel,
+  onStart,
+  canStart,
+  onRetry,
+  googleMapsUrl,
+}) {
   if (!info) return null
 
   const loading = info.status === 'loading'
-  const fallback = info.status === 'fallback'
-  const Icon = loading ? Loader2 : fallback ? AlertTriangle : Car
+  const error = info.status === 'error'
+  const straight = info.status === 'straight'
+  const success = !loading && !error && !straight
+  const Icon = loading ? Loader2 : error || straight ? AlertTriangle : Car
 
   return (
     <div
@@ -21,7 +27,7 @@ export default function RouteInfoCard({ info, fromLabel, toLabel, onStart, canSt
       <div className="flex items-start gap-3">
         <span
           className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-            fallback
+            error || straight
               ? 'bg-warning-50 text-warning-700 dark:bg-warning-900/30 dark:text-warning-200'
               : 'bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200'
           }`}
@@ -32,30 +38,53 @@ export default function RouteInfoCard({ info, fromLabel, toLabel, onStart, canSt
 
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
-            {loading ? 'Finding route' : fallback ? 'Route unavailable' : 'Road route'}
+            {loading
+              ? 'Finding route'
+              : error
+                ? 'Route unavailable'
+                : straight
+                  ? 'Straight-line estimate'
+                  : 'Road route'}
           </p>
 
           {loading && (
-            <p className="mt-0.5 text-sm font-bold text-ink">
-              Finding the fastest drive…
-            </p>
+            <p className="mt-0.5 text-sm font-bold text-ink">Finding the fastest drive...</p>
           )}
 
-          {!loading && fallback && (
+          {error && (
+            <>
+              <p className="mt-0.5 text-sm font-bold text-ink">Could not load a road route</p>
+              <p className="mt-1 text-[11px] leading-snug text-ink-muted">
+                {info.message || 'The routing service did not return a usable route.'}
+              </p>
+            </>
+          )}
+
+          {straight && (
             <p className="mt-0.5 text-sm font-bold text-ink">
               {formatDistance(info.distanceKm)} straight-line
             </p>
           )}
 
-          {!loading && !fallback && (
+          {success && (
             <p className="mt-0.5 text-sm font-bold text-ink">
-              {info.durationMin} min drive · {formatDistance(info.distanceKm)}
+              {info.durationMin} min drive - {formatDistance(info.distanceKm)}
             </p>
           )}
 
           <p className="mt-0.5 truncate text-[11px] text-ink-muted">
-            {fromLabel} → {toLabel}
+            {fromLabel} to {toLabel}
           </p>
+
+          {success && (
+            <p className="mt-0.5 text-[11px] text-ink-muted">Driving route - OpenStreetMap</p>
+          )}
+
+          {straight && (
+            <p className="mt-1 text-[11px] leading-snug text-ink-muted">
+              Straight-line distance only.
+            </p>
+          )}
 
           {canStart && onStart && (
             <button
@@ -67,17 +96,28 @@ export default function RouteInfoCard({ info, fromLabel, toLabel, onStart, canSt
             </button>
           )}
 
-          {!loading && !fallback && (
-            <p className="mt-0.5 text-[11px] text-ink-muted">
-              Driving route · OpenStreetMap
-            </p>
-          )}
-
-          {fallback && (
-            <p className="mt-1 text-[11px] leading-snug text-ink-muted">
-              Live road routing failed, so a dashed straight line is shown to
-              keep the demo moving.
-            </p>
+          {error && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {onRetry && (
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  className="pointer-events-auto inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-xs font-bold text-ink transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500"
+                >
+                  Try again
+                </button>
+              )}
+              {googleMapsUrl && (
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pointer-events-auto inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-xs font-bold text-brand-700 transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 dark:text-brand-300"
+                >
+                  Open in Google Maps
+                </a>
+              )}
+            </div>
           )}
         </div>
       </div>

@@ -40,7 +40,6 @@ export default function MapPage() {
   const [routeInfo, setRouteInfo] = useState(null)
   const [follow, setFollow] = useState(true)
   const [routeMode, setRouteMode] = useState('drive')
-  const [selectedRouteId, setSelectedRouteId] = useState(null)
   const demoMode = searchParams.get('demo') === '1'
 
   const origin = currentUser?.location || FALLBACK_ORIGIN
@@ -134,18 +133,7 @@ export default function MapPage() {
 
   const routeResult = useRoute(routeFrom, routeTo, routeMode)
 
-  useEffect(() => {
-    if (routeResult.routes?.length) {
-      const result = recommendRoute(routeResult.routes)
-      setSelectedRouteId(result.recommended?.id ?? routeResult.routes[0].id)
-    } else {
-      setSelectedRouteId(null)
-    }
-  }, [routeResult.routes])
-
-  const selectedRoute =
-    routeResult.routes?.find((route) => route.id === selectedRouteId) ||
-    routeResult.route
+  const selectedRoute = routeResult.selectedRoute
   const nav = useNavigation({
     route: selectedRoute,
     destination: routeTo,
@@ -345,8 +333,8 @@ export default function MapPage() {
             routes={routeResult.routes}
             loading={routeResult.loading}
             error={routeResult.error}
-            selectedRouteId={selectedRouteId}
-            onSelectRoute={setSelectedRouteId}
+            selectedRouteId={routeResult.selectedId}
+            onSelectRoute={routeResult.selectRoute}
             onRouteInfo={setRouteInfo}
           />
         ) : (
@@ -393,10 +381,16 @@ export default function MapPage() {
             fromLabel={routeFromLabel}
             toLabel={routeToLabel}
             routes={routeResult.routes}
-            selectedRouteId={selectedRouteId}
-            onSelectRoute={setSelectedRouteId}
+            selectedRouteId={routeResult.selectedId}
+            onSelectRoute={routeResult.selectRoute}
             onStart={handleStartNavigation}
             canStart={Boolean(routeResult.routes?.length && routeTo)}
+            onRetry={routeResult.refetch}
+            googleMapsUrl={
+              routeTo
+                ? `https://www.google.com/maps/dir/?api=1&destination=${routeTo.lat},${routeTo.lng}`
+                : undefined
+            }
           />
         </div>
       ) : (

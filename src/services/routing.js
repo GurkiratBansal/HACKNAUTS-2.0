@@ -1,20 +1,20 @@
-import { ROUTING_BASE_URLS, DEFAULT_ROUTING_MODE } from '../config'
+import { ROUTING_BASES, DEFAULT_ROUTING_MODE } from '../config'
+
+export class RoutingError extends Error {
+  constructor(code, message) {
+    super(message)
+    this.name = 'RoutingError'
+    this.code = code
+  }
+}
 
 /**
  * All road-routing network access for the demo lives in this module.
- *
- * The response is OSRM-compatible: distances are metres, durations seconds
- * and GeoJSON coordinates are [lng, lat]. Leaflet expects [lat, lng], so the
- * conversion happens once here.
  */
 
 const CACHE_LIMIT = 100
 const cache = new Map()
-
-const isPoint = (point) =>
-  point &&
-  Number.isFinite(Number(point.lat)) &&
-  Number.isFinite(Number(point.lng))
+const REQUEST_TIMEOUT_MS = 8000
 
 const roundCoord = (value) => Math.round(Number(value) * 10000) / 10000
 
@@ -32,6 +32,31 @@ function remember(key, routes) {
   }
 }
 
+function isValidPoint(point) {
+  return (
+    point != null &&
+    Number.isFinite(Number(point.lat)) &&
+    Number.isFinite(Number(point.lng)) &&
+    Math.abs(Number(point.lat)) <= 90 &&
+    Math.abs(Number(point.lng)) <= 180
+  )
+}
+
+function devSanityCheck(from, to) {
+  if (!import.meta.env.DEV) return
+  const inIndia = (point) =>
+    point.lat >= 6 && point.lat <= 38 && point.lng >= 68 && point.lng <= 98
+  if (!inIndia(from) || !inIndia(to)) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[routing] Coordinates may be swapped or outside India. from=',
+      from,
+      'to=',
+      to,
+    )
+  }
+}
+
 function stepInstruction(step) {
   const maneuver = step?.maneuver || {}
   const type = maneuver.type || 'continue'
@@ -43,13 +68,13 @@ function stepInstruction(step) {
 function toRoute(route, index) {
   const coordinates = route?.geometry?.coordinates
   if (!Array.isArray(coordinates) || coordinates.length === 0) {
-    throw new Error('No road route found between these points.')
+    throw new RoutingError('no_route', 'No road route found between these points.')
   }
   if (
     !Number.isFinite(Number(route.distance)) ||
     !Number.isFinite(Number(route.duration))
   ) {
-    throw new Error('No road route found between these points.')
+    throw new RoutingError('no_route', 'No road route found between these points.')
   }
 
   const steps = []
@@ -89,62 +114,103 @@ function toRoute(route, index) {
 
 function toRoutes(data) {
   if (!data || data.code !== 'Ok') {
-    throw new Error('No road route found between these points.')
+    const code = data?.code === 'NoRoute' || data?.code === 'NoSegment' ? 'no_route' : 'unavailable'
+    throw new RoutingError(code, 'No road route found between these points.')
   }
   const raw = Array.isArray(data.routes) ? data.routes : []
   if (raw.length === 0) {
-    throw new Error('No road route found between these points.')
+    throw new RoutingError('no_route', 'No road route found between these points.')
   }
-  const routes = raw.map(toRoute)
-  if (routes.length === 0) {
-    throw new Error('No road route found between these points.')
+  return raw.map(toRoute)
+}
+
+function fetchWithTimeout(url, signal, timeoutMs) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+
+  // Forward caller abort.
+  const onAbort = () => controller.abort()
+  if (signal) {
+    if (signal.aborted) controller.abort()
+    else signal.addEventListener('abort', onAbort, { once: true })
   }
-  return routes
+
+  return fetch(url, {
+    signal: controller.signal,
+    headers: { Accept: 'application/json' },
+  })
+    .finally(() => {
+      clearTimeout(timer)
+      if (signal) signal.removeEventListener('abort', onAbort)
+    })
+}
+
+export function clearRouteCache() {
+  cache.clear()
 }
 
 export async function getRoute(from, to, signal, mode = DEFAULT_ROUTING_MODE) {
-  if (!isPoint(from) || !isPoint(to)) {
-    throw new Error('A valid start and destination are required for routing.')
+  if (!isValidPoint(from) || !isValidPoint(to)) {
+    throw new RoutingError('bad_input', 'A valid start and destination are required for routing.')
   }
 
-  const baseUrl = ROUTING_BASE_URLS[mode] || ROUTING_BASE_URLS.drive
+  devSanityCheck(from, to)
+
   const start = { lat: Number(from.lat), lng: Number(from.lng) }
   const end = { lat: Number(to.lat), lng: Number(to.lng) }
+  const bases = ROUTING_BASES[mode] || ROUTING_BASES.drive
   const key = cacheKey(start, end, mode)
 
   if (cache.has(key)) return cache.get(key)
 
-  const url = `${baseUrl}/${start.lng},${start.lat};${end.lng},${
-    end.lat
-  }?overview=full&geometries=geojson&alternatives=true&steps=true`
+  const params = 'overview=full&geometries=geojson&alternatives=true&steps=true'
+  let lastError = null
 
-  let response
-  try {
-    response = await fetch(url, {
-      signal,
-      headers: { Accept: 'application/json' },
-    })
-  } catch (error) {
-    if (error?.name === 'AbortError') throw error
-    throw new Error(
-      'The road-routing service could not be reached. Check your connection and try again.',
-    )
+  for (const base of bases) {
+    if (signal?.aborted) {
+      const err = new Error('Aborted')
+      err.name = 'AbortError'
+      throw err
+    }
+    const url = `${base}/${start.lng},${start.lat};${end.lng},${end.lat}?${params}`
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.info('[routing] request', url)
+    }
+    try {
+      const response = await fetchWithTimeout(url, signal, REQUEST_TIMEOUT_MS)
+      if (response.status === 429 || response.status >= 500) {
+        lastError = new RoutingError('unavailable', `Routing service returned HTTP ${response.status}.`)
+        continue
+      }
+      if (!response.ok) {
+        throw new RoutingError('unavailable', `Routing service returned HTTP ${response.status}.`)
+      }
+      const data = await response.json()
+      const routes = toRoutes(data)
+      const result = { routes }
+      remember(key, result)
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.info('[routing] code', data.code, 'routes', routes.length)
+      }
+      return result
+    } catch (error) {
+      if (error?.name === 'AbortError' || signal?.aborted) {
+        const err = new Error('Aborted')
+        err.name = 'AbortError'
+        throw err
+      }
+      if (error instanceof RoutingError) {
+        // no_route is final; unavailable moves to next base
+        if (error.code === 'no_route' || error.code === 'bad_input') throw error
+        lastError = error
+        continue
+      }
+      lastError = new RoutingError('unavailable', 'The road-routing service could not be reached.')
+      continue
+    }
   }
 
-  if (!response.ok) {
-    throw new Error(
-      `The road-routing service returned HTTP ${response.status}.`,
-    )
-  }
-
-  let data
-  try {
-    data = await response.json()
-  } catch {
-    throw new Error('The road-routing service returned an unreadable response.')
-  }
-
-  const routes = toRoutes(data)
-  remember(key, routes)
-  return routes
+  throw lastError || new RoutingError('unavailable', 'The road-routing service could not be reached.')
 }

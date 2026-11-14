@@ -149,15 +149,16 @@ export function useNavigation({
       abortRef.current = controller
 
       try {
-        const routes = await getRoute(
+        const result = await getRoute(
           { lat: fromPosition.lat, lng: fromPosition.lng },
           destination,
           controller.signal,
           mode,
         )
         if (!mountedRef.current) return
-        const result = recommendRoute(routes)
-        const next = result.recommended || routes[0]
+        const routes = Array.isArray(result?.routes) ? result.routes : []
+        const recommendation = recommendRoute(routes)
+        const next = recommendation.recommended || routes[0]
         if (!next) throw new Error('No road route found between these points.')
         setCurrentRoute(next)
         setRemainingKm(next.distanceKm)

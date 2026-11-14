@@ -24,9 +24,17 @@ describe('useNavigation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     getRoute.mockResolvedValue({
-      coords: route.coords,
-      distanceKm: 0.4,
-      durationMin: 5,
+      routes: [
+        {
+          id: 0,
+          coords: route.coords,
+          distanceKm: 0.4,
+          durationMin: 5,
+          turnCount: 2,
+          steps: [],
+          summary: '',
+        },
+      ],
     })
   })
 

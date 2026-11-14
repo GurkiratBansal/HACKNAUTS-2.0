@@ -10,6 +10,8 @@ export default function RouteSummary({
   onSelectRoute,
   onStart,
   canStart,
+  onRetry,
+  googleMapsUrl,
 }) {
   return (
     <div className="space-y-2">
@@ -19,6 +21,8 @@ export default function RouteSummary({
         toLabel={toLabel}
         onStart={onStart}
         canStart={canStart}
+        onRetry={onRetry}
+        googleMapsUrl={googleMapsUrl}
       />
       <div className="pointer-events-auto">
         <RouteOptions

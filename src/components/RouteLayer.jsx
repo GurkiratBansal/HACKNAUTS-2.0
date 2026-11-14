@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Polyline, useMap } from 'react-leaflet'
+import { Polyline, Tooltip, useMap } from 'react-leaflet'
 import { haversineKm } from '../utils/distance'
 import { recommendRoute } from '../utils/routeScore'
 
@@ -22,11 +22,11 @@ const ALTERNATIVE_STYLE = {
   interactive: true,
 }
 
-const FALLBACK_STYLE = {
+const STRAIGHT_LINE_STYLE = {
   color: '#94a3b8',
-  weight: 4,
-  opacity: 0.95,
-  dashArray: '8 10',
+  weight: 2,
+  opacity: 0.8,
+  dashArray: '4 6',
   lineCap: 'round',
   lineJoin: 'round',
   interactive: false,
@@ -77,6 +77,10 @@ export default function RouteLayer({
     }
 
     if (error) {
+      const straightKm = haversineKm(
+        { lat: fromLat, lng: fromLng },
+        { lat: toLat, lng: toLng },
+      )
       map.fitBounds(
         [
           [fromLat, fromLng],
@@ -84,15 +88,21 @@ export default function RouteLayer({
         ],
         FIT_OPTIONS,
       )
-      onRouteInfo?.({
-        status: 'fallback',
-        distanceKm: haversineKm(
-          { lat: fromLat, lng: fromLng },
-          { lat: toLat, lng: toLng },
-        ),
-        durationMin: null,
-        message: error.message || 'Road route unavailable.',
-      })
+      if (straightKm < 1) {
+        onRouteInfo?.({
+          status: 'straight',
+          distanceKm: straightKm,
+          durationMin: null,
+          message: 'Straight-line distance only',
+        })
+      } else {
+        onRouteInfo?.({
+          status: 'error',
+          distanceKm: straightKm,
+          durationMin: null,
+          message: error?.message || 'Could not load a road route.',
+        })
+      }
       return
     }
 
@@ -136,15 +146,30 @@ export default function RouteLayer({
   }
 
   if (error) {
-    return (
-      <Polyline
-        positions={[
-          [fromLat, fromLng],
-          [toLat, toLng],
-        ]}
-        pathOptions={FALLBACK_STYLE}
-      />
+    const straightKm = haversineKm(
+      { lat: fromLat, lng: fromLng },
+      { lat: toLat, lng: toLng },
     )
+    if (straightKm < 1) {
+      return (
+        <Polyline
+          positions={[
+            [fromLat, fromLng],
+            [toLat, toLng],
+          ]}
+          pathOptions={STRAIGHT_LINE_STYLE}
+        >
+          <Tooltip permanent>Straight-line distance only</Tooltip>
+        </Polyline>
+      )
+    }
+    onRouteInfo?.({
+      status: 'error',
+      distanceKm: straightKm,
+      durationMin: null,
+      message: error?.message || 'Could not load a road route.',
+    })
+    return null
   }
 
   return null
