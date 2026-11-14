@@ -21,6 +21,7 @@ import MapPage from './pages/MapPage'
 import DonationDetail from './pages/DonationDetail'
 import ImpactDashboard from './pages/ImpactDashboard'
 import Terms from './pages/Terms'
+import EmergencySimulator from './components/EmergencySimulator'
 
 /** Route guard for the demo's two roles. */
 function RequireRole({ role, children }) {
@@ -131,6 +132,7 @@ export default function App() {
       {!hideFooter && <Footer />}
       <Toast />
       <LocationPickerHost />
+      <EmergencySimulator />
     </div>
   )
 }

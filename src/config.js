@@ -25,4 +25,8 @@ export const ENFORCE_INDIA_ONLY = true
 export const RADIUS_OPTIONS = [5, 10, 25, 50]
 export const DEFAULT_RADIUS_KM = 10
 
+// Emergency feed integration is intentionally disabled. Browser CORS rules
+// make direct RSS calls unreliable; a backend proxy is the real solution.
+export const EMERGENCY_SACHET_ENABLED = false
+
 export const LOCATION_STORAGE_KEY = 'fresh.v2.place'

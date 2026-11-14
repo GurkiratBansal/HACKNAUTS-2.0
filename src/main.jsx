@@ -11,17 +11,20 @@ import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
 import { AppProvider } from './context/AppContext'
 import { LocationProvider } from './context/LocationContext'
+import { EmergencyProvider } from './context/EmergencyContext'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <LocationProvider>
-        <AppProvider>
-          <ErrorBoundary>
-            <App />
-          </ErrorBoundary>
-        </AppProvider>
+        <EmergencyProvider>
+          <AppProvider>
+            <ErrorBoundary>
+              <App />
+            </ErrorBoundary>
+          </AppProvider>
+        </EmergencyProvider>
       </LocationProvider>
     </BrowserRouter>
   </StrictMode>,

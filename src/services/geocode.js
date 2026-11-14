@@ -101,6 +101,12 @@ function normalizePhoton(feature) {
 
 /** Resolve a readable label for a GPS coordinate. */
 export async function reversePlace(lat, lng, signal) {
+  const place = await reversePlaceDetails(lat, lng, signal)
+  return place.label
+}
+
+/** Resolve a readable place, including the Indian state for emergency scope. */
+export async function reversePlaceDetails(lat, lng, signal) {
   const numberLat = Number(lat)
   const numberLng = Number(lng)
   if (!Number.isFinite(numberLat) || !Number.isFinite(numberLng)) {
@@ -116,7 +122,12 @@ export async function reversePlace(lat, lng, signal) {
   )}&lon=${encodeURIComponent(numberLng)}&format=jsonv2&addressdetails=1`
   const data = await fetchJson(url, signal)
   const place = normalizeNominatim(data)
-  return writeCache(key, place?.label || 'Your location')
+  return writeCache(key, place || {
+    lat: numberLat,
+    lng: numberLng,
+    label: 'Your location',
+    state: '',
+  })
 }
 
 /** Resolve an Indian pincode to matching places. */

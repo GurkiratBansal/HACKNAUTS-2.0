@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react'
 import { LOCATION_STORAGE_KEY } from '../config'
-import { reversePlace } from '../services/geocode'
+import { reversePlaceDetails } from '../services/geocode'
 import { inIndiaBox } from '../utils/india'
 
 const LocationContext = createContext(null)
@@ -33,6 +33,7 @@ export function validateStoredPlace(value) {
     lng: Number(value.lng),
     label,
     source: 'manual',
+    state: typeof value.state === 'string' ? value.state.trim() : '',
   }
 }
 
@@ -125,12 +126,16 @@ export function LocationProvider({ children }) {
         reverseAbortRef.current?.abort()
         const reverseController = new AbortController()
         reverseAbortRef.current = reverseController
-        reversePlace(lat, lng, reverseController.signal)
-          .then((label) => {
+        reversePlaceDetails(lat, lng, reverseController.signal)
+          .then((resolved) => {
             if (detectionId !== detectionRef.current) return
             setPlace((current) =>
               current?.source === 'gps' && current.lat === lat && current.lng === lng
-                ? { ...current, label: label || 'Your location' }
+                ? {
+                    ...current,
+                    label: resolved?.label || 'Your location',
+                    state: resolved?.state || '',
+                  }
                 : current,
             )
           })

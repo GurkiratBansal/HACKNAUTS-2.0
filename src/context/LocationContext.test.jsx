@@ -5,6 +5,10 @@ import { LOCATION_STORAGE_KEY } from '../config'
 
 vi.mock('../services/geocode', () => ({
   reversePlace: vi.fn().mockResolvedValue('Ludhiana, Punjab'),
+  reversePlaceDetails: vi.fn().mockResolvedValue({
+    label: 'Ludhiana, Punjab',
+    state: 'Punjab',
+  }),
 }))
 
 const savedPlace = {

@@ -9,6 +9,7 @@ const DEMO_PLACE = {
   lat: 30.901,
   lng: 75.8573,
   label: 'Ludhiana, Punjab',
+  state: 'Punjab',
 }
 
 function demoLocationVisible() {
