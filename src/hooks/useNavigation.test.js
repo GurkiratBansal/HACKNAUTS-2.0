@@ -24,17 +24,9 @@ describe('useNavigation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     getRoute.mockResolvedValue({
-      routes: [
-        {
-          id: 0,
-          coords: route.coords,
-          distanceKm: 0.4,
-          durationMin: 5,
-          turnCount: 2,
-          steps: [],
-          summary: '',
-        },
-      ],
+      coords: route.coords,
+      distanceKm: 0.4,
+      durationMin: 5,
     })
   })
 
@@ -70,8 +62,6 @@ describe('useNavigation', () => {
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0))
     })
-    // eslint-disable-next-line no-console
-    console.log('STATE:', result.current.state, 'ERROR:', result.current.error, 'OFFROUTE?')
     expect(getRoute).toHaveBeenCalled()
   })
 

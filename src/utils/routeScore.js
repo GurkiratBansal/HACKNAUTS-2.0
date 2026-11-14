@@ -1,5 +1,9 @@
 /**
  * Pure helpers for ranking OSRM route alternatives.
+ *
+ * Alternatives are a later feature. The live map currently draws the single
+ * fastest route returned by services/routing.js, so nothing imports this in
+ * the app; the helpers and their tests are kept for future route options.
  */
 
 const EASIER_TIME_TOLERANCE_RATIO = 0.1

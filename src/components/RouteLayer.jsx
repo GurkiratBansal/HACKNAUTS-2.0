@@ -1,32 +1,10 @@
 import { useEffect } from 'react'
-import { Polyline, Tooltip, useMap } from 'react-leaflet'
-import { haversineKm } from '../utils/distance'
-import { recommendRoute } from '../utils/routeScore'
+import { Polyline, useMap } from 'react-leaflet'
 
-const SELECTED_STYLE = {
+const ROAD_STYLE = {
   color: '#059669',
   weight: 6,
-  opacity: 0.95,
-  lineCap: 'round',
-  lineJoin: 'round',
-  interactive: false,
-}
-
-const ALTERNATIVE_STYLE = {
-  color: '#94a3b8',
-  weight: 3,
-  opacity: 0.85,
-  dashArray: '6 8',
-  lineCap: 'round',
-  lineJoin: 'round',
-  interactive: true,
-}
-
-const STRAIGHT_LINE_STYLE = {
-  color: '#94a3b8',
-  weight: 2,
-  opacity: 0.8,
-  dashArray: '4 6',
+  opacity: 0.92,
   lineCap: 'round',
   lineJoin: 'round',
   interactive: false,
@@ -39,16 +17,14 @@ const isPoint = (point) =>
   Number.isFinite(Number(point.lat)) &&
   Number.isFinite(Number(point.lng))
 
-export default function RouteLayer({
-  from,
-  to,
-  routes,
-  loading,
-  error,
-  selectedRouteId,
-  onSelectRoute,
-  onRouteInfo,
-}) {
+/**
+ * Draws the one real OSRM road route.
+ *
+ * There is deliberately no straight-line fallback: when routing fails the
+ * summary card shows the error, a Try again button and a Google Maps link
+ * instead of drawing a misleading line across the city.
+ */
+export default function RouteLayer({ from, to, route, loading, error, onRouteInfo }) {
   const map = useMap()
   const valid = isPoint(from) && isPoint(to)
   const fromLat = valid ? Number(from.lat) : NaN
@@ -56,31 +32,25 @@ export default function RouteLayer({
   const toLat = valid ? Number(to.lat) : NaN
   const toLng = valid ? Number(to.lng) : NaN
 
-  const routeList = Array.isArray(routes) ? routes : []
-  const selected =
-    routeList.find((route) => route.id === selectedRouteId) || routeList[0] || null
-
   useEffect(() => {
     if (!valid) {
       onRouteInfo?.(null)
       return
     }
 
-    if (selected) {
-      map.fitBounds(selected.coords, FIT_OPTIONS)
+    if (route?.coords?.length) {
+      map.fitBounds(route.coords, FIT_OPTIONS)
       onRouteInfo?.({
         status: 'ready',
-        distanceKm: selected.distanceKm,
-        durationMin: selected.durationMin,
+        distanceKm: route.distanceKm,
+        durationMin: route.durationMin,
       })
       return
     }
 
     if (error) {
-      const straightKm = haversineKm(
-        { lat: fromLat, lng: fromLng },
-        { lat: toLat, lng: toLng },
-      )
+      // Frame the two pins so the user can still see where they are, but do
+      // not draw a line between them.
       map.fitBounds(
         [
           [fromLat, fromLng],
@@ -88,28 +58,17 @@ export default function RouteLayer({
         ],
         FIT_OPTIONS,
       )
-      if (straightKm < 1) {
-        onRouteInfo?.({
-          status: 'straight',
-          distanceKm: straightKm,
-          durationMin: null,
-          message: 'Straight-line distance only',
-        })
-      } else {
-        onRouteInfo?.({
-          status: 'error',
-          distanceKm: straightKm,
-          durationMin: null,
-          message: error?.message || 'Could not load a road route.',
-        })
-      }
+      onRouteInfo?.({
+        status: 'error',
+        message: error.message || 'Could not load a road route.',
+      })
       return
     }
 
     if (loading) onRouteInfo?.({ status: 'loading' })
   }, [
     valid,
-    selected,
+    route,
     loading,
     error,
     map,
@@ -120,57 +79,13 @@ export default function RouteLayer({
     toLng,
   ])
 
-  if (!valid) return null
+  if (!valid || !route?.coords?.length) return null
 
-  if (selected) {
-    return (
-      <>
-        {routeList
-          .filter((route) => route.id !== selected.id)
-          .map((route) => (
-            <Polyline
-              key={route.id}
-              positions={route.coords}
-              pathOptions={ALTERNATIVE_STYLE}
-              eventHandlers={{
-                click: () => onSelectRoute?.(route.id),
-              }}
-            />
-          ))}
-        <Polyline
-          positions={selected.coords}
-          pathOptions={SELECTED_STYLE}
-        />
-      </>
-    )
-  }
-
-  if (error) {
-    const straightKm = haversineKm(
-      { lat: fromLat, lng: fromLng },
-      { lat: toLat, lng: toLng },
-    )
-    if (straightKm < 1) {
-      return (
-        <Polyline
-          positions={[
-            [fromLat, fromLng],
-            [toLat, toLng],
-          ]}
-          pathOptions={STRAIGHT_LINE_STYLE}
-        >
-          <Tooltip permanent>Straight-line distance only</Tooltip>
-        </Polyline>
-      )
-    }
-    onRouteInfo?.({
-      status: 'error',
-      distanceKm: straightKm,
-      durationMin: null,
-      message: error?.message || 'Could not load a road route.',
-    })
-    return null
-  }
-
-  return null
+  return (
+    <Polyline
+      positions={route.coords}
+      pathOptions={ROAD_STYLE}
+      aria-label="Driving route"
+    />
+  )
 }

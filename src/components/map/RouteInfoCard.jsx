@@ -14,9 +14,8 @@ export default function RouteInfoCard({
 
   const loading = info.status === 'loading'
   const error = info.status === 'error'
-  const straight = info.status === 'straight'
-  const success = !loading && !error && !straight
-  const Icon = loading ? Loader2 : error || straight ? AlertTriangle : Car
+  const success = info.status === 'ready'
+  const Icon = loading ? Loader2 : error ? AlertTriangle : Car
 
   return (
     <div
@@ -27,7 +26,7 @@ export default function RouteInfoCard({
       <div className="flex items-start gap-3">
         <span
           className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-            error || straight
+            error
               ? 'bg-warning-50 text-warning-700 dark:bg-warning-900/30 dark:text-warning-200'
               : 'bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200'
           }`}
@@ -38,53 +37,39 @@ export default function RouteInfoCard({
 
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
-            {loading
-              ? 'Finding route'
-              : error
-                ? 'Route unavailable'
-                : straight
-                  ? 'Straight-line estimate'
-                  : 'Road route'}
+            {loading ? 'Finding route' : error ? 'Route unavailable' : 'Road route'}
           </p>
 
           {loading && (
-            <p className="mt-0.5 text-sm font-bold text-ink">Finding the fastest drive...</p>
+            <p className="mt-0.5 text-sm font-bold text-ink">Finding a road route...</p>
           )}
 
           {error && (
             <>
-              <p className="mt-0.5 text-sm font-bold text-ink">Could not load a road route</p>
+              <p className="mt-0.5 text-sm font-bold text-ink">
+                Could not load a road route
+              </p>
               <p className="mt-1 text-[11px] leading-snug text-ink-muted">
                 {info.message || 'The routing service did not return a usable route.'}
               </p>
             </>
           )}
 
-          {straight && (
-            <p className="mt-0.5 text-sm font-bold text-ink">
-              {formatDistance(info.distanceKm)} straight-line
-            </p>
-          )}
-
           {success && (
-            <p className="mt-0.5 text-sm font-bold text-ink">
-              {info.durationMin} min drive - {formatDistance(info.distanceKm)}
-            </p>
+            <>
+              <p className="mt-0.5 text-sm font-bold text-ink">
+                {info.durationMin} min drive (estimate) -{' '}
+                {formatDistance(info.distanceKm)}
+              </p>
+              <p className="mt-0.5 text-[11px] text-ink-muted">
+                Driving route - OpenStreetMap
+              </p>
+            </>
           )}
 
           <p className="mt-0.5 truncate text-[11px] text-ink-muted">
             {fromLabel} to {toLabel}
           </p>
-
-          {success && (
-            <p className="mt-0.5 text-[11px] text-ink-muted">Driving route - OpenStreetMap</p>
-          )}
-
-          {straight && (
-            <p className="mt-1 text-[11px] leading-snug text-ink-muted">
-              Straight-line distance only.
-            </p>
-          )}
 
           {canStart && onStart && (
             <button

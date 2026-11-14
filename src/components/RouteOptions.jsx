@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { formatDistance } from '../utils/format'
 import { recommendRoute } from '../utils/routeScore'
 
+// Alternatives are a later feature. The app currently renders one fastest
+// OSRM route, so this picker is intentionally not mounted by RouteSummary.
 const ICONS = {
   Fastest: '⚡',
   Shortest: '📏',

@@ -1,34 +1,17 @@
 /**
  * Public, key-free OSRM-compatible routing endpoints.
  *
- * The `routed-*` prefixes are intentional: the public OSRM demo servers would
- * otherwise answer with a shared "demo" profile instead of the requested one.
- * Each mode lists bases in fallback order.
+ * The `routed-car` prefix is intentional: the public OSRM demo server would
+ * otherwise answer with a shared "demo" profile instead of a car route.
+ * Fallback order matters: FOSSGIS first, public OSRM demo second.
  */
-export const ROUTING_BASES = {
-  drive: [
-    'https://routing.openstreetmap.de/routed-car/route/v1/driving',
-    'https://router.project-osrm.org/route/v1/driving',
-  ],
-  bike: [
-    'https://routing.openstreetmap.de/routed-bike/route/v1/driving',
-    'https://router.project-osrm.org/route/v1/driving',
-  ],
-  walk: [
-    'https://routing.openstreetmap.de/routed-foot/route/v1/driving',
-    'https://router.project-osrm.org/route/v1/driving',
-  ],
-}
+export const ROUTING_BASE_URL =
+  'https://routing.openstreetmap.de/routed-car/route/v1/driving'
 
-export const DEFAULT_ROUTING_MODE = 'drive'
+export const ROUTING_BACKUP_BASE_URL =
+  'https://router.project-osrm.org/route/v1/driving'
 
-// Backwards-compatible single-base map (first base per mode).
-export const ROUTING_BASE_URLS = Object.fromEntries(
-  Object.entries(ROUTING_BASES).map(([mode, bases]) => [mode, bases[0]]),
-)
-
-export const ROUTING_MODES = [
-  { id: 'drive', label: 'Drive' },
-  { id: 'bike', label: 'Bike' },
-  { id: 'walk', label: 'Walk' },
+export const ROUTING_BASE_URLS = [
+  ROUTING_BASE_URL,
+  ROUTING_BACKUP_BASE_URL,
 ]
