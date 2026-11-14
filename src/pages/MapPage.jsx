@@ -12,10 +12,13 @@ import RouteLayer from '../components/RouteLayer'
 import MapPanel from '../components/map/MapPanel'
 import RouteSummary from '../components/RouteSummary'
 import UrgencyBadge from '../components/UrgencyBadge'
+import ReliefTag from '../components/ReliefTag'
+import NeedsBoard from '../components/NeedsBoard'
 import { haversineKm } from '../utils/distance'
 import { getUrgency } from '../utils/urgency'
 import { formatDistance } from '../utils/format'
 import demoLudhiana, { isDemoPlaceActive } from '../data/demoLudhiana'
+import { useEmergency } from '../context/EmergencyContext'
 
 const URGENCY_PIN = {
   fresh: 'var(--fresh-urgency-fresh)',
@@ -26,6 +29,7 @@ const URGENCY_PIN = {
 export default function MapPage() {
   const { currentUser, donations, ngos, addToast } = useApp()
   const { place } = useUserLocation()
+  const { activeAlert, needs } = useEmergency()
   const role = currentUser?.role || 'donor'
   const [guestView, setGuestView] = useState('ngos')
   const view = currentUser ? (role === 'ngo' ? 'donations' : 'ngos') : guestView
@@ -46,6 +50,7 @@ export default function MapPage() {
 
   const origin = place
   const demoActive = isDemoPlaceActive(place)
+  const emergencyAlert = activeAlert(place)
 
   const verifiedNgos = useMemo(
     () =>
@@ -255,6 +260,27 @@ export default function MapPage() {
       })
     }
 
+    if (emergencyAlert) {
+      needs.forEach((need) => {
+        list.push({
+          id: need.id,
+          lat: need.lat,
+          lng: need.lng,
+          kind: 'relief',
+          color: 'var(--fresh-urgency-soon)',
+          title: `${need.item} relief need`,
+          popup: (
+            <div className="w-52">
+              <ReliefTag />
+              <p className="mt-2 text-sm font-bold text-ink">{need.item.replace('_', ' ')}</p>
+              <p className="mt-1 text-xs text-ink-soft">{need.area} · {need.pledged || 0} of {need.quantity} {need.unit} pledged</p>
+              <p className="mt-2 text-[11px] text-ink-muted">Requester contact details appear after a pledge.</p>
+            </div>
+          ),
+        })
+      })
+    }
+
     if (currentUser && role === 'ngo' && origin) {
       list.push({
         id: 'my-ngo',
@@ -275,7 +301,7 @@ export default function MapPage() {
     }
 
     return list
-  }, [view, visibleNgos, visibleDonations, currentUser, role, origin])
+  }, [view, visibleNgos, visibleDonations, currentUser, role, origin, emergencyAlert, needs])
 
   const clearSelection = () => {
     setSelectedId(null)
@@ -378,7 +404,7 @@ export default function MapPage() {
   }
 
   const handleMarkerClick = (id) => {
-    if (id === 'my-location' || id === 'my-ngo') return
+    if (id === 'my-location' || id === 'my-ngo' || id.startsWith('relief-')) return
     if (view === 'ngos') {
       requestRouteFor(id)
     } else {
@@ -439,6 +465,8 @@ export default function MapPage() {
           onRouteInfo={setRouteInfo}
         />
       </MapView>
+
+      <NeedsBoard />
 
       <MapPanel {...panelProps} />
 
