@@ -81,14 +81,14 @@ export default function LocationPicker({ open, onClose }) {
   // Close automatically after a successful GPS lookup.
   useEffect(() => {
     if (!pendingGpsRef.current) return
-    if (status === 'ready') {
+    if (place?.source === 'gps' && status === 'idle') {
       pendingGpsRef.current = false
       closePicker()
-    } else if (status === 'error' || status === 'outside' || status === 'unconfirmed') {
+    } else if (status === 'denied' || status === 'unavailable') {
       pendingGpsRef.current = false
       setSubmitError(error || 'We could not confirm that location. Please try again.')
     }
-  }, [status, error, closePicker])
+  }, [place?.source, status, error, closePicker])
 
   useEffect(() => {
     return () => abortRef.current?.abort()

@@ -36,7 +36,7 @@ export const DEV_DEMO_PLACE = {
 export const RADIUS_OPTIONS = [5, 10, 25, 50]
 export const DEFAULT_RADIUS_KM = 10
 
-export const LOCATION_STORAGE_KEY = 'fresh_manual_location_v1'
+export const LOCATION_STORAGE_KEY = 'fresh.v2.place'
 
 /** Neutral map default when no place is chosen yet; not a city default. */
 export const INDIA_MAP_CENTER = { lat: 20.5937, lng: 78.9629 }

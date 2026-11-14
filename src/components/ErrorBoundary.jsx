@@ -29,10 +29,16 @@ export default class ErrorBoundary extends Component {
           </p>
           <button
             type="button"
-            onClick={() => window.location.reload()}
-            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-600 px-4 text-sm font-bold text-white"
+            onClick={() => {
+              try {
+                localStorage.clear()
+              } finally {
+                window.location.reload()
+              }
+            }}
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-600 px-4 text-sm font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
           >
-            Reload
+            Clear saved data and reload
           </button>
         </div>
       )

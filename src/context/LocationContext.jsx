@@ -7,17 +7,52 @@ import {
   useRef,
   useState,
 } from 'react'
-import {
-  DEV_DEMO_BYPASS_PARAM,
-  DEV_DEMO_PLACE,
-  ENFORCE_INDIA_ONLY,
-  LOCATION_STORAGE_KEY,
-} from '../config'
-import { reverseGeocode } from '../services/geocoding'
+import { LOCATION_STORAGE_KEY } from '../config'
+import { reversePlace } from '../services/geocode'
 import { inIndiaBox } from '../utils/india'
-import { verifyInIndia } from '../utils/locationGate'
 
 const LocationContext = createContext(null)
+
+function validCoordinate(point) {
+  const lat = Number(point?.lat)
+  const lng = Number(point?.lng)
+  return Number.isFinite(lat) && Number.isFinite(lng) && inIndiaBox({ lat, lng })
+}
+
+export function validateStoredPlace(value) {
+  if (!value || typeof value !== 'object') return null
+  if (!validCoordinate(value)) return null
+
+  const label =
+    typeof value.label === 'string' && value.label.trim()
+      ? value.label.trim()
+      : 'Selected place'
+
+  return {
+    lat: Number(value.lat),
+    lng: Number(value.lng),
+    label,
+    source: 'manual',
+  }
+}
+
+function readManualPlace() {
+  try {
+    const raw = localStorage.getItem(LOCATION_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    const place = validateStoredPlace(parsed)
+    if (!place) localStorage.removeItem(LOCATION_STORAGE_KEY)
+    return place
+  } catch {
+    try {
+      localStorage.removeItem(LOCATION_STORAGE_KEY)
+    } catch {
+      // Storage can be unavailable; the app can still continue without it.
+    }
+    return null
+  }
+}
 
 function writeManualPlace(place) {
   try {
@@ -32,204 +67,162 @@ function removeManualPlace() {
   try {
     localStorage.removeItem(LOCATION_STORAGE_KEY)
   } catch {
-    // Storage can be unavailable; the in-memory place still works.
+    // The in-memory place remains usable when storage is unavailable.
   }
 }
 
-/** Validate a persisted manual place before trusting it. */
-export function validateStoredPlace(value) {
-  if (!value || typeof value !== 'object') return null
-  const lat = Number(value.lat)
-  const lng = Number(value.lng)
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
-  if (!inIndiaBox({ lat, lng })) return null
-  const countryCode = String(value.countryCode || '').toUpperCase()
-  if (countryCode && countryCode !== 'IN') return null
-  if (typeof value.label !== 'string' || !value.label.trim()) return null
-  return {
-    ...value,
-    lat,
-    lng,
-    label: value.label.trim(),
-    countryCode: 'IN',
-    source: value.source === 'gps' ? 'manual' : value.source || 'manual',
-  }
-}
-
-function readManualPlace() {
-  try {
-    const raw = localStorage.getItem(LOCATION_STORAGE_KEY)
-    if (!raw) return null
-    return validateStoredPlace(JSON.parse(raw))
-  } catch {
-    removeManualPlace()
-    return null
-  }
-}
-
-function devBypassActive() {
-  if (!import.meta.env.DEV) return false
-  try {
-    return new URLSearchParams(window.location.search).get(DEV_DEMO_BYPASS_PARAM) === '1'
-  } catch {
-    return false
-  }
+function isSecureLocationPage() {
+  if (typeof window === 'undefined') return false
+  if (window.isSecureContext) return true
+  return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)
 }
 
 export function LocationProvider({ children }) {
-  const [place, setPlace] = useState(null)
+  const [place, setPlace] = useState(() => readManualPlace())
   const [status, setStatus] = useState('idle')
-  const [error, setError] = useState(null)
+  const [error, setError] = useState('')
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [bypassActive] = useState(devBypassActive)
-  const abortRef = useRef(null)
-  const lastAttemptRef = useRef(null)
   const startedRef = useRef(false)
-
-  const abortPending = useCallback(() => {
-    if (abortRef.current) {
-      abortRef.current.abort()
-      abortRef.current = null
-    }
-  }, [])
-
-  const savePlace = useCallback(
-    async (candidate, { source = 'manual', persist = true } = {}) => {
-      abortPending()
-      const controller = new AbortController()
-      abortRef.current = controller
-      lastAttemptRef.current = { kind: 'save', candidate, options: { source, persist } }
-      setStatus('checking')
-      setError(null)
-
-      const result = await verifyInIndia(candidate, {
-        reverseGeocode,
-        signal: controller.signal,
-      })
-      if (controller.signal.aborted) return { ok: false, code: 'aborted' }
-
-      if (!result.ok) {
-        setStatus(result.code === 'outside' ? 'outside' : 'unconfirmed')
-        setError(result.message)
-        return result
-      }
-
-      const nextPlace = { ...result.place, source }
-      setPlace(nextPlace)
-      setStatus('ready')
-      setError(null)
-      if (persist) writeManualPlace(nextPlace)
-      return result
-    },
-    [abortPending],
-  )
+  const detectionRef = useRef(0)
+  const reverseAbortRef = useRef(null)
 
   const detect = useCallback(() => {
-    if (!navigator?.geolocation) {
-      setStatus('error')
-      setError('Location is not available in this browser. Enter a place instead.')
+    if (!isSecureLocationPage()) {
+      setStatus('unavailable')
+      setError('Type your area or pincode instead. Location needs a secure HTTPS page.')
       return
     }
-    abortPending()
-    lastAttemptRef.current = { kind: 'detect' }
-    setStatus('locating')
-    setError(null)
+
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setStatus('unavailable')
+      setError('Type your area or pincode instead. Location is not available in this browser.')
+      return
+    }
+
+    const detectionId = detectionRef.current + 1
+    detectionRef.current = detectionId
+    setStatus('detecting')
+    setError('')
+
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const candidate = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          label: 'Current location',
-          accuracy: position.coords.accuracy,
+      (position) => {
+        if (detectionId !== detectionRef.current) return
+
+        const lat = Number(position.coords.latitude)
+        const lng = Number(position.coords.longitude)
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          setStatus('unavailable')
+          setError('We could not read your location. Type your area or pincode instead.')
+          return
         }
-        await savePlace(candidate, { source: 'gps', persist: false })
+
+        // A fresh GPS result replaces any stale saved manual place. GPS is
+        // deliberately kept in memory and is never written to localStorage.
+        removeManualPlace()
+        setPlace({ lat, lng, label: 'Your location', source: 'gps' })
+        setStatus('idle')
+
+        reverseAbortRef.current?.abort()
+        const reverseController = new AbortController()
+        reverseAbortRef.current = reverseController
+        reversePlace(lat, lng, reverseController.signal)
+          .then((label) => {
+            if (detectionId !== detectionRef.current) return
+            setPlace((current) =>
+              current?.source === 'gps' && current.lat === lat && current.lng === lng
+                ? { ...current, label: label || 'Your location' }
+                : current,
+            )
+          })
+          .catch((requestError) => {
+            if (requestError?.name !== 'AbortError') {
+              // The coordinates are still useful when reverse geocoding fails.
+              setPlace((current) =>
+                current?.source === 'gps'
+                  ? { ...current, label: 'Your location' }
+                  : current,
+              )
+            }
+          })
       },
       (geoError) => {
-        const message =
-          geoError?.code === 1
-            ? 'Location permission was not given. Enter a place instead.'
-            : geoError?.code === 2
-              ? 'Location is unavailable. Enter a place instead.'
-              : 'Location timed out. Try again or enter a place.'
-        setStatus('error')
-        setError(message)
+        if (detectionId !== detectionRef.current) return
+        if (geoError?.code === 1) {
+          setStatus('denied')
+          setError('Location permission was not given. Type your area or pincode instead.')
+        } else {
+          setStatus('unavailable')
+          setError('Location is unavailable. Type your area or pincode instead.')
+        }
       },
-      { enableHighAccuracy: true, timeout: 15000 },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     )
-  }, [abortPending, savePlace])
+  }, [])
 
-  // Priority: saved manual place, then GPS only when permission is already
-  // granted, then the picker. There is intentionally no city default.
+  const setManual = useCallback((candidate) => {
+    const next = validateStoredPlace(candidate)
+    if (!next) {
+      const message = 'Choose a valid place inside India.'
+      setError(message)
+      return { ok: false, message }
+    }
+
+    setPlace(next)
+    setStatus('idle')
+    setError('')
+    writeManualPlace(next)
+    return { ok: true, place: next }
+  }, [])
+
+  const clear = useCallback(() => {
+    detectionRef.current += 1
+    reverseAbortRef.current?.abort()
+    removeManualPlace()
+    setPlace(null)
+    setStatus('idle')
+    setError('')
+  }, [])
+
+  // Priority: saved manual place first. GPS is detected automatically only
+  // when the browser already reports permission as granted.
   useEffect(() => {
-    if (startedRef.current) return
+    if (startedRef.current) return undefined
     startedRef.current = true
-
-    if (bypassActive) {
-      setPlace(DEV_DEMO_PLACE)
-      setStatus('ready')
-      return
+    if (place) return undefined
+    if (typeof navigator === 'undefined' || !navigator.permissions?.query) {
+      return undefined
     }
-
-    const saved = readManualPlace()
-    if (saved) {
-      setPlace(saved)
-      setStatus('ready')
-      return
-    }
-
-    if (!ENFORCE_INDIA_ONLY) {
-      setStatus('idle')
-      return
-    }
-
-    if (!navigator?.permissions?.query) return undefined
 
     let cancelled = false
     navigator.permissions
       .query({ name: 'geolocation' })
       .then((permission) => {
-        if (!cancelled && permission.state === 'granted') detect()
+        if (cancelled) return
+        if (permission.state === 'granted') {
+          detect()
+        } else if (permission.state === 'denied') {
+          setStatus('denied')
+          setError('Location permission was not given. Type your area or pincode instead.')
+        }
       })
       .catch(() => {
-        // Permission lookup is best-effort; the picker still works.
+        // Permission lookup is best-effort. Manual entry remains available.
       })
+
     return () => {
       cancelled = true
     }
-  }, [bypassActive, detect])
+  }, [detect, place])
 
   useEffect(() => {
-    return () => abortPending()
-  }, [abortPending])
-
-  const retry = useCallback(() => {
-    const attempt = lastAttemptRef.current
-    if (!attempt) {
-      detect()
-      return
+    return () => {
+      detectionRef.current += 1
+      reverseAbortRef.current?.abort()
     }
-    if (attempt.kind === 'detect') {
-      detect()
-      return
-    }
-    savePlace(attempt.candidate, attempt.options)
-  }, [detect, savePlace])
+  }, [])
 
   const openPicker = useCallback(() => setPickerOpen(true), [])
   const closePicker = useCallback(() => setPickerOpen(false), [])
-
-  const chooseManualPlace = useCallback(
-    (candidate) => savePlace(candidate, { source: 'manual', persist: true }),
-    [savePlace],
-  )
-
-  const clearSavedPlace = useCallback(() => {
-    removeManualPlace()
-    setPlace(null)
-    setStatus('idle')
-    setError(null)
-    setPickerOpen(true)
-  }, [])
 
   const value = useMemo(
     () => ({
@@ -237,39 +230,25 @@ export function LocationProvider({ children }) {
       status,
       error,
       pickerOpen,
-      bypassActive,
-      enforceIndiaOnly: ENFORCE_INDIA_ONLY,
       detect,
-      retry,
-      savePlace,
-      chooseManualPlace,
-      clearSavedPlace,
+      setManual,
+      chooseManualPlace: setManual,
+      clear,
       openPicker,
       closePicker,
     }),
-    [
-      place,
-      status,
-      error,
-      pickerOpen,
-      bypassActive,
-      detect,
-      retry,
-      savePlace,
-      chooseManualPlace,
-      clearSavedPlace,
-      openPicker,
-      closePicker,
-    ],
+    [place, status, error, pickerOpen, detect, setManual, clear, openPicker, closePicker],
   )
 
-  return (
-    <LocationContext.Provider value={value}>{children}</LocationContext.Provider>
-  )
+  return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>
 }
 
-export function useLocation() {
+export function useUserLocation() {
   const context = useContext(LocationContext)
-  if (!context) throw new Error('useLocation must be used inside LocationProvider')
+  if (!context) throw new Error('useUserLocation must be used inside LocationProvider')
   return context
 }
+
+// Temporary compatibility alias for existing components; new code should use
+// useUserLocation.
+export const useLocation = useUserLocation

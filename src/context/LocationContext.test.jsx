@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { LocationProvider, useLocation } from './LocationContext'
+import { LocationProvider, useUserLocation } from './LocationContext'
 import { LOCATION_STORAGE_KEY } from '../config'
+
+vi.mock('../services/geocode', () => ({
+  reversePlace: vi.fn().mockResolvedValue('Ludhiana, Punjab'),
+}))
 
 const savedPlace = {
   lat: 30.90097,
   lng: 75.85726,
   label: 'Ludhiana, Punjab, India',
-  city: 'Ludhiana',
-  state: 'Punjab',
-  pincode: '141001',
-  countryCode: 'IN',
   source: 'manual',
 }
 
@@ -26,136 +26,125 @@ function mockPermissions(state) {
   })
 }
 
-function mockGeolocation(success) {
+function mockGeolocation(coords) {
+  const getCurrentPosition = vi.fn((onSuccess) => {
+    onSuccess({ coords })
+  })
   Object.defineProperty(window.navigator, 'geolocation', {
     configurable: true,
-    value: {
-      getCurrentPosition: vi.fn((onSuccess) => onSuccess(success)),
-    },
+    value: { getCurrentPosition },
   })
-}
-
-const reverseIndia = {
-  lat: '30.90097',
-  lon: '75.85726',
-  display_name: 'Ludhiana, Punjab, India',
-  address: { country_code: 'in', city: 'Ludhiana', state: 'Punjab' },
+  return getCurrentPosition
 }
 
 describe('LocationContext', () => {
   beforeEach(() => {
     localStorage.clear()
-    window.history.replaceState({}, '', '/')
-    vi.restoreAllMocks()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
     vi.unstubAllGlobals()
   })
 
-  it('restores a valid saved manual place first', async () => {
+  it('uses a valid saved manual place before checking GPS', async () => {
     setSavedPlace(savedPlace)
     mockPermissions('granted')
-    mockGeolocation({
-      coords: { latitude: 28.6139, longitude: 77.209, accuracy: 10 },
+    const getCurrentPosition = mockGeolocation({
+      latitude: 28.6139,
+      longitude: 77.209,
+      accuracy: 10,
     })
 
-    const { result } = renderHook(() => useLocation(), {
+    const { result } = renderHook(() => useUserLocation(), {
       wrapper: LocationProvider,
     })
 
-    await waitFor(() => expect(result.current.status).toBe('ready'))
+    await waitFor(() => expect(result.current.place?.source).toBe('manual'))
     expect(result.current.place.label).toContain('Ludhiana')
-    expect(result.current.place.source).toBe('manual')
-    expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled()
+    expect(result.current.status).toBe('idle')
+    expect(getCurrentPosition).not.toHaveBeenCalled()
   })
 
-  it('ignores invalid saved JSON and starts idle', async () => {
-    localStorage.setItem(LOCATION_STORAGE_KEY, '{not json')
+  it('starts with no place and does not request GPS when permission is prompted', async () => {
     mockPermissions('prompt')
+    const getCurrentPosition = mockGeolocation({
+      latitude: 30.901,
+      longitude: 75.857,
+      accuracy: 12,
+    })
 
-    const { result } = renderHook(() => useLocation(), {
+    const { result } = renderHook(() => useUserLocation(), {
       wrapper: LocationProvider,
     })
 
     await waitFor(() => expect(result.current.status).toBe('idle'))
     expect(result.current.place).toBeNull()
-    expect(localStorage.getItem(LOCATION_STORAGE_KEY)).toBeNull()
-  })
-
-  it('ignores a saved place outside India', async () => {
-    setSavedPlace({ ...savedPlace, lat: 40.71, lng: -74, label: 'New York' })
-    mockPermissions('prompt')
-
-    const { result } = renderHook(() => useLocation(), {
-      wrapper: LocationProvider,
-    })
-
-    await waitFor(() => expect(result.current.status).toBe('idle'))
-    expect(result.current.place).toBeNull()
+    expect(getCurrentPosition).not.toHaveBeenCalled()
   })
 
   it('auto-detects GPS only when permission is already granted', async () => {
     mockPermissions('granted')
     mockGeolocation({
-      coords: { latitude: 30.901, longitude: 75.857, accuracy: 12 },
+      latitude: 30.901,
+      longitude: 75.857,
+      accuracy: 12,
     })
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => reverseIndia,
-      }),
-    )
 
-    const { result } = renderHook(() => useLocation(), {
+    const { result } = renderHook(() => useUserLocation(), {
       wrapper: LocationProvider,
     })
 
-    await waitFor(() => expect(result.current.status).toBe('ready'))
+    await waitFor(() => expect(result.current.place?.source).toBe('gps'))
     expect(result.current.place.lat).toBeCloseTo(30.901, 3)
-    expect(result.current.place.source).toBe('gps')
+    expect(result.current.status).toBe('idle')
     expect(localStorage.getItem(LOCATION_STORAGE_KEY)).toBeNull()
   })
 
-  it('does not auto-detect when permission is only prompted', async () => {
-    mockPermissions('prompt')
+  it('replaces a stale saved manual place with a fresh GPS position', async () => {
+    setSavedPlace(savedPlace)
+    mockPermissions('granted')
     mockGeolocation({
-      coords: { latitude: 30.901, longitude: 75.857, accuracy: 12 },
+      latitude: 30.923,
+      longitude: 75.818,
+      accuracy: 8,
     })
 
-    const { result } = renderHook(() => useLocation(), {
+    const { result } = renderHook(() => useUserLocation(), {
+      wrapper: LocationProvider,
+    })
+
+    await waitFor(() => expect(result.current.place?.source).toBe('manual'))
+    act(() => result.current.detect())
+
+    await waitFor(() => expect(result.current.place?.source).toBe('gps'))
+    expect(result.current.place.lat).toBeCloseTo(30.923, 3)
+    expect(localStorage.getItem(LOCATION_STORAGE_KEY)).toBeNull()
+  })
+
+  it('ignores invalid saved JSON and starts with no place', async () => {
+    localStorage.setItem(LOCATION_STORAGE_KEY, '{not json')
+    mockPermissions('prompt')
+
+    const { result } = renderHook(() => useUserLocation(), {
       wrapper: LocationProvider,
     })
 
     await waitFor(() => expect(result.current.status).toBe('idle'))
-    expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled()
+    expect(result.current.place).toBeNull()
+    expect(localStorage.getItem(LOCATION_STORAGE_KEY)).toBeNull()
   })
 
-  it('fails closed when GPS cannot be confirmed as India', async () => {
+  it('discards a saved coordinate outside India', async () => {
+    setSavedPlace({ ...savedPlace, lat: 40.71, lng: -74 })
     mockPermissions('prompt')
-    mockGeolocation({
-      coords: { latitude: 30.901, longitude: 75.857, accuracy: 12 },
-    })
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({ ...reverseIndia, address: { country_code: 'np' } }),
-      }),
-    )
 
-    const { result } = renderHook(() => useLocation(), {
+    const { result } = renderHook(() => useUserLocation(), {
       wrapper: LocationProvider,
     })
 
-    act(() => {
-      result.current.detect()
-    })
-
-    await waitFor(() => expect(result.current.status).toBe('outside'))
+    await waitFor(() => expect(result.current.status).toBe('idle'))
+    expect(result.current.place).toBeNull()
     expect(localStorage.getItem(LOCATION_STORAGE_KEY)).toBeNull()
   })
 })
