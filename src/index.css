@@ -164,6 +164,83 @@
   animation: fresh-location-bar-in 420ms ease-out both;
 }
 
+.fresh-saas-glow {
+  border-radius: 3rem;
+  background: radial-gradient(circle at 50% 30%, rgb(110 231 183 / 0.38), transparent 58%);
+  filter: blur(28px);
+}
+
+.fresh-saas-grid {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+.fresh-saas-road {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.12);
+  stroke-linecap: round;
+  stroke-width: 13;
+}
+
+.fresh-saas-route {
+  fill: none;
+  stroke: url(#fresh-route-gradient);
+  stroke-dasharray: 9 11;
+  stroke-linecap: round;
+  stroke-width: 3;
+  animation: fresh-route-flow 3.5s linear infinite;
+}
+
+.fresh-saas-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fresh-saas-pulse 2.4s ease-out infinite;
+}
+
+.fresh-saas-card {
+  animation: fresh-saas-card-in 700ms ease-out both;
+}
+
+.fresh-saas-card--one { animation-delay: 180ms; }
+.fresh-saas-card--two { animation-delay: 420ms; }
+.fresh-saas-card--three { animation-delay: 660ms; }
+
+.fresh-saas-progress {
+  width: 68%;
+  animation: fresh-progress 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes fresh-route-flow {
+  to { stroke-dashoffset: -80; }
+}
+
+@keyframes fresh-saas-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  55% { opacity: 0; transform: scale(1.7); }
+}
+
+@keyframes fresh-saas-card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fresh-progress {
+  from { width: 42%; }
+  to { width: 76%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fresh-saas-route,
+  .fresh-saas-pulse,
+  .fresh-saas-card,
+  .fresh-saas-progress {
+    animation: none;
+  }
+}
+
 @keyframes fresh-location-bar-in {
   from {
     opacity: 0;
