@@ -3,8 +3,8 @@ import { Polyline, useMap } from 'react-leaflet'
 
 const ROAD_STYLE = {
   color: '#059669',
-  weight: 6,
-  opacity: 0.92,
+  weight: 5,
+  opacity: 0.95,
   lineCap: 'round',
   lineJoin: 'round',
   interactive: false,
@@ -18,19 +18,13 @@ const isPoint = (point) =>
   Number.isFinite(Number(point.lng))
 
 /**
- * Draws the one real OSRM road route.
+ * Draws the one real OSRM road route as an emerald weight-5 polyline.
  *
- * There is deliberately no straight-line fallback: when routing fails the
- * summary card shows the error, a Try again button and a Google Maps link
- * instead of drawing a misleading line across the city.
+ * Nothing is rendered when there is no route. No straight-line fallback.
  */
 export default function RouteLayer({ from, to, route, loading, error, onRouteInfo }) {
   const map = useMap()
   const valid = isPoint(from) && isPoint(to)
-  const fromLat = valid ? Number(from.lat) : NaN
-  const fromLng = valid ? Number(from.lng) : NaN
-  const toLat = valid ? Number(to.lat) : NaN
-  const toLng = valid ? Number(to.lng) : NaN
 
   useEffect(() => {
     if (!valid) {
@@ -49,12 +43,10 @@ export default function RouteLayer({ from, to, route, loading, error, onRouteInf
     }
 
     if (error) {
-      // Frame the two pins so the user can still see where they are, but do
-      // not draw a line between them.
       map.fitBounds(
         [
-          [fromLat, fromLng],
-          [toLat, toLng],
+          [Number(from.lat), Number(from.lng)],
+          [Number(to.lat), Number(to.lng)],
         ],
         FIT_OPTIONS,
       )
@@ -66,18 +58,7 @@ export default function RouteLayer({ from, to, route, loading, error, onRouteInf
     }
 
     if (loading) onRouteInfo?.({ status: 'loading' })
-  }, [
-    valid,
-    route,
-    loading,
-    error,
-    map,
-    onRouteInfo,
-    fromLat,
-    fromLng,
-    toLat,
-    toLng,
-  ])
+  }, [valid, route, loading, error, map, onRouteInfo, Number(from?.lat), Number(from?.lng), Number(to?.lat), Number(to?.lng)])
 
   if (!valid || !route?.coords?.length) return null
 
