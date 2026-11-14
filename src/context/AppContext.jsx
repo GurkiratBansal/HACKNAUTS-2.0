@@ -59,8 +59,14 @@ export const BASELINE_IMPACT = {
 function read(key, fallback) {
   try {
     const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : fallback
+    if (!raw) return fallback
+    return JSON.parse(raw)
   } catch {
+    try {
+      localStorage.removeItem(key)
+    } catch {
+      // Ignore storage cleanup failures.
+    }
     return fallback
   }
 }
@@ -74,30 +80,74 @@ function write(key, value) {
   }
 }
 
+function isValidUser(value) {
+  return (
+    value &&
+    typeof value === 'object' &&
+    typeof value.id === 'string' &&
+    typeof value.role === 'string' &&
+    typeof value.email === 'string'
+  )
+}
+
+function sanitizeUsers(stored) {
+  if (!Array.isArray(stored)) return Object.values(DEMO_USERS)
+  const valid = stored.filter(isValidUser)
+  const byId = new Map(Object.values(DEMO_USERS).map((user) => [user.id, user]))
+  for (const user of valid) byId.set(user.id, user)
+  return Array.from(byId.values())
+}
+
+function sanitizeDonation(value) {
+  if (!value || typeof value !== 'object' || typeof value.id !== 'string') return null
+  const location =
+    value.location &&
+    typeof value.location === 'object' &&
+    Number.isFinite(Number(value.location.lat)) &&
+    Number.isFinite(Number(value.location.lng))
+      ? { lat: Number(value.location.lat), lng: Number(value.location.lng) }
+      : null
+
+  const timeline = Array.isArray(value.timeline) ? value.timeline : []
+  return {
+    ...value,
+    id: String(value.id),
+    status: typeof value.status === 'string' ? value.status : 'available',
+    quantity: Number.isFinite(Number(value.quantity)) ? Number(value.quantity) : 0,
+    location,
+    timeline,
+    alertedNgoIds: Array.isArray(value.alertedNgoIds) ? value.alertedNgoIds : [],
+    reports: Array.isArray(value.reports) ? value.reports : [],
+  }
+}
+
 function loadDonations() {
   const stored = read(LS.donations, null)
   if (!Array.isArray(stored) || stored.length === 0) return makeMockDonations()
 
-  // Seed listings are time-relative. Refresh them after 6 hours so the
-  // urgency ladder still looks live, while keeping judge-created donations.
   const seedAt = Number(read(LS.seedAt, 0)) || 0
   const stale = Date.now() - seedAt > 6 * 60 * 60 * 1000
   if (stale) {
-    const userCreated = stored.filter((d) => !d.isSeed)
+    const userCreated = stored
+      .map(sanitizeDonation)
+      .filter(Boolean)
+      .filter((d) => !d.isSeed)
     return [...makeMockDonations(), ...userCreated]
   }
-  return stored
+
+  const sanitized = stored.map(sanitizeDonation).filter(Boolean)
+  return sanitized.length ? sanitized : makeMockDonations()
 }
 
 export function AppProvider({ children }) {
   const { place } = useUserLocation()
-  const [users, setUsers] = useState(() => read(LS.users, Object.values(DEMO_USERS)))
+  const [users, setUsers] = useState(() => sanitizeUsers(read(LS.users, null)))
   const [donations, setDonations] = useState(loadDonations)
   const [currentUser, setCurrentUser] = useState(() => {
     const stored = read(LS.currentUser, null)
-    if (!stored) return null
-    const allUsers = read(LS.users, Object.values(DEMO_USERS))
-    return allUsers.some((u) => u.id === stored.id) ? stored : null
+    if (!isValidUser(stored)) return null
+    const allUsers = sanitizeUsers(read(LS.users, null))
+    return allUsers.find((u) => u.id === stored.id) || null
   })
   const [toasts, setToasts] = useState([])
   const demoActive = isDemoPlaceActive(place)
