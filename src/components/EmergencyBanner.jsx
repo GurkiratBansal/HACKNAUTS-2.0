@@ -1,0 +1,60 @@
+import { AlertTriangle, Clock3, ShieldAlert } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useUserLocation } from '../context/LocationContext'
+import { useEmergency } from '../context/EmergencyContext'
+
+const HAZARDS = {
+  flood: 'Flood',
+  cyclone: 'Cyclone',
+  earthquake: 'Earthquake',
+  heatwave: 'Heatwave',
+  landslide: 'Landslide',
+  other: 'Emergency alert',
+}
+
+function formatTime(value) {
+  return new Date(value).toLocaleString('en-IN', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  })
+}
+
+export default function EmergencyBanner() {
+  const { place } = useUserLocation()
+  const { activeAlert } = useEmergency()
+  const alert = activeAlert(place)
+  const [announcedId, setAnnouncedId] = useState(null)
+
+  useEffect(() => {
+    if (alert) setAnnouncedId(alert.id)
+  }, [alert])
+
+  if (!alert) return null
+
+  return (
+    <section
+      role="alert"
+      aria-live={announcedId === alert.id ? 'off' : 'assertive'}
+      className="border-b border-warning-300 bg-warning-50 px-4 py-3 text-warning-950 dark:border-warning-800 dark:bg-warning-950/60 dark:text-warning-50 sm:px-6"
+    >
+      <div className="mx-auto flex max-w-7xl items-start gap-3 lg:items-center">
+        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-200 text-warning-900 dark:bg-warning-900/70 dark:text-warning-100" aria-hidden="true">
+          <AlertTriangle className="h-5 w-5" />
+        </span>
+        <div className="min-w-0 flex-1 text-xs leading-relaxed">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-extrabold">
+            <span>Emergency mode: {HAZARDS[alert.hazardType] || 'Emergency alert'}</span>
+            <span className="rounded-full border border-warning-400 px-2 py-0.5 text-[10px] uppercase tracking-wide">{alert.source === 'SIMULATED' ? 'Simulated' : 'SACHET'}</span>
+            <span>{alert.state}</span>
+          </div>
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
+            <span className="inline-flex items-center gap-1"><Clock3 className="h-3.5 w-3.5" aria-hidden="true" />Issued {formatTime(alert.issuedAt)}</span>
+            <span>Expires {formatTime(alert.expiresAt)}</span>
+          </p>
+          <p className="mt-1.5 font-semibold">In danger, call 112. FRESH does not replace official emergency services. Follow instructions from your State Disaster Management Authority.</p>
+        </div>
+        <ShieldAlert className="hidden h-5 w-5 shrink-0 text-warning-700 dark:text-warning-300 sm:block" aria-label="Emergency safety notice" />
+      </div>
+    </section>
+  )
+}

@@ -22,6 +22,7 @@ import DonationDetail from './pages/DonationDetail'
 import ImpactDashboard from './pages/ImpactDashboard'
 import Terms from './pages/Terms'
 import EmergencySimulator from './components/EmergencySimulator'
+import EmergencyBanner from './components/EmergencyBanner'
 
 /** Route guard for the demo's two roles. */
 function RequireRole({ role, children }) {
@@ -93,6 +94,7 @@ export default function App() {
       </a>
       <ScrollToTop />
       <Navbar />
+      <EmergencyBanner />
       <div id="main-content" tabIndex={-1} className="fresh-page-transition flex-1 focus:outline-none">
         <Routes>
           <Route path="/" element={<Home />} />
