@@ -175,7 +175,11 @@ export default function MapPage() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => requestRouteFor(ngo.id)}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    requestRouteFor(ngo.id)
+                  }}
                   className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand-600 px-3 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
                 >
                   Route to NGO
@@ -219,7 +223,11 @@ export default function MapPage() {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => requestRouteFor(donation.id)}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    requestRouteFor(donation.id)
+                  }}
                   className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand-600 px-3 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
                 >
                   Show route to pickup
