@@ -12,6 +12,8 @@ const VARIANTS = {
     'text-ink-soft hover:bg-elevated hover:text-ink focus-visible:outline-brand-500',
   ghostDanger:
     'text-danger-700 hover:bg-danger-50 dark:text-danger-300 dark:hover:bg-danger-900/30 focus-visible:outline-danger-500',
+  onDark:
+    'border border-white/30 bg-white/5 text-white hover:bg-white/10 focus-visible:outline-white',
   danger:
     'bg-danger-600 text-white shadow-soft hover:bg-danger-700 focus-visible:outline-danger-500',
   'outline-danger':

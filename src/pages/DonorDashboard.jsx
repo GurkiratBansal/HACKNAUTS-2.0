@@ -1,17 +1,29 @@
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
 import {
   ArrowRight,
   CheckCircle2,
   Clock3,
+  ListChecks,
   PlusCircle,
+  ShieldCheck,
   Sparkles,
   UtensilsCrossed,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import FoodCard from '../components/FoodCard'
 import EmptyState from '../components/EmptyState'
+import Button from '../components/ui/Button'
+import DashboardShell from '../components/dashboard/DashboardShell'
+import SidePanel from '../components/dashboard/SidePanel'
+import StatTile from '../components/dashboard/StatTile'
 import { getUrgency, URGENCY_DISCLAIMER } from '../utils/urgency'
+import { formatNumber } from '../utils/format'
+
+const CHECKLIST = [
+  'Share only food you would serve to your own family.',
+  'Add a clear photo and honest handling notes.',
+  'Set a pickup deadline you can actually honour.',
+]
 
 export default function DonorDashboard() {
   const { currentUser, donations } = useApp()
@@ -33,99 +45,197 @@ export default function DonorDashboard() {
   const mealsDistributed = completed.reduce((sum, d) => sum + Number(d.quantity || 0), 0)
 
   return (
-    <main className="bg-[#fbfaf7]">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-emerald-700">Donor dashboard</p>
-            <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-              {currentUser?.orgName || currentUser?.name}
-            </h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Live status for every listing you have shared with the network.
-            </p>
-          </div>
-          <Link
-            to="/donor/add"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
-          >
-            <PlusCircle className="h-4 w-4" /> List surplus food
-          </Link>
-        </div>
+    <DashboardShell
+      role="donor"
+      eyebrow="Donor dashboard"
+      title={currentUser?.orgName || currentUser?.name}
+      description="Live status for every listing you have shared with the network."
+      actions={
+        <Button to="/donor/add" icon={PlusCircle}>
+          List surplus food
+        </Button>
+      }
+    >
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <StatTile
+          icon={Clock3}
+          label="Active listings"
+          value={active.length}
+          hint={
+            expired.length > 0
+              ? `${expired.length} past the deadline`
+              : 'Waiting for a nearby NGO'
+          }
+          tone="brand"
+        />
+        <StatTile
+          icon={UtensilsCrossed}
+          label="Servings listed"
+          value={mealsListed}
+          hint="Across every listing you shared"
+          tone="saffron"
+        />
+        <StatTile
+          icon={CheckCircle2}
+          label="Servings distributed"
+          value={mealsDistributed}
+          hint="Meals marked as delivered"
+          tone="info"
+        />
+        <StatTile
+          icon={Sparkles}
+          label="Expired"
+          value={expired.length}
+          hint="Visible to you, hidden from NGOs"
+          tone="neutral"
+        />
+      </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Summary icon={Clock3} label="Active listings" value={active.length} tone="emerald" />
-          <Summary icon={UtensilsCrossed} label="Servings listed" value={mealsListed} tone="orange" />
-          <Summary icon={CheckCircle2} label="Servings distributed" value={mealsDistributed} tone="sky" />
-          <Summary icon={Sparkles} label="Expired" value={expired.length} tone="slate" />
-        </div>
-
-        <section className="mt-8">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-bold text-slate-900">Active donations</h2>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
-              {active.length} open
-            </span>
-          </div>
-
-          {active.length === 0 ? (
-            <div className="mt-4">
-              <EmptyState
-                icon={UtensilsCrossed}
-                title="No active donations yet"
-                description="List surplus food and FRESH will alert the three nearest verified NGOs automatically."
-                action={
-                  <Link to="/donor/add" className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
-                    Create your first listing <ArrowRight className="h-4 w-4" />
-                  </Link>
-                }
-              />
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-8">
+        <div className="min-w-0 space-y-8">
+          <section aria-labelledby="active-donations">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2
+                  id="active-donations"
+                  className="font-display text-xl font-bold tracking-tight text-ink"
+                >
+                  Active donations
+                </h2>
+                <p className="mt-0.5 text-xs text-ink-muted">
+                  Listings still waiting for a pickup or distribution.
+                </p>
+              </div>
+              <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-ink-soft shadow-soft">
+                {active.length} open
+              </span>
             </div>
-          ) : (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {active.map((donation) => (
-                <FoodCard key={donation.id} donation={donation} donorView />
-              ))}
-            </div>
+
+            {active.length === 0 ? (
+              <div className="mt-4">
+                <EmptyState
+                  icon={UtensilsCrossed}
+                  title="No active donations yet"
+                  description="List surplus food and FRESH will alert the three nearest verified NGOs automatically."
+                  action={
+                    <Button to="/donor/add" iconRight={ArrowRight}>
+                      Create your first listing
+                    </Button>
+                  }
+                />
+              </div>
+            ) : (
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {active.map((donation) => (
+                  <FoodCard
+                    key={donation.id}
+                    donation={donation}
+                    donorView
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {completed.length > 0 && (
+            <section aria-labelledby="completed-donations">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2
+                  id="completed-donations"
+                  className="font-display text-xl font-bold tracking-tight text-ink"
+                >
+                  Completed
+                </h2>
+                <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-ink-soft shadow-soft">
+                  {completed.length} delivered
+                </span>
+              </div>
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {completed.map((donation) => (
+                  <FoodCard
+                    key={donation.id}
+                    donation={donation}
+                    donorView
+                    showSafetyHint={false}
+                  />
+                ))}
+              </div>
+            </section>
           )}
-        </section>
+        </div>
 
-        {completed.length > 0 && (
-          <section className="mt-10">
-            <h2 className="text-lg font-bold text-slate-900">Completed</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {completed.map((donation) => (
-                <FoodCard key={donation.id} donation={donation} donorView showSafetyHint={false} />
-              ))}
+        <aside className="min-w-0 space-y-4 xl:sticky xl:top-24 xl:self-start">
+          <section className="relative overflow-hidden rounded-3xl border border-brand-800 bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 p-5 shadow-lift">
+            <div
+              className="pointer-events-none absolute inset-0 pattern-grid opacity-40"
+              aria-hidden="true"
+            />
+            <div
+              className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-saffron-500/10 blur-2xl"
+              aria-hidden="true"
+            />
+
+            <div className="relative">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-saffron-300">
+                Your impact
+              </p>
+              <p className="mt-2 font-display text-4xl font-extrabold tracking-tight text-white tabular-nums">
+                {formatNumber(mealsDistributed)}
+              </p>
+              <p className="mt-0.5 text-xs leading-relaxed text-brand-100/70">
+                servings distributed from your kitchen
+              </p>
+
+              <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
+                <div>
+                  <dt className="text-[11px] text-brand-100/60">Completed</dt>
+                  <dd className="mt-0.5 text-lg font-bold text-white">
+                    {completed.length}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] text-brand-100/60">Active</dt>
+                  <dd className="mt-0.5 text-lg font-bold text-white">
+                    {active.length}
+                  </dd>
+                </div>
+              </dl>
+
+              <Button
+                to="/impact"
+                variant="onDark"
+                size="sm"
+                iconRight={ArrowRight}
+                className="mt-4 w-full"
+              >
+                See network impact
+              </Button>
             </div>
           </section>
-        )}
 
-        <p className="mt-8 rounded-xl bg-white p-3 text-xs text-slate-500 ring-1 ring-slate-200">
-          {URGENCY_DISCLAIMER} Expired listings stay visible here to the donor but
-          are hidden from NGO dashboards.
-        </p>
-      </div>
-    </main>
-  )
-}
+          <SidePanel icon={ListChecks} title="Before you list" tone="brand">
+            <ul className="space-y-2.5">
+              {CHECKLIST.map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <CheckCircle2
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-600 dark:text-brand-300"
+                    aria-hidden="true"
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </SidePanel>
 
-function Summary({ icon: Icon, label, value, tone }) {
-  const tones = {
-    emerald: 'bg-emerald-50 text-emerald-700',
-    orange: 'bg-orange-50 text-orange-700',
-    sky: 'bg-sky-50 text-sky-700',
-    slate: 'bg-slate-100 text-slate-600',
-  }
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${tones[tone]}`}>
-        <Icon className="h-5 w-5" aria-hidden="true" />
-      </span>
-      <div>
-        <p className="text-xl font-extrabold tabular-nums text-slate-900">{value}</p>
-        <p className="text-xs font-medium text-slate-500">{label}</p>
+          <SidePanel icon={ShieldCheck} title="Good to know" tone="neutral">
+            <p>{URGENCY_DISCLAIMER}</p>
+            <p className="mt-2">
+              Expired listings stay visible here to the donor but are hidden from
+              NGO dashboards.
+            </p>
+          </SidePanel>
+        </aside>
       </div>
-    </div>
+    </DashboardShell>
   )
 }

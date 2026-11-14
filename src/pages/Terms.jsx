@@ -3,7 +3,7 @@ import { AlertTriangle, FileText, ShieldCheck, Truck } from 'lucide-react'
 
 export default function Terms() {
   return (
-    <main className="bg-[#fbfaf7]">
+    <main className="bg-canvas">
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-emerald-700">Trust &amp; safety</p>

@@ -119,7 +119,7 @@ export default function DonationDetail() {
   ]
 
   return (
-    <main className="bg-[#fbfaf7]">
+    <main className="bg-canvas">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Link to={isNgo ? '/ngo' : '/donor'} className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-800">
           <ArrowLeft className="h-4 w-4" /> Back to dashboard

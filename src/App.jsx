@@ -74,7 +74,7 @@ export default function App() {
   const hideFooter = pathname === '/map'
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#fbfaf7]">
+    <div className="flex min-h-screen flex-col bg-canvas">
       <ScrollToTop />
       <Navbar />
       <div className="flex-1">
