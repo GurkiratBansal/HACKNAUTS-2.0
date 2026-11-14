@@ -34,7 +34,7 @@ export default function LocationBar({ className = '' }) {
       <button
         type="button"
         onClick={openPicker}
-        className="inline-flex min-h-9 shrink-0 items-center rounded-lg border border-line bg-surface px-2.5 text-xs font-bold text-brand-700 transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 dark:text-brand-300"
+        className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-line bg-surface px-3 text-xs font-bold text-brand-700 transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 dark:text-brand-300"
       >
         {place ? 'Change location' : 'Set location'}
       </button>

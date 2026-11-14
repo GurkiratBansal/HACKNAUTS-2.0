@@ -2,6 +2,9 @@ import { useMemo, useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ChevronRight, Phone, ShieldCheck } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import { useUserLocation } from '../context/LocationContext'
+import LocationPicker from '../components/LocationPicker'
+import LocationBar from '../components/LocationBar'
 import MapView from '../components/MapView'
 import RouteLayer from '../components/RouteLayer'
 import MapPanel from '../components/map/MapPanel'
@@ -17,8 +20,6 @@ import { haversineKm } from '../utils/distance'
 import { getUrgency } from '../utils/urgency'
 import { formatDistance } from '../utils/format'
 
-const FALLBACK_ORIGIN = { lat: 28.6139, lng: 77.209 }
-
 const URGENCY_PIN = {
   fresh: 'var(--fresh-urgency-fresh)',
   soon: 'var(--fresh-urgency-soon)',
@@ -27,6 +28,7 @@ const URGENCY_PIN = {
 
 export default function MapPage() {
   const { currentUser, donations, ngos, advanceStatus, addToast } = useApp()
+  const { place } = useUserLocation()
   const [searchParams] = useSearchParams()
   const role = currentUser?.role || 'donor'
   const [guestView, setGuestView] = useState('ngos')
@@ -39,7 +41,7 @@ export default function MapPage() {
   const [routeInfo, setRouteInfo] = useState(null)
   const [follow, setFollow] = useState(true)
 
-  const origin = currentUser?.location || FALLBACK_ORIGIN
+  const origin = place
 
   const verifiedNgos = useMemo(
     () =>
@@ -107,14 +109,13 @@ export default function MapPage() {
     return pool.find((item) => item.id === selectedId) || null
   }, [selectedId, view, visibleNgos, visibleDonations])
 
-  const routeFrom = currentUser?.location || null
+  const routeFrom = place
   const routeTo = selectedItem
     ? view === 'ngos'
       ? { lat: selectedItem.lat, lng: selectedItem.lng }
       : selectedItem.location
     : null
-  const routeFromLabel =
-    currentUser?.orgName || currentUser?.name || 'Your location'
+  const routeFromLabel = place?.label || 'Your location'
   const routeToLabel = selectedItem
     ? view === 'ngos'
       ? selectedItem.name
@@ -146,10 +147,11 @@ export default function MapPage() {
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-  const center =
-    follow && nav.snappedPosition
+  const center = place
+    ? follow && nav.snappedPosition
       ? [nav.snappedPosition.lat, nav.snappedPosition.lng]
-      : [origin.lat, origin.lng]
+      : [place.lat, place.lng]
+    : null
   const markers = useMemo(() => {
     const list =
       view === 'ngos'
@@ -215,7 +217,7 @@ export default function MapPage() {
             ),
           }))
 
-    if (currentUser && role === 'ngo') {
+    if (currentUser && role === 'ngo' && origin) {
       list.push({
         id: 'my-ngo',
         lat: origin.lat,
@@ -308,8 +310,18 @@ export default function MapPage() {
     ownBase: Boolean(currentUser && role === 'ngo'),
   }
 
+  if (!place) {
+    return (
+      <main className="min-h-[calc(100dvh-4.5rem)] bg-canvas px-4 py-8 sm:px-6">
+        <LocationPicker idPrefix="map-location-picker" className="mx-auto max-w-2xl" />
+      </main>
+    )
+  }
+
   return (
     <main className="relative h-[calc(100dvh-4.5rem)] overflow-hidden bg-canvas">
+      <LocationBar className="absolute left-1/2 top-3 z-[1002] w-[min(92vw,440px)] -translate-x-1/2 lg:left-[calc(50%+190px)]" />
+
       <MapView
         center={center}
         zoom={12}

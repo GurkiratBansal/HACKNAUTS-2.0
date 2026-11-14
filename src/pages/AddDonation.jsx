@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
+import { useUserLocation } from '../context/LocationContext'
 import DeclarationModal from '../components/DeclarationModal'
 import BasicsStep from '../components/donation/BasicsStep'
 import HandlingStep from '../components/donation/HandlingStep'
@@ -57,12 +58,13 @@ function compressImage(file) {
 }
 
 export default function AddDonation() {
-  const { currentUser, addDonation, addToast } = useApp()
+  const { addDonation, addToast } = useApp()
+  const { place, detect } = useUserLocation()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(DEFAULTS)
-  const [location, setLocation] = useState(
-    currentUser?.location || { lat: 28.6139, lng: 77.209 },
+  const [location, setLocation] = useState(() =>
+    place ? { lat: place.lat, lng: place.lng } : null,
   )
   const [preview, setPreview] = useState('')
   const [photo, setPhoto] = useState('')
@@ -73,6 +75,7 @@ export default function AddDonation() {
   const cardRef = useRef(null)
   const panelRef = useRef(null)
   const mountedRef = useRef(false)
+  const locationEditedRef = useRef(false)
 
   const set = (key) => (e) => {
     setForm((prev) => ({ ...prev, [key]: e.target.value }))
@@ -83,6 +86,11 @@ export default function AddDonation() {
     () => getSafetyHint(form.category, form.storage),
     [form.category, form.storage],
   )
+
+  useEffect(() => {
+    if (!place || locationEditedRef.current) return
+    setLocation({ lat: place.lat, lng: place.lng })
+  }, [place])
 
   // Move focus to the new panel and bring it into view on every step change.
   useEffect(() => {
@@ -125,20 +133,8 @@ export default function AddDonation() {
   }
 
   const useCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      addToast('Location is not available in this browser. Tap the map instead.', 'error')
-      return
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        setLocation(next)
-        setErrors((prev) => ({ ...prev, location: '' }))
-        addToast('Current location added. Drag/click the map to adjust.', 'success')
-      },
-      () => addToast('Could not read your location. Tap the map to set it.', 'error'),
-      { enableHighAccuracy: true, timeout: 8000 },
-    )
+    locationEditedRef.current = false
+    detect()
   }
 
   // The same rules as the original single-page form, grouped by wizard step.
@@ -237,6 +233,7 @@ export default function AddDonation() {
                     errors={errors}
                     location={location}
                     onMapClick={(next) => {
+                      locationEditedRef.current = true
                       setLocation(next)
                       setErrors((prev) => ({ ...prev, location: '' }))
                     }}

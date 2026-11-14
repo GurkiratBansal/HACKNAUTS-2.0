@@ -15,7 +15,7 @@ const empty = {
   orgName: '',
   email: '',
   phone: '',
-  city: 'New Delhi',
+  city: '',
 }
 
 export default function Register() {
@@ -168,7 +168,7 @@ export default function Register() {
                 value={form.city}
                 onChange={set('city')}
                 error={errors.city}
-                placeholder="New Delhi"
+                placeholder="Your city"
                 autoComplete="address-level2"
                 required
               />

@@ -1,341 +1,306 @@
 import { useEffect, useRef, useState } from 'react'
 import { Loader2, MapPin, Navigation, Search, TriangleAlert } from 'lucide-react'
-import { useLocation } from '../context/LocationContext'
+import { useUserLocation } from '../context/LocationContext'
+import { searchPincode, searchPlaces } from '../services/geocode'
 import Button from './ui/Button'
 import Field from './ui/Field'
-import Modal from './ui/Modal'
-import { searchAddress, searchPincode, searchPlace } from '../services/geocoding'
-import { INDIAN_STATES, isValidPin } from '../utils/india'
 
-const empty = { area: '', city: '', state: '', pincode: '' }
+const DEMO_PLACE = {
+  lat: 30.901,
+  lng: 75.8573,
+  label: 'Ludhiana, Punjab (demo)',
+}
 
-/**
- * Manual location entry. Pincodes are resolved on submit through Nominatim,
- * with Photon as a fallback; the area/city field also offers debounced
- * suggestions. Only successful places are passed to LocationContext, which
- * persists manual selections and gates them to India.
- */
-export default function LocationPicker({ open, onClose }) {
-  const { place, status, error, detect, chooseManualPlace, closePicker } =
-    useLocation()
-  const [form, setForm] = useState(empty)
-  const [errors, setErrors] = useState({})
-  const [submitError, setSubmitError] = useState('')
-  const [searchError, setSearchError] = useState('')
+function demoLocationVisible() {
+  if (import.meta.env.DEV) return true
+  try {
+    return new URLSearchParams(window.location.search).get('demo') === '1'
+  } catch {
+    return false
+  }
+}
+
+export default function LocationPicker({ onComplete, className = '', idPrefix = 'location-picker' }) {
+  const { place, status, error, detect, setManual } = useUserLocation()
+  const [address, setAddress] = useState('')
+  const [pincode, setPincode] = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [selectedSuggestion, setSelectedSuggestion] = useState(null)
+  const [errors, setErrors] = useState({})
+  const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
+  const [searching, setSearching] = useState(false)
   const abortRef = useRef(null)
-  const summaryRef = useRef(null)
-  const pendingGpsRef = useRef(false)
+  const waitingForGpsRef = useRef(false)
 
-  // Prefill when the picker opens so the current place is visible.
   useEffect(() => {
-    if (!open) return
-    setForm({
-      area: '',
-      city: place?.city || '',
-      state: place?.state || '',
-      pincode: place?.pincode || '',
-    })
-    setErrors({})
-    setSubmitError('')
-    setSearchError('')
-    setSuggestions([])
-    setSelectedSuggestion(null)
-  }, [open, place?.city, place?.state, place?.pincode])
+    if (!waitingForGpsRef.current) return
+    if (place?.source === 'gps' && status === 'idle') {
+      waitingForGpsRef.current = false
+      onComplete?.()
+    } else if (status === 'denied' || status === 'unavailable') {
+      waitingForGpsRef.current = false
+      setMessage(error || 'Type your area or pincode instead.')
+    }
+  }, [place?.source, status, error, onComplete])
 
-  // Debounced address suggestions. The latest request wins; older ones abort.
   useEffect(() => {
-    if (!open || selectedSuggestion) return undefined
-    const text = [form.area, form.city].filter(Boolean).join(' ').trim()
-    if (text.length < 3) {
+    const text = address.trim()
+    if (text.length < 3 || selectedSuggestion) {
       setSuggestions([])
-      setSearchError('')
+      setSearching(false)
       return undefined
     }
-    const timer = setTimeout(async () => {
+
+    const timer = window.setTimeout(async () => {
       abortRef.current?.abort()
       const controller = new AbortController()
       abortRef.current = controller
+      setSearching(true)
       try {
-        const result = await searchAddress(text, controller.signal)
+        const results = await searchPlaces(text, controller.signal)
         if (controller.signal.aborted) return
-        if (result.ok) {
-          setSuggestions(result.suggestions)
-          setSearchError('')
-        } else {
-          setSuggestions([])
-          setSearchError(result.message)
-        }
+        setSuggestions(results)
+        setMessage(results.length ? '' : 'No matching places yet. Try adding a city or pincode.')
       } catch (requestError) {
         if (requestError?.name !== 'AbortError') {
           setSuggestions([])
-          setSearchError('Address search failed. Please try again.')
+          setMessage(requestError?.message || 'Address search failed. Please try again.')
         }
+      } finally {
+        if (!controller.signal.aborted) setSearching(false)
       }
-    }, 350)
-    return () => clearTimeout(timer)
-  }, [open, form.area, form.city, selectedSuggestion])
+    }, 450)
 
-  // Close automatically after a successful GPS lookup.
-  useEffect(() => {
-    if (!pendingGpsRef.current) return
-    if (place?.source === 'gps' && status === 'idle') {
-      pendingGpsRef.current = false
-      closePicker()
-    } else if (status === 'denied' || status === 'unavailable') {
-      pendingGpsRef.current = false
-      setSubmitError(error || 'We could not confirm that location. Please try again.')
+    return () => {
+      window.clearTimeout(timer)
+      abortRef.current?.abort()
     }
-  }, [place?.source, status, error, closePicker])
+  }, [address, selectedSuggestion])
 
   useEffect(() => {
     return () => abortRef.current?.abort()
   }, [])
 
-  const set = (key) => (event) => {
-    const value = event.target.value
-    setForm((previous) => ({ ...previous, [key]: value }))
-    setErrors((previous) => ({ ...previous, [key]: '' }))
-    setSubmitError('')
-    if (key === 'area' || key === 'city') setSelectedSuggestion(null)
-  }
-
-  const chooseSuggestion = (suggestion) => {
-    abortRef.current?.abort()
-    setSelectedSuggestion(suggestion)
-    setForm({
-      area: suggestion.city || suggestion.label || '',
-      city: suggestion.city || '',
-      state: suggestion.state || '',
-      pincode: suggestion.pincode || '',
-    })
-    setSuggestions([])
-    setSearchError('')
-    setSubmitError('')
-  }
-
-  const focusSummary = () => {
-    window.setTimeout(() => summaryRef.current?.focus({ preventScroll: true }), 0)
+  const choose = (candidate) => {
+    const result = setManual(candidate)
+    if (!result.ok) {
+      setMessage(result.message || 'Choose a valid place inside India.')
+      return
+    }
+    setMessage('')
+    setErrors({})
+    onComplete?.()
   }
 
   const submit = async (event) => {
     event.preventDefault()
-    const next = {}
-    const pin = form.pincode.trim()
-    if (pin && !isValidPin(pin)) {
-      next.pincode = 'Enter a valid 6-digit pincode.'
+    const nextErrors = {}
+    const cleanPincode = pincode.trim()
+
+    if (cleanPincode && !/^[1-9][0-9]{5}$/.test(cleanPincode)) {
+      nextErrors.pincode = 'Enter a valid 6-digit pincode.'
     }
-    if (!pin && !form.area.trim() && !form.city.trim()) {
-      next.area = 'Enter an area, city or pincode.'
+    if (!cleanPincode && !address.trim()) {
+      nextErrors.address = 'Enter an area, city or pincode.'
     }
-    if (!pin && !form.city.trim()) {
-      next.city = 'Enter a city or a pincode.'
-    }
-    setErrors(next)
-    if (Object.keys(next).length > 0) {
-      setSubmitError('Please fix the highlighted fields and try again.')
-      focusSummary()
+
+    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length) {
+      setMessage('Please fix the highlighted field and try again.')
       return
     }
 
     setBusy(true)
-    setSubmitError('')
-    try {
-      let result
-      if (selectedSuggestion) {
-        result = { ok: true, place: selectedSuggestion }
-      } else if (pin) {
-        result = await searchPincode(pin)
-      } else {
-        result = await searchPlace(
-          `${form.area} ${form.city} ${form.state}, India`.replace(/\s+/g, ' ').trim(),
-        )
-      }
+    setMessage('')
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
 
-      if (!result.ok) {
-        setSubmitError(result.message || 'We could not find that place. Please try again.')
-        focusSummary()
+    try {
+      if (selectedSuggestion) {
+        choose(selectedSuggestion)
         return
       }
 
-      const saved = await chooseManualPlace(result.place)
-      if (saved.ok) {
-        closePicker()
-      } else {
-        setSubmitError(saved.message || 'We could not confirm that place. Please try again.')
-        focusSummary()
+      const results = cleanPincode
+        ? await searchPincode(cleanPincode, controller.signal)
+        : await searchPlaces(address.trim(), controller.signal)
+
+      if (controller.signal.aborted) return
+      if (!results.length) {
+        setMessage(
+          cleanPincode
+            ? 'We could not find that pincode. Check the digits and try again.'
+            : 'We could not find that place. Try adding a city or pincode.',
+        )
+        return
       }
+      choose(results[0])
     } catch (requestError) {
       if (requestError?.name !== 'AbortError') {
-        setSubmitError('Something went wrong while checking that place. Please try again.')
-        focusSummary()
+        setMessage(requestError?.message || 'We could not check that place. Please try again.')
       }
     } finally {
-      setBusy(false)
+      if (!controller.signal.aborted) setBusy(false)
     }
   }
 
   const useGps = () => {
-    pendingGpsRef.current = true
-    setSubmitError('')
-    setSearchError('')
+    waitingForGpsRef.current = true
+    setMessage('')
+    setErrors({})
     detect()
   }
 
   return (
-    <Modal open={open} onClose={onClose} labelledBy="location-picker-title" size="lg">
-      <div className="p-5 sm:p-6">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
-          Set your location
-        </p>
-        <h2
-          id="location-picker-title"
-          className="mt-1 font-display text-2xl font-extrabold tracking-tight text-ink"
-        >
-          Where are you sharing food?
-        </h2>
-        <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-          FRESH is available in India only for now. Choose a place to see nearby
-          food and partners.
-        </p>
+    <section
+      className={`rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6 ${className}`.trim()}
+      aria-labelledby={`${idPrefix}-title`}
+    >
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+        Set your location
+      </p>
+      <h2
+        id={`${idPrefix}-title`}
+        className="mt-1 font-display text-2xl font-extrabold tracking-tight text-ink"
+      >
+        Where are you sharing food?
+      </h2>
+      <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
+        Choose your current location, an area, or a 6-digit Indian pincode.
+      </p>
 
-        {submitError && (
-          <div
-            ref={summaryRef}
-            role="alert"
-            tabIndex={-1}
-            aria-live="polite"
-            className="mt-4 flex items-start gap-2 rounded-2xl border border-danger-200 bg-danger-50 p-3 text-sm font-medium text-danger-700 focus:outline-none focus:ring-2 focus:ring-danger-400 dark:border-danger-800 dark:bg-danger-900/25 dark:text-danger-200"
-          >
-            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            {submitError}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="mt-4 min-h-5 text-sm font-medium text-ink-soft"
+      >
+        {message || (status === 'detecting' ? 'Finding your current location…' : '')}
+      </div>
+
+      <form onSubmit={submit} className="mt-4 space-y-4" noValidate>
+        <Field
+          id={`${idPrefix}-address`}
+          label="Area, street or city"
+          value={address}
+          onChange={(event) => {
+            setAddress(event.target.value)
+            setSelectedSuggestion(null)
+            setErrors((current) => ({ ...current, address: '' }))
+          }}
+          error={errors.address}
+          placeholder="Model Town, Ludhiana"
+          autoComplete="street-address"
+        />
+
+        <Field
+          id={`${idPrefix}-pincode`}
+          label="Pincode"
+          value={pincode}
+          onChange={(event) => {
+            setPincode(event.target.value.replace(/\D/g, '').slice(0, 6))
+            setErrors((current) => ({ ...current, pincode: '' }))
+          }}
+          error={errors.pincode}
+          placeholder="141001"
+          inputMode="numeric"
+          autoComplete="postal-code"
+          pattern="[1-9][0-9]{5}"
+          maxLength={6}
+          hint="Enter a 6-digit pincode, or use the address field above."
+        />
+
+        {suggestions.length > 0 && (
+          <div className="rounded-2xl border border-line bg-elevated/60 p-1.5">
+            <p className="px-2 pb-1 pt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+              Address results
+            </p>
+            <ul aria-label="Address results">
+              {suggestions.map((suggestion, index) => (
+                <li key={`${suggestion.lat}-${suggestion.lng}-${index}`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedSuggestion(suggestion)
+                      setAddress(suggestion.label)
+                      setSuggestions([])
+                    }}
+                    className="flex min-h-11 w-full items-start gap-2 rounded-xl px-2 py-2 text-left text-sm text-ink transition hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500"
+                  >
+                    <MapPin
+                      className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-300"
+                      aria-hidden="true"
+                    />
+                    <span className="min-w-0">
+                      <span className="block font-semibold">{suggestion.label}</span>
+                      {suggestion.state && (
+                        <span className="block text-[11px] text-ink-muted">
+                          {suggestion.state}
+                          {suggestion.pincode ? ` · ${suggestion.pincode}` : ''}
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
-        <form onSubmit={submit} className="mt-5 space-y-4" noValidate>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field
-              id="loc-area"
-              label="Area or street"
-              value={form.area}
-              onChange={set('area')}
-              error={errors.area}
-              placeholder="Model Town"
-              autoComplete="street-address"
-            />
-            <Field
-              id="loc-city"
-              label="City"
-              value={form.city}
-              onChange={set('city')}
-              error={errors.city}
-              placeholder="Ludhiana"
-              autoComplete="address-level2"
-            />
-          </div>
+        {searching && (
+          <p className="flex items-center gap-2 text-xs text-ink-muted" aria-live="polite">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+            Searching addresses…
+          </p>
+        )}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field
-              id="loc-state"
-              label="State / UT"
-              as="select"
-              value={form.state}
-              onChange={set('state')}
-            >
-              <option value="">Select a state or UT</option>
-              {INDIAN_STATES.map((stateName) => (
-                <option key={stateName} value={stateName}>
-                  {stateName}
-                </option>
-              ))}
-            </Field>
-            <Field
-              id="loc-pincode"
-              label="Pincode"
-              value={form.pincode}
-              onChange={(event) =>
-                set('pincode')({
-                  target: {
-                    value: event.target.value.replace(/\D/g, '').slice(0, 6),
-                  },
-                })
-              }
-              error={errors.pincode}
-              placeholder="141001"
-              inputMode="numeric"
-              autoComplete="postal-code"
-              pattern="[0-9]*"
-              maxLength={6}
-              hint="Six digits. We resolve it on submit only."
-            />
-          </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Button
+            type="button"
+            variant="secondary"
+            icon={status === 'detecting' ? Loader2 : Navigation}
+            loading={status === 'detecting'}
+            onClick={useGps}
+            className="sm:w-auto"
+          >
+            Use my current location
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            icon={busy ? Loader2 : Search}
+            loading={busy}
+            className="sm:w-auto"
+          >
+            {busy ? 'Checking place…' : 'Use this place'}
+          </Button>
+        </div>
+      </form>
 
-          {searchError && (
-            <p role="alert" className="text-[13px] font-medium text-danger-600 dark:text-danger-400">
-              {searchError}
-            </p>
-          )}
+      {demoLocationVisible() && (
+        <div className="mt-4 border-t border-line pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            icon={MapPin}
+            onClick={() => choose(DEMO_PLACE)}
+            className="w-full"
+          >
+            Use Ludhiana demo location
+          </Button>
+          <p className="mt-2 text-[11px] text-ink-muted">
+            Sample data for demo. This choice is never made automatically.
+          </p>
+        </div>
+      )}
 
-          {suggestions.length > 0 && (
-            <div className="rounded-2xl border border-line bg-elevated/60 p-1.5">
-              <p className="px-2 pb-1 pt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-muted">
-                Suggested places
-              </p>
-              <ul aria-label="Address suggestions">
-                {suggestions.map((suggestion, index) => (
-                  <li key={`${suggestion.lat}-${suggestion.lng}-${index}`}>
-                    <button
-                      type="button"
-                      onClick={() => chooseSuggestion(suggestion)}
-                      className="flex w-full items-start gap-2 rounded-xl px-2 py-2 text-left text-sm text-ink transition hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500"
-                    >
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-300" aria-hidden="true" />
-                      <span className="min-w-0">
-                        <span className="block truncate font-semibold">{suggestion.label}</span>
-                        {suggestion.state && (
-                          <span className="block text-[11px] text-ink-muted">
-                            {suggestion.state}
-                            {suggestion.pincode ? ` · ${suggestion.pincode}` : ''}
-                          </span>
-                        )}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Button
-              type="button"
-              variant="outline"
-              icon={Navigation}
-              onClick={useGps}
-              className="sm:w-auto"
-            >
-              Use my current location
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              icon={busy ? Loader2 : Search}
-              loading={busy}
-              className="sm:w-auto"
-            >
-              {busy ? 'Checking place…' : 'Use this place'}
-            </Button>
-          </div>
-        </form>
-
-        <p className="mt-4 flex items-start gap-2 rounded-2xl bg-elevated p-3 text-[11px] leading-relaxed text-ink-muted">
-          <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          Your live GPS position is used only in this browser and is never stored.
-          Manual places are saved so the map reopens nearby.
-        </p>
-      </div>
-    </Modal>
+      <p className="mt-4 flex items-start gap-2 rounded-2xl bg-elevated p-3 text-[11px] leading-relaxed text-ink-muted">
+        <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        Your live GPS position stays in this browser tab and is never stored. Manual
+        places are saved so the map reopens nearby.
+      </p>
+    </section>
   )
 }

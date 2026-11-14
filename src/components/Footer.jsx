@@ -63,7 +63,7 @@ export default function Footer() {
             </li>
             <li className="flex items-start gap-2.5">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
-              <span>New Delhi, India · Demo network</span>
+              <span>India · Demo network</span>
             </li>
           </ul>
           <p className="mt-4 flex items-start gap-2 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-brand-100/65">

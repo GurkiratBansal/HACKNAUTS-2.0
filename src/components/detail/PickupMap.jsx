@@ -1,5 +1,8 @@
 import { MapPin } from 'lucide-react'
 import MapView from '../MapView'
+import LocationBar from '../LocationBar'
+import LocationPicker from '../LocationPicker'
+import { useUserLocation } from '../../context/LocationContext'
 
 const URGENCY_PIN = {
   fresh: 'var(--fresh-urgency-fresh)',
@@ -9,6 +12,7 @@ const URGENCY_PIN = {
 }
 
 export default function PickupMap({ donation, urgency, alerted }) {
+  const { place } = useUserLocation()
   const markers = [
     {
       id: 'donation',
@@ -31,6 +35,14 @@ export default function PickupMap({ donation, urgency, alerted }) {
     })),
   ]
 
+  if (!place) {
+    return (
+      <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+        <LocationPicker idPrefix="detail-location-picker" />
+      </section>
+    )
+  }
+
   return (
     <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
       <h2 className="font-display text-lg font-bold text-ink">Pickup location</h2>
@@ -41,9 +53,10 @@ export default function PickupMap({ donation, urgency, alerted }) {
         />
         {donation.address}
       </p>
+      <LocationBar className="mt-3" />
       <div className="mt-3">
         <MapView
-          center={[donation.location.lat, donation.location.lng]}
+          center={[place.lat, place.lng]}
           zoom={13}
           height="280px"
           markers={markers}

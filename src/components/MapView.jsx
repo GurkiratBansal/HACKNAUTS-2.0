@@ -9,6 +9,7 @@ import {
   useMapEvents,
 } from 'react-leaflet'
 import L from 'leaflet'
+import MapRecenter from './map/MapRecenter'
 import 'leaflet/dist/leaflet.css'
 
 // Inline glyphs keep pins crisp without loading an icon font or external asset.
@@ -50,15 +51,6 @@ function ClickHandler({ onMapClick }) {
   return null
 }
 
-function Recenter({ center, zoom }) {
-  const map = useMap()
-  const [lat, lng] = center
-  useEffect(() => {
-    map.setView([lat, lng], zoom)
-  }, [lat, lng, zoom, map])
-  return null
-}
-
 function MarkerItem({ marker, active, onMarkerClick }) {
   const map = useMap()
   const markerRef = useRef(null)
@@ -93,7 +85,7 @@ function MarkerItem({ marker, active, onMarkerClick }) {
 }
 
 export default function MapView({
-  center = [28.6139, 77.209],
+  center,
   zoom = 12,
   markers = [],
   height = '420px',
@@ -106,6 +98,22 @@ export default function MapView({
   flat = false,
   children,
 }) {
+  const lat = Array.isArray(center) ? center[0] : center?.lat
+  const lng = Array.isArray(center) ? center[1] : center?.lng
+
+  if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
+    return (
+      <div
+        role="alert"
+        className="flex min-h-11 items-center justify-center rounded-2xl border border-danger-200 bg-danger-50 p-4 text-sm font-semibold text-danger-800 dark:border-danger-800 dark:bg-danger-900/20 dark:text-danger-200"
+      >
+        Map location is unavailable. Please choose a location.
+      </div>
+    )
+  }
+
+  const mapCenter = [Number(lat), Number(lng)]
+
   return (
     <div
       className={`overflow-hidden bg-elevated ${
@@ -116,7 +124,7 @@ export default function MapView({
       style={{ height }}
     >
       <MapContainer
-        center={center}
+        center={mapCenter}
         zoom={zoom}
         scrollWheelZoom
         zoomControl={false}
@@ -128,7 +136,7 @@ export default function MapView({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Recenter center={center} zoom={zoom} />
+        <MapRecenter center={mapCenter} zoom={13} />
         {onMapClick && <ClickHandler onMapClick={onMapClick} />}
         {children}
         {markers.map((marker) => (

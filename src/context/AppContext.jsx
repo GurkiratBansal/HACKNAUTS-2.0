@@ -11,6 +11,7 @@ import { mockNgos } from '../data/mockNgos'
 import { makeMockDonations } from '../data/mockDonations'
 import { getUrgency } from '../utils/urgency'
 import { haversineKm, nearestNgos } from '../utils/distance'
+import { useUserLocation } from './LocationContext'
 
 const AppContext = createContext(null)
 
@@ -84,6 +85,7 @@ function loadDonations() {
 }
 
 export function AppProvider({ children }) {
+  const { place } = useUserLocation()
   const [users, setUsers] = useState(() => read(LS.users, Object.values(DEMO_USERS)))
   const [donations, setDonations] = useState(loadDonations)
   const [currentUser, setCurrentUser] = useState(() => {
@@ -186,15 +188,10 @@ export function AppProvider({ children }) {
               (n) => n.name.toLowerCase() === payload.orgName?.trim().toLowerCase(),
             )
           : null
-      const fallbackLocation = {
-        lat: 28.6139 + (Math.random() - 0.5) * 0.08,
-        lng: 77.209 + (Math.random() - 0.5) * 0.08,
-      }
       const location =
         payload.location ||
-        (matchedNgo
-          ? { lat: matchedNgo.lat, lng: matchedNgo.lng }
-          : fallbackLocation)
+        place ||
+        (matchedNgo ? { lat: matchedNgo.lat, lng: matchedNgo.lng } : null)
       const userId = `u-${Date.now()}`
       const user = {
         id: userId,
@@ -203,7 +200,7 @@ export function AppProvider({ children }) {
         orgName: payload.orgName?.trim() || payload.name.trim(),
         email,
         phone: payload.phone.trim(),
-        city: payload.city?.trim() || 'New Delhi',
+        city: payload.city?.trim() || '',
         location,
         // A new NGO account is not silently mapped onto an existing sample
         // organisation. It gets its own account ID and stays "pending".
@@ -216,7 +213,7 @@ export function AppProvider({ children }) {
       addToast(`Account created. Welcome to FRESH, ${user.orgName}.`, 'success')
       return { ok: true }
     },
-    [users, ngos, addToast],
+    [users, ngos, place, addToast],
   )
 
   const logout = useCallback(() => {
@@ -227,10 +224,7 @@ export function AppProvider({ children }) {
   const addDonation = useCallback(
     (data) => {
       const now = new Date().toISOString()
-      const location = data.location || currentUser?.location || {
-        lat: 28.6139,
-        lng: 77.209,
-      }
+      const location = data.location || place || currentUser?.location || null
       const alerted = nearestNgos(ngos, location, 3).map((n) => n.id)
       const donation = {
         id: `don-${Date.now()}`,
@@ -264,7 +258,7 @@ export function AppProvider({ children }) {
       )
       return donation
     },
-    [currentUser, ngos, addToast],
+    [currentUser, ngos, place, addToast],
   )
 
   const acceptDonation = useCallback(

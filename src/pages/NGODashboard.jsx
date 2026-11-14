@@ -8,7 +8,10 @@ import {
   UtensilsCrossed,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import { useUserLocation } from '../context/LocationContext'
 import FoodCard from '../components/FoodCard'
+import LocationPicker from '../components/LocationPicker'
+import LocationBar from '../components/LocationBar'
 import EmptyState from '../components/EmptyState'
 import Button from '../components/ui/Button'
 import DashboardShell from '../components/dashboard/DashboardShell'
@@ -28,18 +31,15 @@ const DEFAULT_FILTERS = {
 
 export default function NGODashboard() {
   const { currentUser, donations, ngos, acceptDonation } = useApp()
+  const { place } = useUserLocation()
   const matchedNgo =
     ngos.find((n) => n.id === currentUser?.ngoId) ||
     ngos.find((n) => n.name === currentUser?.orgName)
-  const origin =
-    currentUser?.location ||
-    (matchedNgo
-      ? { lat: matchedNgo.lat, lng: matchedNgo.lng }
-      : { lat: 28.6139, lng: 77.209 })
+  const origin = place
   const ngo =
     matchedNgo || {
       name: currentUser?.orgName || currentUser?.name || 'Your NGO',
-      city: currentUser?.city || 'New Delhi',
+      city: currentUser?.city || 'Your area',
       verified: false,
     }
 
@@ -96,6 +96,14 @@ export default function NGODashboard() {
     setQuery('')
   }
 
+  if (!place) {
+    return (
+      <main className="min-h-[calc(100dvh-4.5rem)] bg-canvas px-4 py-8 sm:px-6">
+        <LocationPicker idPrefix="ngo-location-picker" className="mx-auto max-w-2xl" />
+      </main>
+    )
+  }
+
   return (
     <DashboardShell
       role="ngo"
@@ -128,6 +136,8 @@ export default function NGODashboard() {
         </Button>
       }
     >
+      <LocationBar className="mb-5" />
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatTile
           icon={UtensilsCrossed}

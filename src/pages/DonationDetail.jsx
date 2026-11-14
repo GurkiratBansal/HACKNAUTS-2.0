@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, UtensilsCrossed } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import { useUserLocation } from '../context/LocationContext'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/EmptyState'
 import ReportModal from '../components/ReportModal'
@@ -23,6 +24,7 @@ export default function DonationDetail() {
     advanceStatus,
     reportDonation,
   } = useApp()
+  const { place } = useUserLocation()
   const [reportOpen, setReportOpen] = useState(false)
   const [now, setNow] = useState(Date.now())
 
@@ -35,12 +37,12 @@ export default function DonationDetail() {
   const donation = donations.find((entry) => entry.id === id)
 
   const alerted = useMemo(() => {
-    if (!donation) return []
+    if (!donation || !place) return []
     return (donation.alertedNgoIds || [])
       .map((ngoId) => ngos.find((ngo) => ngo.id === ngoId))
       .filter(Boolean)
-      .map((ngo) => ({ ...ngo, distanceKm: haversineKm(donation.location, ngo) }))
-  }, [donation, ngos])
+      .map((ngo) => ({ ...ngo, distanceKm: haversineKm(place, ngo) }))
+  }, [donation, ngos, place])
 
   if (!donation) {
     return (
