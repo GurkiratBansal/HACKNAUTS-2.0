@@ -167,8 +167,8 @@
   place-items: center;
   border: 3px solid rgb(var(--fresh-surface));
   border-radius: 9999px;
-  background: var(--pin-color, #047857);
-  color: #fff;
+  background: rgb(var(--pin-color, 4 120 87));
+  color: rgb(var(--pin-ink, 255 255 255));
   box-shadow: 0 8px 20px -6px rgb(2 44 34 / 0.55);
   transition: transform 0.18s ease;
 }
@@ -177,9 +177,23 @@
   transform: scale(1.1);
 }
 
+.fresh-pin--selected,
+.fresh-pin--selected:hover {
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 4px rgb(var(--fresh-surface)),
+    0 0 0 7px rgb(var(--fresh-ink) / 0.14),
+    0 12px 26px -8px rgb(2 44 34 / 0.55);
+}
+
 .fresh-pin svg {
   width: 18px;
   height: 18px;
+}
+
+.fresh-pin--selected svg {
+  width: 20px;
+  height: 20px;
 }
 
 .fresh-pin--you {

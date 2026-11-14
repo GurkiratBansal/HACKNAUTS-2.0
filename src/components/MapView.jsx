@@ -1,28 +1,38 @@
-import { useEffect } from 'react'
-import { MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap, useMapEvents } from 'react-leaflet'
+import { useEffect, useRef } from 'react'
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  ZoomControl,
+  useMap,
+  useMapEvents,
+} from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 
-// Vite does not rewrite Leaflet's default icon URL at runtime, so point the
-// default icon at the bundled assets explicitly.
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-})
+// Inline glyphs keep pins crisp without loading an icon font or external asset.
+const PIN_GLYPHS = {
+  food:
+    '<path d="M4 12h16a8 8 0 0 1-16 0Z"/><path d="M9 5c-1 1.2-1 2.3 0 3.5M13 4c-1 1.2-1 2.3 0 3.5"/>',
+  ngo: '<path d="M12 20s-7-4.35-7-9a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 4.65-7 9-7 9Z"/>',
+  you: '<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
+  pickup:
+    '<path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/>',
+}
 
-function pinIcon(color, selected = false) {
-  const size = selected ? 22 : 16
+function pinIcon(marker) {
+  const size = marker.selected ? 46 : 40
+  const glyph = PIN_GLYPHS[marker.kind] || PIN_GLYPHS.food
   return L.divIcon({
     className: 'fresh-map-pin',
-    html: `<span style="
-      display:block;width:${size}px;height:${size}px;border-radius:9999px;
-      background:${color};border:3px solid #fff;
-      box-shadow:0 2px 8px rgba(15,23,42,.35);"></span>`,
+    html: `<span class="fresh-pin${marker.selected ? ' fresh-pin--selected' : ''}${
+      marker.kind === 'you' ? ' fresh-pin--you' : ''
+    }" style="--pin-color:${
+      marker.color || 'var(--fresh-urgency-fresh)'
+    };${marker.ink ? `--pin-ink:${marker.ink};` : ''}width:${size}px;height:${size}px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${glyph}</svg>
+    </span>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
     popupAnchor: [0, -size / 2],
@@ -49,6 +59,39 @@ function Recenter({ center, zoom }) {
   return null
 }
 
+function MarkerItem({ marker, active, onMarkerClick }) {
+  const map = useMap()
+  const markerRef = useRef(null)
+
+  // Selecting a result in the side panel opens its popup and centres the pin.
+  useEffect(() => {
+    if (!active) return undefined
+    const reduceMotion = window.matchMedia?.(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+    map.panTo([marker.lat, marker.lng], { animate: !reduceMotion })
+    const timer = window.setTimeout(() => {
+      markerRef.current?.openPopup()
+    }, 60)
+    return () => window.clearTimeout(timer)
+  }, [active, map, marker.lat, marker.lng])
+
+  return (
+    <Marker
+      ref={markerRef}
+      position={[marker.lat, marker.lng]}
+      icon={pinIcon({ ...marker, selected: active })}
+      title={marker.title}
+      zIndexOffset={active ? 1000 : 0}
+      eventHandlers={{
+        click: () => onMarkerClick?.(marker.id),
+      }}
+    >
+      {marker.popup && <Popup>{marker.popup}</Popup>}
+    </Marker>
+  )
+}
+
 export default function MapView({
   center = [28.6139, 77.209],
   zoom = 12,
@@ -56,12 +99,19 @@ export default function MapView({
   height = '420px',
   className = '',
   onMapClick,
+  onMarkerClick,
+  activeMarkerId,
   showZoomControl = true,
   zoomControlPosition = 'topleft',
+  flat = false,
 }) {
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm ${className}`}
+      className={`overflow-hidden bg-elevated ${
+        flat
+          ? 'rounded-none border-0 shadow-none'
+          : 'rounded-2xl border border-line shadow-soft'
+      } ${className}`}
       style={{ height }}
     >
       <MapContainer
@@ -80,14 +130,12 @@ export default function MapView({
         <Recenter center={center} zoom={zoom} />
         {onMapClick && <ClickHandler onMapClick={onMapClick} />}
         {markers.map((marker) => (
-          <Marker
+          <MarkerItem
             key={marker.id}
-            position={[marker.lat, marker.lng]}
-            icon={pinIcon(marker.color || '#059669', marker.selected)}
-            title={marker.title}
-          >
-            {marker.popup && <Popup>{marker.popup}</Popup>}
-          </Marker>
+            marker={marker}
+            active={marker.id === activeMarkerId}
+            onMarkerClick={onMarkerClick}
+          />
         ))}
       </MapContainer>
     </div>
