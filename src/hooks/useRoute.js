@@ -1,38 +1,36 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getRoute } from '../services/routing'
-
-const EMPTY = { key: null, route: null, loading: false, error: null }
 
 const finite = (value) => Number.isFinite(Number(value))
 
 /**
- * Resolve the single fastest road route for the current selection.
- *
- * The previous route is hidden immediately when the selection changes, and
- * the in-flight request is aborted on cleanup so a slow answer for an old pin
- * can never replace the new one. `refetch` powers the Try again button.
+ * Load one road route. The request is aborted when the endpoints change or
+ * the component unmounts. requestKey can be changed to retry the same route.
  */
-export function useRoute(from, to) {
+export function useRoute(from, to, requestKey = 0) {
   const fromLat = from ? Number(from.lat) : NaN
   const fromLng = from ? Number(from.lng) : NaN
   const toLat = to ? Number(to.lat) : NaN
   const toLng = to ? Number(to.lng) : NaN
   const valid =
     finite(fromLat) && finite(fromLng) && finite(toLat) && finite(toLng)
-  const key = valid ? `${fromLat},${fromLng}|${toLat},${toLng}` : null
+  const key = valid
+    ? `${fromLat},${fromLng}|${toLat},${toLng}|${requestKey}`
+    : null
 
-  const [reloadToken, setReloadToken] = useState(0)
-  const [entry, setEntry] = useState(EMPTY)
+  const [entry, setEntry] = useState({
+    key: null,
+    route: null,
+    loading: false,
+    error: null,
+  })
   const current = entry.key === key ? entry : null
-
-  const refetch = useCallback(() => setReloadToken((value) => value + 1), [])
 
   useEffect(() => {
     if (!valid) return undefined
 
     const controller = new AbortController()
     let active = true
-
     setEntry({ key, route: null, loading: true, error: null })
 
     getRoute(
@@ -52,12 +50,11 @@ export function useRoute(from, to) {
       active = false
       controller.abort()
     }
-  }, [valid, key, fromLat, fromLng, toLat, toLng, reloadToken])
+  }, [valid, key, fromLat, fromLng, toLat, toLng, requestKey])
 
   return {
     route: current?.route || null,
     loading: Boolean(valid && (!current || current.loading)),
     error: current?.error || null,
-    refetch,
   }
 }
