@@ -10,16 +10,19 @@ import '@fontsource/plus-jakarta-sans/800.css'
 import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
 import { AppProvider } from './context/AppContext'
+import { LocationProvider } from './context/LocationContext'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <AppProvider>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-      </AppProvider>
+      <LocationProvider>
+        <AppProvider>
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
+        </AppProvider>
+      </LocationProvider>
     </BrowserRouter>
   </StrictMode>,
 )

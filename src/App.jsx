@@ -8,6 +8,7 @@ import {
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Toast from './components/Toast'
+import LocationPickerHost from './components/LocationPickerHost'
 import Button from './components/ui/Button'
 import { useApp } from './context/AppContext'
 import Home from './pages/Home'
@@ -129,6 +130,7 @@ export default function App() {
       </div>
       {!hideFooter && <Footer />}
       <Toast />
+      <LocationPickerHost />
     </div>
   )
 }
