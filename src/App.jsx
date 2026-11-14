@@ -92,7 +92,7 @@ export default function App() {
       </a>
       <ScrollToTop />
       <Navbar />
-      <div id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
+      <div id="main-content" tabIndex={-1} className="fresh-page-transition flex-1 focus:outline-none">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

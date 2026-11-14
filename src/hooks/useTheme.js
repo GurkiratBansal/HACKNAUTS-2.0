@@ -12,6 +12,13 @@ const listeners = new Set()
 function applyTheme(next) {
   currentTheme = next
   document.documentElement.classList.toggle('dark', next === 'dark')
+  document.body.classList.remove('fresh-theme-transition')
+  // Force a new animation cycle when the user changes appearance.
+  void document.body.offsetWidth
+  document.body.classList.add('fresh-theme-transition')
+  window.setTimeout(() => {
+    document.body.classList.remove('fresh-theme-transition')
+  }, 650)
   try {
     localStorage.setItem(THEME_KEY, next)
   } catch {
