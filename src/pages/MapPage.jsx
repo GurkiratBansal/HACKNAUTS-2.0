@@ -21,6 +21,7 @@ import { formatDistance } from '../utils/format'
 import demoLudhiana, { isDemoPlaceActive } from '../data/demoLudhiana'
 import { useEmergency } from '../context/EmergencyContext'
 import { makeSampleHazardZones } from '../data/hazardZones'
+import { EMERGENCY_URGENCY_FACTOR } from '../config'
 
 const URGENCY_PIN = {
   fresh: 'var(--fresh-urgency-fresh)',
@@ -54,6 +55,7 @@ export default function MapPage() {
   const demoActive = isDemoPlaceActive(place)
   const emergencyAlert = activeAlert(place)
   const hazardZones = emergencyAlert ? makeSampleHazardZones(place) : []
+  const urgencyFactor = emergencyAlert ? EMERGENCY_URGENCY_FACTOR : 1
 
   const verifiedNgos = useMemo(
     () =>
@@ -68,14 +70,14 @@ export default function MapPage() {
     () =>
       donations
         .filter((donation) => donation.status === 'available')
-        .filter((donation) => getUrgency(donation.deadline).key !== 'expired')
+        .filter((donation) => getUrgency(donation.deadline, Date.now(), urgencyFactor).key !== 'expired')
         .map((donation) => ({
           ...donation,
           distanceKm: haversineKm(origin, donation.location),
-          urgency: getUrgency(donation.deadline),
+          urgency: getUrgency(donation.deadline, Date.now(), urgencyFactor),
         }))
         .sort((a, b) => a.distanceKm - b.distanceKm),
-    [donations, origin],
+    [donations, origin, urgencyFactor],
   )
 
   const visibleNgos = useMemo(() => {
@@ -317,6 +319,10 @@ export default function MapPage() {
     setQuery(value)
     clearSelection()
   }
+
+  useEffect(() => {
+    if (emergencyAlert && maxDistance === 'all') setMaxDistance('25')
+  }, [emergencyAlert, maxDistance])
 
   const changeDistance = (value) => {
     setMaxDistance(value)

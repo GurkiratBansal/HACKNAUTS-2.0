@@ -28,5 +28,7 @@ export const DEFAULT_RADIUS_KM = 10
 // Emergency feed integration is intentionally disabled. Browser CORS rules
 // make direct RSS calls unreliable; a backend proxy is the real solution.
 export const EMERGENCY_SACHET_ENABLED = false
+// Temporary emergency multiplier; verify against current food-safety guidance.
+export const EMERGENCY_URGENCY_FACTOR = 0.5
 
 export const LOCATION_STORAGE_KEY = 'fresh.v2.place'

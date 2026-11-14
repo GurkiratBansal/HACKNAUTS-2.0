@@ -41,13 +41,14 @@ export const URGENCY = {
   },
 }
 
-export function getUrgency(deadline, now = Date.now()) {
+export function getUrgency(deadline, now = Date.now(), thresholdFactor = 1) {
   const msLeft = new Date(deadline).getTime() - now
   if (Number.isNaN(msLeft) || msLeft <= 0) {
     return { ...URGENCY.expired, msLeft: Math.min(0, msLeft || 0), hoursLeft: 0 }
   }
-  const twoHours = 2 * 60 * 60 * 1000
-  const thirtyMinutes = 30 * 60 * 1000
+  const factor = Number.isFinite(Number(thresholdFactor)) ? Number(thresholdFactor) : 1
+  const twoHours = 2 * 60 * 60 * 1000 * factor
+  const thirtyMinutes = 30 * 60 * 1000 * factor
   if (msLeft > twoHours) {
     return { ...URGENCY.fresh, msLeft, hoursLeft: msLeft / 3600000 }
   }

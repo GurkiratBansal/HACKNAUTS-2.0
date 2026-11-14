@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Filter,
   MapPin,
@@ -20,6 +20,8 @@ import NgoSidePanels from '../components/dashboard/NgoSidePanels'
 import StatTile from '../components/dashboard/StatTile'
 import { haversineKm } from '../utils/distance'
 import { getUrgency, urgencyRank } from '../utils/urgency'
+import { useEmergency } from '../context/EmergencyContext'
+import { EMERGENCY_URGENCY_FACTOR } from '../config'
 
 const ALL = 'all'
 const DEFAULT_FILTERS = {
@@ -32,6 +34,9 @@ const DEFAULT_FILTERS = {
 export default function NGODashboard() {
   const { currentUser, donations, ngos, acceptDonation } = useApp()
   const { place } = useUserLocation()
+  const { activeAlert } = useEmergency()
+  const emergencyActive = Boolean(activeAlert(place))
+  const urgencyFactor = emergencyActive ? EMERGENCY_URGENCY_FACTOR : 1
   const matchedNgo =
     ngos.find((n) => n.id === currentUser?.ngoId) ||
     ngos.find((n) => n.name === currentUser?.orgName)
@@ -43,7 +48,7 @@ export default function NGODashboard() {
       verified: false,
     }
 
-  const [filters, setFilters] = useState(DEFAULT_FILTERS)
+  const [filters, setFilters] = useState(() => ({ ...DEFAULT_FILTERS }))
   const [query, setQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
 
@@ -52,9 +57,9 @@ export default function NGODashboard() {
     () =>
       donations
         .filter((d) => d.status === 'available')
-        .filter((d) => getUrgency(d.deadline).key !== 'expired')
+        .filter((d) => getUrgency(d.deadline, Date.now(), urgencyFactor).key !== 'expired')
         .map((d) => ({ ...d, distanceKm: haversineKm(origin, d.location) })),
-    [donations, origin],
+    [donations, origin, urgencyFactor],
   )
 
   const available = useMemo(() => {
@@ -74,15 +79,21 @@ export default function NGODashboard() {
       })
       .sort(
         (a, b) =>
-          urgencyRank(getUrgency(a.deadline).key) -
-            urgencyRank(getUrgency(b.deadline).key) ||
+          urgencyRank(getUrgency(a.deadline, Date.now(), urgencyFactor).key) -
+            urgencyRank(getUrgency(b.deadline, Date.now(), urgencyFactor).key) ||
           a.distanceKm - b.distanceKm,
       )
-  }, [allNearby, filters, query])
+  }, [allNearby, filters, query, urgencyFactor])
 
   const urgentCount = allNearby.filter(
-    (d) => getUrgency(d.deadline).key === 'urgent',
+    (d) => getUrgency(d.deadline, Date.now(), urgencyFactor).key === 'urgent',
   ).length
+
+  useEffect(() => {
+    if (emergencyActive && filters.maxDistance === '10') {
+      setFilters((previous) => ({ ...previous, maxDistance: '25' }))
+    }
+  }, [emergencyActive, filters.maxDistance])
   const totalServings = allNearby.reduce(
     (sum, d) => sum + Number(d.quantity || 0),
     0,
@@ -137,6 +148,11 @@ export default function NGODashboard() {
       }
     >
       <LocationBar className="mb-5" />
+      {emergencyActive && (
+        <p className="mb-5 rounded-2xl border border-warning-200 bg-warning-50 p-3 text-sm leading-relaxed text-warning-950 dark:border-warning-800 dark:bg-warning-900/25 dark:text-warning-100">
+          Weather and conditions can make food unsafe faster. Final food safety checking rests with the donor and the receiving organization.
+        </p>
+      )}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatTile

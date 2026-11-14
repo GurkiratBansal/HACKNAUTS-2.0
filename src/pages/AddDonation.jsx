@@ -18,6 +18,7 @@ import {
 } from '../components/donation/validators'
 import { toLocalDateTimeInput } from '../utils/format'
 import { getSafetyHint } from '../utils/urgency'
+import { useEmergency } from '../context/EmergencyContext'
 
 const now = new Date()
 const DEFAULTS = {
@@ -60,7 +61,9 @@ function compressImage(file) {
 export default function AddDonation() {
   const { addDonation, addToast } = useApp()
   const { place, detect } = useUserLocation()
+  const { activeAlert } = useEmergency()
   const navigate = useNavigate()
+  const emergencyActive = Boolean(activeAlert(place))
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(DEFAULTS)
   const [location, setLocation] = useState(() =>
@@ -216,7 +219,7 @@ export default function AddDonation() {
                 className="animate-fade-up focus:outline-none"
               >
                 {step === 0 && (
-                  <BasicsStep form={form} set={set} errors={errors} />
+                  <BasicsStep form={form} set={set} errors={errors} emergencyActive={emergencyActive} />
                 )}
                 {step === 1 && (
                   <HandlingStep

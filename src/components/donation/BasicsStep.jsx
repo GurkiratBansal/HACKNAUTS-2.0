@@ -14,7 +14,14 @@ const DIETS = [
   { value: 'non-veg', label: 'Non-veg' },
 ]
 
-export default function BasicsStep({ form, set, errors }) {
+export default function BasicsStep({ form, set, errors, emergencyActive = false }) {
+  const activeCategories = emergencyActive ? [
+    ...CATEGORIES,
+    { value: 'dry_ration', label: 'Dry ration' },
+    { value: 'packaged_food', label: 'Packaged food' },
+    { value: 'drinking_water', label: 'Drinking water' },
+    { value: 'baby_food', label: 'Baby food' },
+  ] : CATEGORIES
   return (
     <section aria-labelledby="wizard-step-title">
       <StepHeading eyebrow="Step 1 · The food" title="What are you sharing?">
@@ -40,7 +47,7 @@ export default function BasicsStep({ form, set, errors }) {
           onChange={set('category')}
           required
         >
-          {CATEGORIES.map((category) => (
+          {activeCategories.map((category) => (
             <option key={category.value} value={category.value}>
               {category.label}
             </option>
@@ -108,6 +115,11 @@ export default function BasicsStep({ form, set, errors }) {
         Name the dish the way an NGO would search for it, and count the servings
         you can actually hand over.
       </p>
+      {emergencyActive && (
+        <p className="mt-3 rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs leading-relaxed text-warning-950 dark:border-warning-800 dark:bg-warning-900/25 dark:text-warning-100">
+          Weather and conditions can make food unsafe faster. Final food safety checking rests with the donor and the receiving organization.
+        </p>
+      )}
     </section>
   )
 }
