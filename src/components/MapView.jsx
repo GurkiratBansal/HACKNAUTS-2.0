@@ -104,6 +104,7 @@ export default function MapView({
   showZoomControl = true,
   zoomControlPosition = 'topleft',
   flat = false,
+  children,
 }) {
   return (
     <div
@@ -129,6 +130,7 @@ export default function MapView({
         />
         <Recenter center={center} zoom={zoom} />
         {onMapClick && <ClickHandler onMapClick={onMapClick} />}
+        {children}
         {markers.map((marker) => (
           <MarkerItem
             key={marker.id}

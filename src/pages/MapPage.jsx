@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 import { ChevronRight, Phone, ShieldCheck } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import MapView from '../components/MapView'
+import RouteLayer from '../components/RouteLayer'
 import MapPanel from '../components/map/MapPanel'
 import MobileMapSheet from '../components/map/MobileMapSheet'
+import RouteInfoCard from '../components/map/RouteInfoCard'
 import UrgencyBadge from '../components/UrgencyBadge'
 import { haversineKm } from '../utils/distance'
 import { getUrgency } from '../utils/urgency'
@@ -28,6 +30,7 @@ export default function MapPage() {
   const [urgency, setUrgency] = useState('all')
   const [selectedId, setSelectedId] = useState(null)
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [routeInfo, setRouteInfo] = useState(null)
 
   const origin = currentUser?.location || FALLBACK_ORIGIN
 
@@ -88,6 +91,28 @@ export default function MapPage() {
   }, [available, query, maxDistance, urgency])
 
   const items = view === 'ngos' ? visibleNgos : visibleDonations
+
+  // The selected pin drives the road route. Routing only starts for signed-in
+  // users because only they have a real origin (their donor/NGO location).
+  const selectedItem = useMemo(() => {
+    if (!selectedId || selectedId === 'my-ngo') return null
+    const pool = view === 'ngos' ? visibleNgos : visibleDonations
+    return pool.find((item) => item.id === selectedId) || null
+  }, [selectedId, view, visibleNgos, visibleDonations])
+
+  const routeFrom = currentUser?.location || null
+  const routeTo = selectedItem
+    ? view === 'ngos'
+      ? { lat: selectedItem.lat, lng: selectedItem.lng }
+      : selectedItem.location
+    : null
+  const routeFromLabel =
+    currentUser?.orgName || currentUser?.name || 'Your location'
+  const routeToLabel = selectedItem
+    ? view === 'ngos'
+      ? selectedItem.name
+      : selectedItem.foodName
+    : ''
 
   const markers = useMemo(() => {
     const list =
@@ -242,7 +267,13 @@ export default function MapPage() {
         markers={markers}
         activeMarkerId={selectedId}
         onMarkerClick={setSelectedId}
-      />
+      >
+        <RouteLayer
+          from={routeFrom}
+          to={routeTo}
+          onRouteInfo={setRouteInfo}
+        />
+      </MapView>
 
       <MapPanel {...panelProps} />
 
@@ -250,6 +281,12 @@ export default function MapPage() {
         {...panelProps}
         open={sheetOpen}
         onToggle={() => setSheetOpen((value) => !value)}
+      />
+
+      <RouteInfoCard
+        info={routeInfo}
+        fromLabel={routeFromLabel}
+        toLabel={routeToLabel}
       />
 
       <p className="pointer-events-none absolute bottom-4 right-4 z-[1001] hidden rounded-xl border border-line bg-surface/90 px-3 py-2 text-[11px] text-ink-muted shadow-soft backdrop-blur lg:block">
