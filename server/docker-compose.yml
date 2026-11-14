@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: fresh
+      POSTGRES_PASSWORD: fresh
+      POSTGRES_DB: fresh
+    ports:
+      - "5432:5432"
+    volumes:
+      - fresh-postgres:/var/lib/postgresql/data
+
+volumes:
+  fresh-postgres:
