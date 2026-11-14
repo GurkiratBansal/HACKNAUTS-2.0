@@ -92,7 +92,7 @@ export default function ReportModal({ open, onClose, onSubmit, foodName }) {
 
         <p className="rounded-xl border border-line bg-elevated p-3 text-xs leading-relaxed text-ink-muted">
           Reports are reviewed by the FRESH safety team in a real deployment. In
-          this demo, reports are stored locally and shown to the donor.
+          this browser, reports are stored locally and shown to the donor.
         </p>
 
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

@@ -36,7 +36,7 @@ export default function Terms() {
             Terms, declarations and platform role
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-soft sm:text-base">
-            Plain-language safety rules for the FRESH demo. Food safety is a shared
+            Plain-language safety rules for FRESH. Food safety is a shared
             responsibility, and the receiving NGO makes the final inspection.
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function Terms() {
             </blockquote>
             <p className="mt-3 text-sm leading-relaxed text-ink-soft">
               The declaration must be ticked before a donor can publish a listing.
-              False or incomplete information can lead to removal from the demo
+              False or incomplete information can lead to removal from the platform
               network and, in a real deployment, a safety review.
             </p>
           </Card>
@@ -102,14 +102,14 @@ export default function Terms() {
               </li>
               <li>
                 NGOs can report unsafe food from the donation detail page. Reports are
-                stored locally in this demo and shown to the donor.
+                stored locally in this browser and shown to the donor.
               </li>
               <li>
                 Status changes are timestamped: Available → Pickup Confirmed → Picked
                 Up → Distributed.
               </li>
               <li>
-                All data in this build is sample data for demo and lives in the
+                All data in this build is sample data and lives in the
                 browser&apos;s localStorage. Do not enter real sensitive information.
               </li>
               <li>
@@ -123,7 +123,7 @@ export default function Terms() {
           <Card title="Impact assumptions">
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">
               The impact dashboard estimates 1 serving = 0.4 kg of food and 1 kg of
-              food saved = 2.5 kg CO₂e avoided. These assumptions are for the demo
+              food saved = 2.5 kg CO₂e avoided. These assumptions are estimates
               only and are not audited environmental claims.
             </p>
           </Card>

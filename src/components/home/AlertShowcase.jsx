@@ -19,7 +19,7 @@ export default function AlertShowcase() {
           </h2>
           <p className="mt-4 leading-relaxed text-ink-soft">
             When a donor lists food, FRESH alerts the three nearest verified
-            NGOs. If nobody responds within the demo window, it automatically
+            NGOs. If nobody responds within the response window, it automatically
             escalates to the next three — visibly, on the donor&apos;s page.
           </p>
           <ul className="mt-6 space-y-3 text-sm text-ink-soft">
@@ -53,7 +53,7 @@ export default function AlertShowcase() {
           <div className="relative flex items-center justify-between gap-3">
             <h3 className="text-sm font-semibold text-white">Smart alert panel</h3>
             <span className="rounded-full bg-saffron-400/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-saffron-300 ring-1 ring-inset ring-saffron-400/30">
-              Demo
+              Live alert flow
             </span>
           </div>
 

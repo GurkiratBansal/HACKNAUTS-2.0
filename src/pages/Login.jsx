@@ -46,7 +46,7 @@ export default function Login() {
   const submit = (e) => {
     e.preventDefault()
     if (!email.trim()) {
-      setError('Enter the email you registered with, or use a quick demo login.')
+      setError('Enter the email you registered with, or use a quick login.')
       return
     }
     const result = login(email, role)
@@ -72,7 +72,7 @@ export default function Login() {
         <div className="hidden lg:block">
           <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-surface/90 px-3.5 py-1.5 text-xs font-semibold text-brand-700 shadow-soft dark:border-brand-700 dark:text-brand-200">
             <Leaf className="h-3.5 w-3.5 text-saffron-600 dark:text-saffron-400" aria-hidden="true" />
-            FRESH demo
+            FRESH access
           </span>
           <h1 className="mt-5 font-display text-4xl font-extrabold leading-tight tracking-tight text-ink xl:text-5xl">
             Good food deserves a second chance.
@@ -101,7 +101,7 @@ export default function Login() {
 
           <p className="mt-6 flex items-start gap-2 text-xs leading-relaxed text-ink-muted">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-300" aria-hidden="true" />
-            Frontend demo. Sample accounts and listings stay in this browser.
+            Frontend access. Sample accounts and listings stay in this browser.
           </p>
         </div>
 
@@ -110,7 +110,7 @@ export default function Login() {
             Welcome back
           </h2>
           <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-            Choose a role, then log in or jump straight into a demo.
+            Choose a role, then log in or continue with a sample account.
           </p>
 
           <div
@@ -154,7 +154,7 @@ export default function Login() {
                 setEmail(e.target.value)
                 setError('')
               }}
-              placeholder={role === 'donor' ? 'donor@fresh.demo' : 'ngo@fresh.demo'}
+              placeholder={role === 'donor' ? 'donor@fresh.network' : 'ngo@fresh.network'}
             />
 
             <Field
@@ -164,8 +164,8 @@ export default function Login() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Demo mode: any password"
-              hint="Demo authentication is frontend-only. No password is checked."
+              placeholder="Any password"
+              hint="Frontend authentication is local. No password is checked."
             />
 
             {error && (
@@ -205,7 +205,7 @@ export default function Login() {
               onClick={() => demo('donor')}
               className="w-full"
             >
-              Quick demo donor
+              Quick donor login
             </Button>
             <Button
               type="button"
@@ -214,7 +214,7 @@ export default function Login() {
               onClick={() => demo('ngo')}
               className="w-full"
             >
-              Quick demo NGO
+              Quick NGO login
             </Button>
           </div>
 

@@ -81,7 +81,7 @@ export default function ListingPreview({ form, preview }) {
         </h3>
         <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
           Coming soon: photo-based freshness checks and handling prompts. This
-          demo does not fake AI output — inspection always stays with the NGO.
+          FRESH does not fake AI output — inspection always stays with the NGO.
         </p>
       </div>
 

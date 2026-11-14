@@ -48,7 +48,7 @@ export default function MapPanel({
         </div>
         <p className="mt-1.5 text-xs leading-relaxed text-ink-soft">
           {ngoView
-            ? 'Verified NGO bases across the demo metro. Pick a result to show it on the map.'
+           ? 'Verified NGO bases nearby. Pick a result to show it on the map.'
             : 'Open surplus, colour-coded by pickup urgency. Pick a result to open its pin.'}
         </p>
         {showToggle && (

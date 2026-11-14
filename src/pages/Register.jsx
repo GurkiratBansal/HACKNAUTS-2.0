@@ -73,7 +73,7 @@ export default function Register() {
             Create your FRESH account
           </h1>
           <p className="mt-2 text-ink-soft">
-            Frontend-only demo. Your details stay in this browser.
+            Frontend-only access. Your details stay in this browser.
           </p>
         </div>
 

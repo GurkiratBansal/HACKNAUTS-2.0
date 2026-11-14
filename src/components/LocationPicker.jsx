@@ -8,7 +8,7 @@ import Field from './ui/Field'
 const DEMO_PLACE = {
   lat: 30.901,
   lng: 75.8573,
-  label: 'Ludhiana, Punjab (demo)',
+  label: 'Ludhiana, Punjab',
 }
 
 function demoLocationVisible() {
@@ -288,10 +288,10 @@ export default function LocationPicker({ onComplete, className = '', idPrefix = 
             onClick={() => choose(DEMO_PLACE)}
             className="w-full"
           >
-            Use Ludhiana demo location
+            Use Ludhiana location
           </Button>
           <p className="mt-2 text-[11px] text-ink-muted">
-            Sample data for demo. This choice is never made automatically.
+            Sample location. This choice is never made automatically.
           </p>
         </div>
       )}

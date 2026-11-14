@@ -36,7 +36,7 @@ export default function HeroArt() {
           <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#07513e] p-3 sm:p-4">
             <div className="flex items-center justify-between text-[10px] font-semibold text-emerald-100/70">
               <span>Nearby food map</span>
-              <span className="rounded-full bg-white/10 px-2 py-1">Ludhiana · demo</span>
+              <span className="rounded-full bg-white/10 px-2 py-1">Ludhiana · nearby</span>
             </div>
 
             <svg
@@ -64,6 +64,14 @@ export default function HeroArt() {
             <div className="absolute bottom-4 left-4 rounded-xl border border-white/15 bg-[#063f31]/85 px-3 py-2 text-white shadow-lg backdrop-blur">
               <p className="text-[10px] font-semibold text-emerald-100/65">Active route</p>
               <p className="mt-0.5 text-xs font-bold">Road route · 2.1 km</p>
+            </div>
+            <div className="absolute bottom-4 right-4 overflow-hidden rounded-xl border border-white/40 bg-white/15 p-1 shadow-lg backdrop-blur">
+              <img
+                src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=160&q=75"
+                alt="Fresh shared meal"
+                loading="lazy"
+                className="h-12 w-12 rounded-lg object-cover"
+              />
             </div>
           </div>
 

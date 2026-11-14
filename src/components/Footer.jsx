@@ -55,7 +55,7 @@ export default function Footer() {
           <ul className="mt-4 space-y-3 text-sm text-brand-100/80">
             <li className="flex items-start gap-2.5">
               <Mail className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
-              <span>hello@fresh.demo</span>
+              <span>hello@fresh.network</span>
             </li>
             <li className="flex items-start gap-2.5">
               <Phone className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
@@ -63,12 +63,12 @@ export default function Footer() {
             </li>
             <li className="flex items-start gap-2.5">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
-              <span>India · Demo network</span>
+              <span>India · FRESH network</span>
             </li>
           </ul>
           <p className="mt-4 flex items-start gap-2 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-brand-100/65">
             <HeartHandshake className="mt-0.5 h-4 w-4 shrink-0 text-saffron-400" aria-hidden="true" />
-            Sample data for demo. No real food is listed and no real contact details are used.
+             Sample data. No real food is listed and no real contact details are used.
           </p>
         </div>
       </div>
@@ -79,7 +79,7 @@ export default function Footer() {
           <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="font-semibold text-brand-200">Aligned with SDG 2, 3, 11, 12 and 17.</span>
             <span aria-hidden="true">·</span>
-            <span>Frontend-only hackathon demo</span>
+              <span>Frontend-only experience</span>
           </p>
         </div>
       </div>

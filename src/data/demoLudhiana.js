@@ -1,7 +1,7 @@
 import { haversineKm } from '../utils/distance.js'
 
 export const DEMO_CENTER = { lat: 30.9010, lng: 75.8573 }
-export const DEMO_LABEL = 'Sample data for demo'
+export const DEMO_LABEL = 'Sample data'
 
 const HOUR = 60 * 60 * 1000
 const MINUTE = 60 * 1000

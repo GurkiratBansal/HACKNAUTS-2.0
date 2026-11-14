@@ -155,7 +155,7 @@ export default function DetailAside({
             {donation.reports.length > 1 ? 's' : ''}
           </p>
           <p className="mt-1 text-xs leading-relaxed">
-            Reports are stored locally in this demo and visible to the donor.
+            Reports are stored locally in this browser and visible to the donor.
           </p>
         </section>
       )}

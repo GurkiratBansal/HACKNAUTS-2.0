@@ -58,7 +58,7 @@ export default function NgoSidePanels() {
         <p>{URGENCY_DISCLAIMER}</p>
         <p className="mt-2">
           Report any concern from a listing page. Reports are stored locally in
-          this demo and shown to the donor.
+          this browser and shown to the donor.
         </p>
       </SidePanel>
     </aside>

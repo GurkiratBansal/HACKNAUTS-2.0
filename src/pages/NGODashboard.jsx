@@ -232,7 +232,7 @@ export default function NGODashboard() {
               </h2>
               <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft">
                 Coming soon: photo-based freshness prompts and handling
-                checklists. This demo does not fake AI output — inspection always
+                checklists. This app does not fake AI output — inspection always
                 stays with your team.
               </p>
             </div>

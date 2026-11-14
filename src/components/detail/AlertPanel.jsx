@@ -127,7 +127,7 @@ export default function AlertPanel({
       )}
 
       <p className="mt-4 text-xs leading-relaxed text-ink-muted">
-        Demo timer: if no NGO accepts within 60 seconds, the next three nearest
+              If no NGO accepts within 60 seconds, the next three nearest
         verified NGOs are added automatically. The panel updates live on this page
         and on the donor dashboard.
       </p>

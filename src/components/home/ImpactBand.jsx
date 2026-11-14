@@ -55,7 +55,7 @@ export default function ImpactBand({ impact }) {
             </h2>
             <p className="mt-3 max-w-xl leading-relaxed text-brand-100/75">
               Every completed pickup adds to a shared picture of meals rescued,
-              food diverted and emissions avoided across the demo network.
+              food diverted and emissions avoided across the FRESH network.
             </p>
           </div>
           <p className="inline-flex w-fit items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs text-brand-100/70 ring-1 ring-inset ring-white/10">
@@ -72,7 +72,7 @@ export default function ImpactBand({ impact }) {
 
         <p className="mt-8 text-xs leading-relaxed text-brand-100/60">
           Assumptions: 1 serving = 0.4 kg food, and 1 kg food saved = 2.5 kg CO₂e avoided.
-          Sample data for demo.
+              Sample data.
         </p>
       </div>
     </section>

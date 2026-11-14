@@ -30,7 +30,7 @@ export default function DonationDetail() {
   const [routeKey, setRouteKey] = useState(0)
   const [routeInfo, setRouteInfo] = useState(null)
 
-  // Light ticker for the demo escalation countdown.
+  // Light ticker for the escalation countdown.
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(timer)

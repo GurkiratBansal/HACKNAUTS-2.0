@@ -60,7 +60,7 @@ export default function ImpactDashboard() {
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-ink-soft sm:text-base">
               Live totals combine seeded baseline data with the donations completed
-              in this demo browser.
+              in this browser.
             </p>
           </div>
           <Button to="/ngo" variant="outline" size="md">
@@ -74,7 +74,7 @@ export default function ImpactDashboard() {
             value={impact.meals}
             icon={UtensilsCrossed}
             tone="brand"
-            hint="Demo network total"
+            hint="Network total"
           />
           <StatTile
             label="Kg food diverted"
@@ -99,7 +99,7 @@ export default function ImpactDashboard() {
             value={impact.activeNgos}
             icon={Building2}
             tone="neutral"
-            hint="Verified demo partners"
+            hint="Verified partners"
           />
           <StatTile
             label="Donations completed"
@@ -118,7 +118,7 @@ export default function ImpactDashboard() {
                   Meals saved over time
                 </h2>
                 <p className="mt-0.5 text-xs text-ink-muted">
-                  Seeded baseline plus the current demo month.
+                  Seeded baseline plus the current month.
                 </p>
               </div>
               <p className="text-sm font-bold text-brand-700 dark:text-brand-300">
@@ -213,14 +213,14 @@ export default function ImpactDashboard() {
                 <li className="flex items-start gap-2">
                   <Dot /> Baseline: {formatNumber(BASELINE_IMPACT.meals)} meals and{' '}
                   {formatNumber(BASELINE_IMPACT.completed)} completed donations from
-                  the demo network.
+                  the FRESH network.
                 </li>
               </ul>
             </div>
 
             <div className="rounded-3xl border border-brand-200/80 bg-brand-50/80 p-5 shadow-soft dark:border-brand-800 dark:bg-brand-900/25">
               <h2 className="font-display text-base font-bold text-ink">
-                Your demo contribution
+              Your contribution
               </h2>
               <p className="mt-1 font-display text-4xl font-extrabold tabular-nums text-brand-800 dark:text-brand-200">
                 {formatNumber(impact.distributedDonations)}
@@ -236,7 +236,7 @@ export default function ImpactDashboard() {
             </div>
 
             <p className="rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-ink-muted">
-              These are estimates for a hackathon demo, not audited environmental
+              These are estimates, not audited environmental
               claims. FRESH does not guarantee food safety.
             </p>
           </section>
