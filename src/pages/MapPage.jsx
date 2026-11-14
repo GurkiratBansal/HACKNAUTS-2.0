@@ -168,11 +168,11 @@ export default function MapPage() {
                 </p>
                 {ngo.isDemo && (
                   <p className="mt-1 text-[11px] font-semibold text-ink-muted">
-                    Sample data for demo
+                    Sample data
                   </p>
                 )}
                 <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">
-                  Sample NGO for the demo. Donors can call to coordinate a
+                  Sample NGO. Donors can call to coordinate a
                   drop-off.
                 </p>
                 <button
@@ -464,7 +464,7 @@ export default function MapPage() {
           className="mt-6 rounded-2xl border border-line bg-surface/95 p-4 shadow-card sm:p-6"
         >
           <h3 className="font-display text-sm font-bold text-ink uppercase tracking-wider">
-            Routing check ({place.label}) · Sample data for demo
+            Routing check ({place.label}) · Sample data
           </h3>
           {demoRunning ? (
             <div className="space-y-3">
@@ -481,7 +481,7 @@ export default function MapPage() {
                 Start routing check
               </button>
               <p className="mt-2 text-[11px] text-ink-muted">
-                Routes from your location to each Ludhiana demo entry one at a time.
+                Routes from your location to each Ludhiana sample entry one at a time.
               </p>
             </div>
           )}
@@ -519,7 +519,7 @@ export default function MapPage() {
       )}
 
       <p className="pointer-events-none absolute bottom-4 right-4 z-[1001] hidden rounded-xl border border-line bg-surface/90 px-3 py-2 text-[11px] text-ink-muted shadow-soft backdrop-blur lg:block">
-        OpenStreetMap tiles · sample data for demo
+        OpenStreetMap tiles · sample data
       </p>
     </main>
   )
