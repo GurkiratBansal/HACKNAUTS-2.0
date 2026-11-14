@@ -1,2 +1,5 @@
 export * from './users'
 export * from './donations'
+export * from './needs'
+export * from './emergency'
+export * from './reports'
