@@ -4,14 +4,22 @@ import { EMERGENCY_HAZARDS, useEmergency } from '../context/EmergencyContext'
 
 const STATES = ['Punjab', 'Haryana', 'Delhi', 'Himachal Pradesh', 'Uttarakhand']
 
-export default function EmergencySimulator() {
+export default function EmergencySimulator({ embedded = false, collapsed = false }) {
   const { simulatorVisible, simulate, clear, alert } = useEmergency()
   const [state, setState] = useState('Punjab')
   const [hazardType, setHazardType] = useState('flood')
   if (!simulatorVisible) return null
 
+  if (embedded && collapsed) {
+    return (
+      <div className="mt-3 flex justify-center" title="Emergency simulator">
+        <Siren className="h-5 w-5 text-warning-600" aria-label="Emergency simulator" />
+      </div>
+    )
+  }
+
   return (
-    <aside className="fixed bottom-4 right-4 z-[1800] w-[min(92vw,320px)] rounded-2xl border border-warning-300 bg-surface/95 p-3 shadow-lift backdrop-blur">
+    <aside className={embedded ? 'mt-3 rounded-2xl border border-warning-300 bg-warning-50/70 p-3 dark:border-warning-800 dark:bg-warning-950/30' : 'fixed bottom-4 right-4 z-[1800] w-[min(92vw,320px)] rounded-2xl border border-warning-300 bg-surface/95 p-3 shadow-lift backdrop-blur'}>
       <div className="flex items-center gap-2 text-sm font-bold text-ink">
         <Siren className="h-4 w-4 text-warning-600" aria-hidden="true" />
         Emergency simulator

@@ -21,7 +21,6 @@ import MapPage from './pages/MapPage'
 import DonationDetail from './pages/DonationDetail'
 import ImpactDashboard from './pages/ImpactDashboard'
 import Terms from './pages/Terms'
-import EmergencySimulator from './components/EmergencySimulator'
 import EmergencyBanner from './components/EmergencyBanner'
 import ReliefMeter from './components/ReliefMeter'
 import LiteModeToggle from './components/LiteModeToggle'
@@ -137,7 +136,6 @@ export default function App() {
       {!hideFooter && <Footer />}
       <Toast />
       <LocationPickerHost />
-      <EmergencySimulator />
       <LiteModeToggle />
     </div>
   )

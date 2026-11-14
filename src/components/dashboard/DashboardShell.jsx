@@ -10,6 +10,7 @@ import {
   Sparkles,
   UtensilsCrossed,
 } from 'lucide-react'
+import EmergencySimulator from '../EmergencySimulator'
 
 const STORAGE_KEY = 'fresh_dash_sidebar_v1'
 
@@ -142,6 +143,8 @@ export default function DashboardShell({
                     <SidebarLink key={item.to} item={item} collapsed={collapsed} />
                   ))}
                 </nav>
+
+                <EmergencySimulator embedded collapsed={collapsed} />
 
                 <button
                   type="button"
