@@ -31,7 +31,7 @@ export default function RouteSummary({
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none absolute left-1/2 top-3 z-[1001] w-[min(92vw,440px)] -translate-x-1/2 rounded-2xl border border-line bg-surface/95 px-4 py-3 shadow-lift backdrop-blur-md lg:left-[calc(50%+190px)]"
+      className="pointer-events-none absolute right-3 top-20 z-[1001] w-[min(calc(100vw-1.5rem),380px)] rounded-2xl border border-line bg-surface/95 px-4 py-3 shadow-lift backdrop-blur-md sm:right-4 sm:w-[min(calc(100vw-2rem),380px)]"
     >
       <div className="flex items-start gap-3">
         <span
@@ -89,11 +89,11 @@ export default function RouteSummary({
             {fromLabel} to {toLabel}
           </p>
 
-          {canStart && onStart && (
+          {canStart && onStart && !success && (
             <button
               type="button"
               onClick={onStart}
-              className="pointer-events-auto mt-2 inline-flex min-h-11 w-28 items-center justify-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+              className="pointer-events-auto mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
               aria-label={`Route to ${toLabel}`}
             >
               Route to {toLabel}
@@ -118,7 +118,7 @@ export default function RouteSummary({
               href={googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="pointer-events-auto inline-flex min-h-11 w-24 items-center justify-center rounded-xl border border-line bg-surface px-3 text-xs font-bold text-brand-700 transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-brand-300"
+              className="pointer-events-auto mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-surface px-3 text-xs font-bold text-brand-700 transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-brand-300"
               aria-label="Open in Google Maps"
             >
               Open in Google Maps
@@ -129,7 +129,7 @@ export default function RouteSummary({
             <button
               type="button"
               onClick={onClear}
-              className="pointer-events-auto mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-line bg-surface px-3 text-xs font-bold text-ink transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+              className="pointer-events-auto mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-surface px-3 text-xs font-bold text-ink transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
               aria-label="Clear route"
             >
               Clear route
