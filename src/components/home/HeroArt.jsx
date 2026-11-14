@@ -4,7 +4,6 @@ import {
   Navigation,
   PackageCheck,
   Sparkles,
-  UtensilsCrossed,
 } from 'lucide-react'
 
 /**
@@ -88,9 +87,12 @@ export default function HeroArt() {
 
             <div className="fresh-saas-card fresh-saas-card--two rounded-2xl border border-white/60 bg-white/95 p-3 shadow-xl">
               <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 text-orange-700">
-                  <UtensilsCrossed className="h-4 w-4" aria-hidden="true" />
-                </span>
+                <img
+                  src="https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=120&q=75"
+                  alt="Vegetarian meal tray"
+                  loading="lazy"
+                  className="h-9 w-9 shrink-0 rounded-lg object-cover ring-2 ring-orange-100"
+                />
                 <div>
                   <p className="text-[10px] font-semibold text-slate-500">New donation</p>
                   <p className="text-xs font-extrabold text-slate-900">60 meal trays</p>
@@ -107,7 +109,9 @@ export default function HeroArt() {
 
             <div className="fresh-saas-card fresh-saas-card--three mt-auto rounded-2xl border border-emerald-200/20 bg-emerald-300/15 p-3 text-emerald-50 backdrop-blur">
               <div className="flex items-center gap-2">
-                <Navigation className="h-4 w-4 text-lime-300" aria-hidden="true" />
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/20">
+                  <Navigation className="h-3.5 w-3.5 text-lime-300" aria-hidden="true" />
+                </span>
                 <span className="text-[11px] font-bold">3 verified NGOs alerted</span>
               </div>
               <p className="mt-1 text-[10px] font-medium text-emerald-100/65">The nearest match is on the way.</p>
