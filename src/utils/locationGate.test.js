@@ -69,7 +69,7 @@ describe('location gate', () => {
   })
 
   it('rethrows caller aborts', async () => {
-    const reverseGeocode = vi.fn().mockImplementation((lat, lng, signal) => {
+    const reverseGeocode = vi.fn().mockImplementation((_lat, _lng, _signal) => {
       const error = new Error('Aborted')
       error.name = 'AbortError'
       return Promise.reject(error)

@@ -154,7 +154,7 @@ export default function NavigationPanel({
 
 function PanelBody({
   nav,
-  state,
+  _state,
   stateLabel,
   remainingKm,
   remainingMin,
@@ -163,14 +163,14 @@ function PanelBody({
   error,
   isArrived,
   destinationName,
-  destination,
+  _destination,
   role,
   follow,
   onFollowChange,
   onMarkPickedUp,
   onStop,
   googleMapsUrl,
-  reducedMotion,
+  _reducedMotion,
 }) {
   return (
     <div className="space-y-4">

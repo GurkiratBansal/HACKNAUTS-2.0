@@ -49,7 +49,6 @@ function isPoint(point) {
 
 function devWarn(...args) {
   if (import.meta.env.DEV) {
-    // eslint-disable-next-line no-console
     console.warn(...args)
   }
 }

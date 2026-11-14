@@ -46,7 +46,7 @@ export function useNavigation({
   route,
   destination,
   destinationName = 'destination',
-  role = 'donor',
+  _role = 'donor',
   destinationValid = true,
   onArrive,
 } = {}) {
@@ -123,14 +123,6 @@ export function useNavigation({
       abortRef.current = null
     }
   }
-
-  const announce = useCallback((message) => {
-    setAnnouncement(message)
-    // Clear after a short delay so repeated identical messages can re-announce.
-    window.setTimeout(() => {
-      if (mountedRef.current) setAnnouncement('')
-    }, 4000)
-  }, [])
 
   const reroute = useCallback(
     async (fromPosition, force = false) => {
