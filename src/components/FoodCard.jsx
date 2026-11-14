@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
@@ -11,6 +10,7 @@ import {
 import UrgencyBadge from './UrgencyBadge'
 import CountdownTimer from './CountdownTimer'
 import Button from './ui/Button'
+import SmartImage from './ui/SmartImage'
 import { getSafetyHint, getUrgency } from '../utils/urgency'
 import {
   categoryLabel,
@@ -59,7 +59,6 @@ export default function FoodCard({
   donorView = false,
   showSafetyHint = true,
 }) {
-  const [imageFailed, setImageFailed] = useState(false)
   const urgency = getUrgency(donation.deadline)
   const expired = urgency.key === 'expired'
   const isAvailable = donation.status === 'available' && !expired
@@ -68,25 +67,23 @@ export default function FoodCard({
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-card dark:hover:border-brand-700">
       <div className="p-2 pb-0">
         <div className="relative h-44 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-100 via-cream to-saffron-100 dark:from-brand-900 dark:via-brand-950 dark:to-saffron-900/40">
-          {donation.photo && !imageFailed ? (
-            <img
-              src={donation.photo}
-              alt={`${donation.foodName} listed for donation`}
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-              loading="lazy"
-              onError={() => setImageFailed(true)}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              <span className="flex h-20 w-20 items-center justify-center rounded-full bg-surface/60 text-brand-700/60 ring-1 ring-inset ring-brand-900/10 backdrop-blur dark:text-brand-300/70 dark:ring-white/10">
-                {imageFailed ? (
-                  <ImageOff className="h-9 w-9" aria-hidden="true" />
-                ) : (
-                  <UtensilsCrossed className="h-9 w-9" aria-hidden="true" />
-                )}
-              </span>
-            </div>
-          )}
+          <SmartImage
+            src={donation.photo}
+            alt={`${donation.foodName} listed for donation`}
+            className="h-full w-full"
+            imgClassName="transition duration-500 group-hover:scale-[1.04]"
+            fallback={
+              <div className="flex h-full items-center justify-center">
+                <span className="flex h-20 w-20 items-center justify-center rounded-full bg-surface/60 text-brand-700/60 ring-1 ring-inset ring-brand-900/10 backdrop-blur dark:text-brand-300/70 dark:ring-white/10">
+                  {donation.photo ? (
+                    <ImageOff className="h-9 w-9" aria-hidden="true" />
+                  ) : (
+                    <UtensilsCrossed className="h-9 w-9" aria-hidden="true" />
+                  )}
+                </span>
+              </div>
+            }
+          />
 
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/60 via-brand-950/5 to-transparent"

@@ -39,6 +39,8 @@ export default function StatTile({
   value,
   hint,
   tone = 'brand',
+  decimals = 0,
+  suffix = '',
 }) {
   const style = TONES[tone] || TONES.brand
 
@@ -48,7 +50,10 @@ export default function StatTile({
         <div className="min-w-0">
           <p className={`text-xs font-semibold ${style.label}`}>{label}</p>
           <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-ink">
-            {formatNumber(value)}
+            {formatNumber(value, decimals)}
+            {suffix && (
+              <span className="ml-1 text-sm font-semibold text-ink-muted">{suffix}</span>
+            )}
           </p>
           {hint && <p className={`mt-0.5 text-[11px] ${style.hint}`}>{hint}</p>}
         </div>
