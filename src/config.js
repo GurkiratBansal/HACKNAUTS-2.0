@@ -15,3 +15,28 @@ export const ROUTING_BASE_URLS = [
   ROUTING_BASE_URL,
   ROUTING_BACKUP_BASE_URL,
 ]
+
+/**
+ * FRESH is an India-only demo. This check is client-side and can be bypassed;
+ * production enforcement needs server-side checks later.
+ */
+export const ENFORCE_INDIA_ONLY = true
+
+/** Dev-only escape hatch (?demo=1) so the team can demo without a location. */
+export const DEV_DEMO_BYPASS_PARAM = 'demo'
+export const DEV_DEMO_PLACE = {
+  lat: 30.90097,
+  lng: 75.85726,
+  label: 'Ludhiana (demo)',
+  city: 'Ludhiana',
+  state: 'Punjab',
+  source: 'demo',
+}
+
+export const RADIUS_OPTIONS = [5, 10, 25, 50]
+export const DEFAULT_RADIUS_KM = 10
+
+export const LOCATION_STORAGE_KEY = 'fresh_manual_location_v1'
+
+/** Neutral map default when no place is chosen yet; not a city default. */
+export const INDIA_MAP_CENTER = { lat: 20.5937, lng: 78.9629 }
