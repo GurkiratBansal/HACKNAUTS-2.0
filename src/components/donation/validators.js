@@ -14,8 +14,11 @@ export function buildStepValidators(form, location) {
     () => {
       const next = {}
       if (!form.foodName.trim()) next.foodName = 'Give the food a clear name.'
-      if (!form.quantity || Number(form.quantity) <= 0) {
+      const qty = Number(form.quantity)
+      if (!form.quantity || !Number.isFinite(qty) || qty <= 0) {
         next.quantity = 'Enter the number of servings.'
+      } else if (qty < 1 || qty > 250) {
+        next.quantity = 'Servings must be between 1 and 250.'
       }
       return next
     },

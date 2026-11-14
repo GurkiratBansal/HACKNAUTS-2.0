@@ -95,7 +95,7 @@ export default function LocationPicker({ onComplete, className = '', idPrefix = 
   }
 
   const submit = async (event) => {
-    event.preventDefault()
+    event?.preventDefault?.()
     const nextErrors = {}
     const cleanPincode = pincode.trim()
 
@@ -181,7 +181,7 @@ export default function LocationPicker({ onComplete, className = '', idPrefix = 
         {message || (status === 'detecting' ? 'Finding your current location…' : '')}
       </div>
 
-      <form onSubmit={submit} className="mt-4 space-y-4" noValidate>
+      <div className="mt-4 space-y-4">
         <Field
           id={`${idPrefix}-address`}
           label="Area, street or city"
@@ -269,16 +269,17 @@ export default function LocationPicker({ onComplete, className = '', idPrefix = 
             Use my current location
           </Button>
           <Button
-            type="submit"
+            type="button"
             variant="primary"
             icon={busy ? Loader2 : Search}
             loading={busy}
+            onClick={submit}
             className="sm:w-auto"
           >
             {busy ? 'Checking place…' : 'Use this place'}
           </Button>
         </div>
-      </form>
+      </div>
 
       {demoLocationVisible() && (
         <div className="mt-4 border-t border-line pt-4">

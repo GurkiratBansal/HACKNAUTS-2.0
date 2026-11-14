@@ -137,6 +137,10 @@ export default function AddDonation() {
 
   const useCurrentLocation = () => {
     locationEditedRef.current = false
+    if (place) {
+      setLocation({ lat: place.lat, lng: place.lng })
+      setErrors((prev) => ({ ...prev, location: '' }))
+    }
     detect()
   }
 
