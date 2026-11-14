@@ -228,6 +228,23 @@ export default function MapPage() {
             ),
           }))
 
+    if (origin) {
+      list.push({
+        id: 'my-location',
+        lat: origin.lat,
+        lng: origin.lng,
+        kind: 'you',
+        color: 'var(--fresh-you)',
+        title: 'Your location',
+        popup: (
+          <div className="w-44">
+            <p className="text-sm font-bold text-ink">Your location</p>
+            <p className="text-xs text-ink-soft">{origin.label}</p>
+          </div>
+        ),
+      })
+    }
+
     if (currentUser && role === 'ngo' && origin) {
       list.push({
         id: 'my-ngo',
@@ -343,6 +360,15 @@ export default function MapPage() {
     setRouteInfo(null)
   }
 
+  const handleMarkerClick = (id) => {
+    if (id === 'my-location' || id === 'my-ngo') return
+    if (view === 'ngos') {
+      requestRouteFor(id)
+    } else {
+      selectItem(id)
+    }
+  }
+
   const panelProps = {
     view,
     count: items.length,
@@ -358,7 +384,7 @@ export default function MapPage() {
     onReset: resetFilters,
     items,
     selectedId,
-    onSelect: selectItem,
+    onSelect: view === 'ngos' ? requestRouteFor : selectItem,
     showDashboardCta: !currentUser,
     ownBase: Boolean(currentUser && role === 'ngo'),
   }
@@ -384,7 +410,7 @@ export default function MapPage() {
         zoomControlPosition="topright"
         markers={markers}
         activeMarkerId={selectedId}
-        onMarkerClick={setSelectedId}
+        onMarkerClick={handleMarkerClick}
       >
         <RouteLayer
           from={routeFrom}
