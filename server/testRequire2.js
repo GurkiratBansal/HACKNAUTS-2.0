@@ -5,7 +5,7 @@ try {
   const exists = require('fs').existsSync(modulePath + '.js');
   console.log('File exists:', exists);
   if (exists) {
-    const _module = require(modulePath);
+    require(modulePath);
     console.log('Module loaded successfully');
   }
 } catch (e) {
