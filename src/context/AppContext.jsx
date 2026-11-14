@@ -12,6 +12,11 @@ import { makeMockDonations } from '../data/mockDonations'
 import { getUrgency } from '../utils/urgency'
 import { haversineKm, nearestNgos } from '../utils/distance'
 import { useUserLocation } from './LocationContext'
+import {
+  demoDonations,
+  demoNgos,
+  isDemoPlaceActive,
+} from '../data/demoLudhiana'
 
 const AppContext = createContext(null)
 
@@ -95,8 +100,28 @@ export function AppProvider({ children }) {
     return allUsers.some((u) => u.id === stored.id) ? stored : null
   })
   const [toasts, setToasts] = useState([])
-  const ngos = mockNgos
+  const demoActive = isDemoPlaceActive(place)
+  const ngos = useMemo(
+    () => (demoActive ? [...mockNgos, ...demoNgos] : mockNgos),
+    [demoActive],
+  )
   const toastTimers = useRef(new Map())
+
+  // Demo records are mounted only while the active place is near Ludhiana.
+  // They use the same state/update path as the existing seeded records, so
+  // accept, status and report actions remain unchanged.
+  useEffect(() => {
+    setDonations((previous) => {
+      const demoIds = new Set(demoDonations.map((donation) => donation.id))
+      if (!demoActive) return previous.filter((donation) => !demoIds.has(donation.id))
+
+      const existing = new Set(previous.map((donation) => donation.id))
+      return [
+        ...previous,
+        ...demoDonations.filter((donation) => !existing.has(donation.id)),
+      ]
+    })
+  }, [demoActive])
 
   useEffect(() => {
     write(LS.users, users)
@@ -440,9 +465,13 @@ export function AppProvider({ children }) {
     }
   }, [donations, ngos])
 
+  const exposedDonations = demoActive
+    ? donations
+    : donations.filter((donation) => !donation.isDemo)
+
   const value = {
     users,
-    donations,
+    donations: exposedDonations,
     ngos,
     currentUser,
     toasts,

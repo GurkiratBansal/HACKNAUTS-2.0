@@ -1,82 +1,50 @@
 [
   {
-    "name": "Feeding India",
+    "name": "Kalgidhar Langar (Sample)",
     "ok": true,
     "error": null,
-    "snappedLat": 30.911717,
-    "snappedLng": 75.857371,
+    "snappedLat": 30.911695,
+    "snappedLng": 75.857378,
     "distanceMoved": 0
   },
   {
-    "name": "Robin Hood Army",
+    "name": "Model Town Meal Hall (Sample)",
     "ok": true,
     "error": null,
-    "snappedLat": 30.904826,
-    "snappedLng": 75.844481,
-    "distanceMoved": 0.1
-  },
-  {
-    "name": "India Food Banking Network",
-    "ok": true,
-    "error": null,
-    "snappedLat": 30.897961,
-    "snappedLng": 75.852079,
+    "snappedLat": 30.897998,
+    "snappedLng": 75.852104,
     "distanceMoved": 0
   },
   {
-    "name": "Sarabha Nagar Kitchen",
+    "name": "Sunet Community Kitchen (Sample)",
     "ok": true,
     "error": null,
-    "snappedLat": 30.892804,
-    "snappedLng": 75.825828,
+    "snappedLat": 30.882893,
+    "snappedLng": 75.831996,
     "distanceMoved": 0
   },
   {
-    "name": "Veg Biryani donation",
+    "name": "Sarabha Food Bridge (Sample)",
     "ok": true,
     "error": null,
-    "snappedLat": 30.882849,
-    "snappedLng": 75.818997,
+    "snappedLat": 30.892814,
+    "snappedLng": 75.825812,
     "distanceMoved": 0
   },
   {
-    "name": "Fresh fruit surplus",
+    "name": "Khanna Meal Link (Sample)",
     "ok": true,
     "error": null,
-    "snappedLat": 30.923,
-    "snappedLng": 75.818103,
+    "snappedLat": 30.704506,
+    "snappedLng": 76.219613,
     "distanceMoved": 0
   },
   {
-    "name": "Model Town NGO",
+    "name": "Jalandhar Community Pantry (Sample)",
     "ok": true,
     "error": null,
-    "snappedLat": 30.897961,
-    "snappedLng": 75.852079,
-    "distanceMoved": 0
-  },
-  {
-    "name": "BRS Nagar Food Collectors",
-    "ok": true,
-    "error": null,
-    "snappedLat": 30.882909,
-    "snappedLng": 75.831954,
-    "distanceMoved": 0
-  },
-  {
-    "name": "Bread surplus",
-    "ok": true,
-    "error": null,
-    "snappedLat": 30.882909,
-    "snappedLng": 75.831954,
-    "distanceMoved": 0
-  },
-  {
-    "name": "Focal Point Charity",
-    "ok": true,
-    "error": null,
-    "snappedLat": 30.900244,
-    "snappedLng": 75.900063,
+    "snappedLat": 31.199819,
+    "snappedLng": 75.720382,
     "distanceMoved": 0
   }
 ]

@@ -44,14 +44,15 @@ export default function MapPage() {
   const [searchParams] = useSearchParams()
 
   const origin = place
+  const demoActive = isDemoPlaceActive(place)
 
   const verifiedNgos = useMemo(
     () =>
       ngos
-        .filter((ngo) => ngo.verified)
+        .filter((ngo) => ngo.verified || (demoActive && ngo.isDemo))
         .map((ngo) => ({ ...ngo, distanceKm: haversineKm(origin, ngo) }))
         .sort((a, b) => a.distanceKm - b.distanceKm),
-    [ngos, origin],
+    [ngos, origin, demoActive],
   )
 
   const available = useMemo(
@@ -158,11 +159,16 @@ export default function MapPage() {
                 <p className="mt-0.5 text-xs text-ink-soft">{ngo.focus}</p>
                 <p className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-brand-700 dark:text-brand-300">
                   <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                  Verified NGO
+                  {ngo.verified ? 'Verified' : 'Verification pending'} · {ngo.type}
                 </p>
                 <p className="mt-1 text-xs text-ink-soft">
-                  {ngo.city} · {formatDistance(ngo.distanceKm)} away
+                  {ngo.area || ngo.city} · {formatDistance(ngo.distanceKm)} away
                 </p>
+                {ngo.isDemo && (
+                  <p className="mt-1 text-[11px] font-semibold text-ink-muted">
+                    Sample data for demo
+                  </p>
+                )}
                 <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">
                   Sample NGO for the demo. Donors can call to coordinate a
                   drop-off.
@@ -199,6 +205,11 @@ export default function MapPage() {
                 <p className="mt-1 text-[11px] leading-relaxed text-ink-muted">
                   {donation.address}
                 </p>
+                {donation.locationApproximate && donation.status === 'available' && (
+                  <p className="mt-1 text-[11px] font-semibold text-ink-muted">
+                    Approximate pickup pin until accepted
+                  </p>
+                )}
                 <Link
                   to={`/donation/${donation.id}`}
                   className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-brand-700 hover:underline dark:text-brand-300"
@@ -269,7 +280,6 @@ export default function MapPage() {
   }
 
   const demoParam = searchParams.get('demo')
-  const demoActive = isDemoPlaceActive(place)
 
   const startDemoRouting = () => {
     setDemoResults([])
@@ -410,7 +420,7 @@ export default function MapPage() {
           className="mt-6 rounded-2xl border border-line bg-surface/95 p-4 shadow-card sm:p-6"
         >
           <h3 className="font-display text-sm font-bold text-ink uppercase tracking-wider">
-            Routing check ({place.label})
+            Routing check ({place.label}) · Sample data for demo
           </h3>
           {demoRunning ? (
             <div className="space-y-3">
