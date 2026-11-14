@@ -15,6 +15,7 @@ import {
   UtensilsCrossed,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import Button from '../components/ui/Button'
 import MapView from '../components/MapView'
 import UrgencyBadge from '../components/UrgencyBadge'
 import CountdownTimer from '../components/CountdownTimer'
@@ -60,7 +61,7 @@ export default function DonationDetail() {
           icon={UtensilsCrossed}
           title="Listing not found"
           description="It may have been removed, or the link is incomplete."
-          action={<Link to="/" className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white">Back to home</Link>}
+          action={<Button to="/" variant="secondary">Back to home</Button>}
         />
       </main>
     )
@@ -174,24 +175,37 @@ export default function DonationDetail() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {isNgo && (
-                      <button type="button" onClick={() => setReportOpen(true)} className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">
-                        <AlertTriangle className="h-4 w-4" /> Report unsafe food
-                      </button>
+                      <Button
+                        type="button"
+                        variant="outline-danger"
+                        size="md"
+                        icon={AlertTriangle}
+                        onClick={() => setReportOpen(true)}
+                      >
+                        Report unsafe food
+                      </Button>
                     )}
                     {canAccept && (
-                      <button type="button" onClick={() => acceptDonation(donation.id)} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700">
-                        <CheckCircle2 className="h-4 w-4" /> Accept pickup
-                      </button>
+                      <Button
+                        type="button"
+                        variant="primary"
+                        size="md"
+                        icon={CheckCircle2}
+                        onClick={() => acceptDonation(donation.id)}
+                      >
+                        Accept pickup
+                      </Button>
                     )}
                     {canAdvance && (
-                      <button
+                      <Button
                         type="button"
+                        variant="secondary"
+                        size="md"
+                        icon={Truck}
                         onClick={() => advanceStatus(donation.id)}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
                       >
-                        <Truck className="h-4 w-4" />
                         {donation.status === 'accepted' ? 'Mark picked up' : 'Mark distributed'}
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -341,9 +355,9 @@ export default function DonationDetail() {
                 )}
 
                 {!currentUser && (
-                  <Link to="/login" className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+                  <Button to="/login" variant="secondary" className="w-full">
                     Log in to accept or manage this pickup
-                  </Link>
+                  </Button>
                 )}
               </div>
             </section>

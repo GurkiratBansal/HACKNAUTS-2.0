@@ -13,6 +13,8 @@ import {
 import { useApp } from '../context/AppContext'
 import MapView from '../components/MapView'
 import DeclarationModal from '../components/DeclarationModal'
+import Button from '../components/ui/Button'
+import Field from '../components/ui/Field'
 import {
   categoryLabel,
   storageLabel,
@@ -167,7 +169,7 @@ export default function AddDonation() {
   }
 
   return (
-    <main className="bg-[#fbfaf7]">
+    <main className="bg-canvas">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-emerald-700">Add donation</p>
@@ -186,12 +188,9 @@ export default function AddDonation() {
               <h2 className="text-base font-bold text-slate-900">What are you sharing?</h2>
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
                 <Field id="food-name" label="Food name" value={form.foodName} onChange={set('foodName')} error={errors.foodName} placeholder="Veg biryani, sandwiches, fruit boxes…" required />
-                <div>
-                  <label htmlFor="food-category" className="mb-1 block text-sm font-semibold text-slate-700">Category <span className="text-red-600">*</span></label>
-                  <select id="food-category" value={form.category} onChange={set('category')} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
-                    {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                  </select>
-                </div>
+                <Field as="select" id="food-category" label="Category" value={form.category} onChange={set('category')} required>
+                  {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                </Field>
                 <div>
                   <span className="mb-1 block text-sm font-semibold text-slate-700">Diet <span className="text-red-600">*</span></span>
                   <div className="flex gap-2">
@@ -212,15 +211,14 @@ export default function AddDonation() {
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
                 <Field id="food-cooked" label="Cooked / packed at" type="datetime-local" value={form.cookedAt} onChange={set('cookedAt')} error={errors.cookedAt} required />
                 <div>
-                  <label htmlFor="food-storage" className="mb-1 block text-sm font-semibold text-slate-700">Storage condition <span className="text-red-600">*</span></label>
-                  <select id="food-storage" value={form.storage} onChange={set('storage')} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                  <Field as="select" id="food-storage" label="Storage condition" value={form.storage} onChange={set('storage')} required>
                     {STORAGE.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-                  </select>
+                  </Field>
                 </div>
                 <Field id="food-deadline" label="Pickup deadline" type="datetime-local" value={form.deadline} onChange={set('deadline')} error={errors.deadline} required />
                 <Field id="food-phone" label="Contact phone" type="tel" value={form.contactPhone} onChange={set('contactPhone')} error={errors.contactPhone} placeholder="+91 98765 43210" required />
               </div>
-              <p className="mt-3 rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-900 ring-1 ring-amber-100">
+              <p className="mt-3 rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs leading-relaxed text-warning-900 dark:border-warning-800 dark:bg-warning-900/30 dark:text-warning-100">
                 <Clock className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
                 {safetyHint}
               </p>
@@ -232,10 +230,10 @@ export default function AddDonation() {
                 <Field id="food-address" label="Address / landmark" value={form.address} onChange={set('address')} error={errors.address} placeholder="12, Connaught Place, New Delhi" required />
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <button type="button" onClick={useCurrentLocation} className="inline-flex items-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100">
-                  <MapPin className="h-4 w-4" /> Use my current location
-                </button>
-                <span className="text-xs text-slate-500">or tap the map to place the pin</span>
+                <Button type="button" variant="outline" size="sm" icon={MapPin} onClick={useCurrentLocation}>
+                  Use my current location
+                </Button>
+                <span className="text-xs text-ink-muted">or tap the map to place the pin</span>
               </div>
               <div className="mt-3">
                 <MapView
@@ -274,23 +272,20 @@ export default function AddDonation() {
                   </label>
                   {photoBusy && <p className="mt-1 text-xs text-slate-500">Preparing preview…</p>}
                   {preview && (
-                    <button type="button" onClick={clearPhoto} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline">
-                      <Trash2 className="h-3.5 w-3.5" /> Remove photo
-                    </button>
+                    <Button type="button" variant="ghostDanger" size="sm" icon={Trash2} onClick={clearPhoto} className="mt-2">
+                      Remove photo
+                    </Button>
                   )}
                 </div>
-                <div>
-                  <label htmlFor="food-notes" className="mb-1 block text-sm font-semibold text-slate-700">Notes for the NGO <span className="font-normal text-slate-400">(optional)</span></label>
-                  <textarea id="food-notes" rows={6} value={form.notes} onChange={set('notes')} placeholder="Packaging, allergens, entrance instructions…" className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
-                </div>
+                <Field as="textarea" id="food-notes" label="Notes for the NGO (optional)" rows={6} value={form.notes} onChange={set('notes')} placeholder="Packaging, allergens, entrance instructions…" />
               </div>
             </section>
 
             <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-slate-500">You will confirm the Food Donation Declaration next.</p>
-              <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
-                <Upload className="h-4 w-4" /> Review &amp; publish
-              </button>
+              <p className="text-xs text-ink-muted">You will confirm the Food Donation Declaration next.</p>
+              <Button type="submit" variant="primary" size="lg" icon={Upload}>
+                Review &amp; publish
+              </Button>
             </div>
           </div>
 
@@ -342,25 +337,5 @@ export default function AddDonation() {
         foodName={form.foodName}
       />
     </main>
-  )
-}
-
-function Field({ id, label, error, hint, required, ...props }) {
-  return (
-    <div>
-      <label htmlFor={id} className="mb-1 block text-sm font-semibold text-slate-700">
-        {label} {required && <span className="text-red-600">*</span>}
-      </label>
-      <input
-        id={id}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
-        className={`w-full rounded-xl border px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${
-          error ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/30'
-        }`}
-        {...props}
-      />
-      {error ? <p id={`${id}-error`} className="mt-1 text-xs font-medium text-red-600">{error}</p> : hint ? <p id={`${id}-hint`} className="mt-1 text-xs text-slate-500">{hint}</p> : null}
-    </div>
   )
 }

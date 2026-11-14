@@ -1,7 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowRight, Building2, ShieldCheck, UtensilsCrossed } from 'lucide-react'
+import {
+  ArrowRight,
+  Building2,
+  ShieldCheck,
+  UtensilsCrossed,
+} from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import Button from '../components/ui/Button'
+import Field from '../components/ui/Field'
 
 const empty = {
   name: '',
@@ -27,8 +34,12 @@ export default function Register() {
   const validate = () => {
     const next = {}
     if (!form.name.trim()) next.name = 'Your name is required.'
-    if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) next.email = 'Enter a valid email address.'
-    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 10) next.phone = 'Enter a valid phone number.'
+    if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) {
+      next.email = 'Enter a valid email address.'
+    }
+    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 10) {
+      next.phone = 'Enter a valid phone number.'
+    }
     if (role === 'ngo' && !form.orgName.trim()) next.orgName = 'NGO name is required.'
     if (!form.city.trim()) next.city = 'City is required.'
     setErrors(next)
@@ -47,17 +58,31 @@ export default function Register() {
   }
 
   return (
-    <main className="bg-[#fbfaf7]">
-      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-6 text-center">
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Create your FRESH account</h1>
-          <p className="mt-2 text-slate-600">
+    <main className="relative overflow-hidden bg-canvas">
+      <div className="pointer-events-none absolute inset-0 pattern-dots opacity-35" aria-hidden="true" />
+      <div className="pointer-events-none absolute -right-24 top-12 h-72 w-72 rounded-full bg-brand-200/40 blur-3xl dark:bg-brand-800/30" aria-hidden="true" />
+      <div className="pointer-events-none absolute -left-20 bottom-10 h-64 w-64 rounded-full bg-saffron-200/30 blur-3xl dark:bg-saffron-900/20" aria-hidden="true" />
+
+      <div className="relative mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+        <div className="mb-7 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-surface/90 px-3.5 py-1.5 text-xs font-semibold text-brand-700 shadow-soft dark:border-brand-700 dark:text-brand-200">
+            <ShieldCheck className="h-3.5 w-3.5 text-saffron-600 dark:text-saffron-400" aria-hidden="true" />
+            Join the sharing network
+          </span>
+          <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+            Create your FRESH account
+          </h1>
+          <p className="mt-2 text-ink-soft">
             Frontend-only demo. Your details stay in this browser.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-          <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1" role="tablist" aria-label="Choose account type">
+        <div className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-8">
+          <div
+            className="grid grid-cols-2 gap-2 rounded-2xl bg-elevated p-1.5 ring-1 ring-line"
+            role="tablist"
+            aria-label="Choose account type"
+          >
             {[
               { key: 'donor', label: 'Donor', icon: UtensilsCrossed, text: 'I have surplus food' },
               { key: 'ngo', label: 'NGO', icon: Building2, text: 'We distribute food' },
@@ -68,12 +93,19 @@ export default function Register() {
                 role="tab"
                 aria-selected={role === tab.key}
                 onClick={() => setRole(tab.key)}
-                className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
-                  role === tab.key ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                  role === tab.key
+                    ? 'border-brand-300 bg-surface text-brand-700 shadow-soft dark:border-brand-700 dark:text-brand-200'
+                    : 'border-transparent text-ink-muted hover:bg-surface/70 hover:text-ink'
                 }`}
               >
-                <span className="inline-flex items-center gap-2"><tab.icon className="h-4 w-4" /> {tab.label}</span>
-                <span className="mt-0.5 block text-[11px] font-medium text-slate-500">{tab.text}</span>
+                <span className="inline-flex items-center gap-2 text-sm font-bold">
+                  <tab.icon className="h-4 w-4" aria-hidden="true" />
+                  {tab.label}
+                </span>
+                <span className="mt-0.5 block text-[11px] font-medium text-ink-muted">
+                  {tab.text}
+                </span>
               </button>
             ))}
           </div>
@@ -87,6 +119,7 @@ export default function Register() {
                 onChange={set('name')}
                 error={errors.name}
                 placeholder="Asha Sharma"
+                autoComplete="name"
                 required
               />
               <Field
@@ -97,6 +130,7 @@ export default function Register() {
                 onChange={set('phone')}
                 error={errors.phone}
                 placeholder="+91 98765 43210"
+                autoComplete="tel"
                 required
               />
             </div>
@@ -109,7 +143,11 @@ export default function Register() {
               error={errors.orgName}
               placeholder={role === 'ngo' ? 'Roti Bank Delhi' : 'Spice Route Kitchen'}
               required={role === 'ngo'}
-              hint={role === 'donor' ? 'Optional. Individuals can use their own name.' : 'Use the name your community knows.'}
+              hint={
+                role === 'donor'
+                  ? 'Optional. Individuals can use their own name.'
+                  : 'Use the name your community knows.'
+              }
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -121,6 +159,7 @@ export default function Register() {
                 onChange={set('email')}
                 error={errors.email}
                 placeholder="you@example.org"
+                autoComplete="email"
                 required
               />
               <Field
@@ -130,59 +169,44 @@ export default function Register() {
                 onChange={set('city')}
                 error={errors.city}
                 placeholder="New Delhi"
+                autoComplete="address-level2"
                 required
               />
             </div>
 
-            <div className="flex items-start gap-2 rounded-xl bg-emerald-50 p-3 text-xs leading-relaxed text-emerald-900 ring-1 ring-emerald-100">
+            <div className="flex items-start gap-2 rounded-xl border border-brand-100 bg-brand-50 p-3 text-[13px] leading-relaxed text-brand-900 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-100">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
               <p>
                 By registering you agree to the platform-role wording on the{' '}
-                <Link to="/terms" className="font-semibold underline">Trust &amp; safety page</Link>.
-                FRESH is a technology connector and does not inspect food.
+                <Link to="/terms" className="font-semibold underline underline-offset-4">
+                  Trust &amp; safety page
+                </Link>
+                . FRESH is a technology connector and does not inspect food.
               </p>
             </div>
 
-            <button
+            <Button
               type="submit"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+              variant="primary"
+              size="lg"
+              iconRight={ArrowRight}
+              className="w-full"
             >
-              Create {role === 'ngo' ? 'NGO' : 'donor'} account <ArrowRight className="h-4 w-4" />
-            </button>
+              Create {role === 'ngo' ? 'NGO' : 'donor'} account
+            </Button>
           </form>
 
-          <p className="mt-5 text-center text-sm text-slate-500">
+          <p className="mt-5 text-center text-sm text-ink-muted">
             Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-emerald-700 hover:underline">Log in</Link>
+            <Link
+              to="/login"
+              className="font-semibold text-brand-700 underline-offset-4 hover:underline dark:text-brand-200"
+            >
+              Log in
+            </Link>
           </p>
         </div>
       </div>
     </main>
-  )
-}
-
-function Field({ id, label, error, hint, required, ...props }) {
-  return (
-    <div>
-      <label htmlFor={id} className="mb-1 block text-sm font-semibold text-slate-700">
-        {label} {required && <span className="text-red-600">*</span>}
-      </label>
-      <input
-        id={id}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
-        className={`w-full rounded-xl border px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${
-          error
-            ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
-            : 'border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/30'
-        }`}
-        {...props}
-      />
-      {error ? (
-        <p id={`${id}-error`} className="mt-1 text-xs font-medium text-red-600">{error}</p>
-      ) : hint ? (
-        <p id={`${id}-hint`} className="mt-1 text-xs text-slate-500">{hint}</p>
-      ) : null}
-    </div>
   )
 }
