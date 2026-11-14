@@ -23,6 +23,8 @@ import ImpactDashboard from './pages/ImpactDashboard'
 import Terms from './pages/Terms'
 import EmergencySimulator from './components/EmergencySimulator'
 import EmergencyBanner from './components/EmergencyBanner'
+import ReliefMeter from './components/ReliefMeter'
+import LiteModeToggle from './components/LiteModeToggle'
 
 /** Route guard for the demo's two roles. */
 function RequireRole({ role, children }) {
@@ -95,6 +97,7 @@ export default function App() {
       <ScrollToTop />
       <Navbar />
       <EmergencyBanner />
+      <ReliefMeter />
       <div id="main-content" tabIndex={-1} className="fresh-page-transition flex-1 focus:outline-none">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -135,6 +138,7 @@ export default function App() {
       <Toast />
       <LocationPickerHost />
       <EmergencySimulator />
+      <LiteModeToggle />
     </div>
   )
 }

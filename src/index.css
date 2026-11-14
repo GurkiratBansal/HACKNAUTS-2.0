@@ -152,6 +152,12 @@ body {
   animation: fresh-page-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.fresh-lite-mode img:not([data-lite-safe="true"]),
+.fresh-lite-mode .fresh-saas-glow,
+.fresh-lite-mode .fresh-saas-grid {
+  opacity: 0 !important;
+}
+
 .fresh-reveal {
   opacity: 0;
   transform: translateY(28px) scale(0.985);

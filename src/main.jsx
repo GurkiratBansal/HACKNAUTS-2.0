@@ -12,19 +12,22 @@ import ErrorBoundary from './components/ErrorBoundary'
 import { AppProvider } from './context/AppContext'
 import { LocationProvider } from './context/LocationContext'
 import { EmergencyProvider } from './context/EmergencyContext'
+import { LiteModeProvider } from './context/LiteModeContext'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <LocationProvider>
-        <EmergencyProvider>
-          <AppProvider>
-            <ErrorBoundary>
-              <App />
-            </ErrorBoundary>
-          </AppProvider>
-        </EmergencyProvider>
+        <LiteModeProvider>
+          <EmergencyProvider>
+            <AppProvider>
+              <ErrorBoundary>
+                <App />
+              </ErrorBoundary>
+            </AppProvider>
+          </EmergencyProvider>
+        </LiteModeProvider>
       </LocationProvider>
     </BrowserRouter>
   </StrictMode>,

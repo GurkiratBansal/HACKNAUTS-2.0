@@ -15,6 +15,7 @@ export default function Brand({
         src={freshLogo}
         alt=""
         aria-hidden="true"
+        data-lite-safe="true"
         className="h-10 w-10 shrink-0 rounded-xl object-cover object-center shadow-sm"
       />
       <span className="leading-none">
