@@ -1,7 +1,7 @@
 // FRESH:FILE  Voice-to-Food Listing Modal with Multilingual STT, Conversational Interview (All Form Fields), and Online Expiry Research.
 // FRESH:AREA  Voice AI & Donations
 
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   AlertCircle,
   ArrowLeft,
@@ -10,11 +10,9 @@ import {
   CheckCircle2,
   Clock,
   Globe2,
-  HelpCircle,
   MapPin,
   Mic,
   MicOff,
-  Phone,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -173,6 +171,37 @@ export default function VoiceListingModal({
   const speechRecognitionRef = useRef(null)
   const liveTranscriptRef = useRef('')
 
+  const cleanupAudio = () => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    if (speechRecognitionRef.current) {
+      try {
+        speechRecognitionRef.current.stop()
+      } catch (err) {
+        void err
+      }
+      speechRecognitionRef.current = null
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+    }
+    setIsRecording(false)
+  }
+
+  const speakPrompt = (text) => {
+    if (voiceMuted || !text) return
+    const langObj = LANGUAGES.find((l) => l.code === language)
+    const ttsLang = langObj ? langObj.tts : 'en-IN'
+    ttsService.speak(text, { lang: ttsLang, rate: 1.0 })
+  }
+
+  const speakCurrentQuestion = (idx = questionIndex) => {
+    const q = INTERVIEW_QUESTIONS[idx]
+    if (q) {
+      speakPrompt(q.spokenPrompt)
+    }
+  }
+
   useEffect(() => {
     return () => {
       cleanupAudio()
@@ -211,35 +240,6 @@ export default function VoiceListingModal({
       ttsService.stop()
     }
   }, [open])
-
-  const cleanupAudio = () => {
-    if (timerRef.current) clearInterval(timerRef.current)
-    if (speechRecognitionRef.current) {
-      try {
-        speechRecognitionRef.current.stop()
-      } catch {}
-      speechRecognitionRef.current = null
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop())
-      streamRef.current = null
-    }
-    setIsRecording(false)
-  }
-
-  const speakPrompt = (text) => {
-    if (voiceMuted || !text) return
-    const langObj = LANGUAGES.find((l) => l.code === language)
-    const ttsLang = langObj ? langObj.tts : 'en-IN'
-    ttsService.speak(text, { lang: ttsLang, rate: 1.0 })
-  }
-
-  const speakCurrentQuestion = (idx = questionIndex) => {
-    const q = INTERVIEW_QUESTIONS[idx]
-    if (q) {
-      speakPrompt(q.spokenPrompt)
-    }
-  }
 
   const toggleMute = () => {
     if (!voiceMuted) {

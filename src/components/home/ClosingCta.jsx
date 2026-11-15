@@ -1,49 +1,49 @@
-// FRESH:FILE  Final call-to-action band on the landing page.
+// FRESH:FILE  Final call-to-action band: dark forest card, emerald glow, mint gradient button.
 // FRESH:AREA  Layout
 
 import { Link } from 'react-router-dom'
-import { ArrowRight, Building2, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Building2, ShieldCheck, Sparkles } from 'lucide-react'
 
 export default function ClosingCta({ donorTarget, ngoTarget }) {
   return (
-    <section className="bg-canvas">
-      <div className="mx-auto max-w-7xl px-4 pb-20 pt-4 sm:px-6 sm:pb-24 lg:px-8">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-brand-800 via-brand-700 to-brand-600 px-6 py-10 shadow-lift sm:px-10 sm:py-12 lg:px-14">
-          <div className="pointer-events-none absolute inset-0 pattern-rings opacity-40" aria-hidden="true" />
-          <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-saffron-400/20 blur-3xl" aria-hidden="true" />
+    <section className="bg-canvas py-16 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="relative overflow-hidden rounded-[14px] border border-white/10 bg-[#06130F] p-8 sm:p-12 shadow-2xl">
+          <div className="fresh-emerald-glow opacity-80" aria-hidden="true" />
+          <div className="fresh-hero-grid opacity-60" aria-hidden="true" />
 
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-saffron-300">
-                Have surplus food today?
-              </p>
-              <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                Turn today&apos;s surplus into tonight&apos;s meal.
+              <div className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/10 bg-[#0B2219]/80 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#3EE6B8]">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                <span>Ready to divert surplus?</span>
+              </div>
+              <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-[#F2F7F4]">
+                Turn today&apos;s surplus into tonight&apos;s meal
               </h2>
-              <p className="mt-3 max-w-xl leading-relaxed text-brand-50/85">
-                List it in under a minute. A verified NGO nearby can accept the
-                pickup before the window closes.
+              <p className="mt-3 text-sm leading-relaxed text-[#A9BBB2]">
+                List food in under a minute. Verified local shelters receive instant alerts
+                and coordinate collection before the window closes.
               </p>
-              <p className="mt-4 inline-flex items-start gap-2 text-xs leading-relaxed text-brand-100/70">
-                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-200" aria-hidden="true" />
-                Donor declaration and receiving-NGO inspection keep safety human
-                and accountable.
-              </p>
+              <div className="mt-4 flex items-center gap-2 text-xs text-[#A9BBB2]">
+                <ShieldCheck className="h-4 w-4 text-[#3EE6B8]" aria-hidden="true" />
+                <span>Simple donor declaration and volunteer verification at handover.</span>
+              </div>
             </div>
 
-            <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row lg:flex-col xl:flex-row">
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row shrink-0">
               <Link
                 to={donorTarget}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-saffron-500 px-5 text-sm font-bold text-brand-950 shadow-glow transition hover:bg-saffron-400 active:scale-[0.98]"
+                className="fresh-btn-primary inline-flex h-12 items-center justify-center gap-2 px-6 text-xs font-bold shadow-md"
               >
                 Donate food
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link
                 to={ngoTarget}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/40 px-5 text-sm font-bold text-white transition hover:bg-white/10 active:scale-[0.98]"
+                className="fresh-btn-secondary inline-flex h-12 items-center justify-center gap-2 px-6 text-xs font-bold"
               >
-                <Building2 className="h-4 w-4" aria-hidden="true" />
+                <Building2 className="h-4 w-4 text-[#3EE6B8]" aria-hidden="true" />
                 Join as an NGO
               </Link>
             </div>

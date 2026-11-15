@@ -10,11 +10,18 @@ import {
   Flame,
   Dna,
   Wheat,
-  RotateCcw,
 } from 'lucide-react'
 import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 import { runAiFoodAnalysis, FOOD_DATABASE } from '../../utils/aiFoodScanner'
+
+const SCAN_STEPS = [
+  'Scanning visual patterns and color spectra...',
+  'Inspecting freshness and safety metrics...',
+  'Identifying dish identity and dietary profile...',
+  'Computing calorie density and macronutrient chart...',
+  'Estimating batch portions and packaging requirements...',
+]
 
 export default function AiScanModal({
   open,
@@ -27,14 +34,6 @@ export default function AiScanModal({
   const [stepIndex, setStepIndex] = useState(0)
   const [analysis, setAnalysis] = useState(null)
   const [selectedDishKey, setSelectedDishKey] = useState('')
-
-  const SCAN_STEPS = [
-    'Scanning visual patterns and color spectra...',
-    'Inspecting freshness and safety metrics...',
-    'Identifying dish identity and dietary profile...',
-    'Computing calorie density and macronutrient chart...',
-    'Estimating batch portions and packaging requirements...',
-  ]
 
   useEffect(() => {
     if (!open) {

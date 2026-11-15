@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Play, Square, Pause } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Volume2, Square } from 'lucide-react';
 import ttsService from '../services/ttsService';
 
 /**

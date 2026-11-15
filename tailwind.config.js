@@ -89,6 +89,20 @@ export default {
         },
         ngo: 'rgb(var(--fresh-ngo) / <alpha-value>)',
         you: 'rgb(var(--fresh-you) / <alpha-value>)',
+        mint: {
+          DEFAULT: '#3EE6B8',
+          hover: '#34d399',
+          light: '#d8f4e9',
+        },
+        teal: {
+          DEFAULT: '#19C8D8',
+          hover: '#0ea5e9',
+        },
+        forest: {
+          DEFAULT: '#06130F',
+          surface: '#0B2219',
+          glow: '#0F4A38',
+        },
         sdg2: '#d3a029',
         sdg3: '#4c9f38',
         sdg11: '#fd9d24',
@@ -96,10 +110,12 @@ export default {
         sdg17: '#19486a',
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Manrope', 'Inter', '"Noto Sans Devanagari"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         display: [
+          'Manrope',
           '"Plus Jakarta Sans"',
           'Inter',
+          '"Noto Sans Devanagari"',
           'ui-sans-serif',
           'system-ui',
           'sans-serif',

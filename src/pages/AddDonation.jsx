@@ -207,10 +207,14 @@ export default function AddDonation() {
 
     try {
       if (updates.cookedAt) formattedCookedAt = toLocalDateTimeInput(new Date(updates.cookedAt))
-    } catch {}
+    } catch (err) {
+      void err
+    }
     try {
       if (updates.deadline) formattedDeadline = toLocalDateTimeInput(new Date(updates.deadline))
-    } catch {}
+    } catch (err) {
+      void err
+    }
 
     setForm((prev) => ({
       ...prev,

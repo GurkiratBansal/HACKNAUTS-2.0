@@ -22,8 +22,8 @@ const frontend = spawn(npmCmd, ['run', 'dev', '--', ...process.argv.slice(2)], {
 })
 
 function shutdown() {
-  try { backend.kill('SIGINT') } catch {}
-  try { frontend.kill('SIGINT') } catch {}
+  try { backend.kill('SIGINT') } catch (e) { void e }
+  try { frontend.kill('SIGINT') } catch (e) { void e }
   process.exit(0)
 }
 

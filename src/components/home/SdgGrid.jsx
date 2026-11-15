@@ -1,83 +1,81 @@
-// FRESH:FILE  Grid of UN SDG goals the project maps to.
+// FRESH:FILE  UN SDG goals restyled as small bordered tiles (no official UN logos).
 // FRESH:AREA  Impact
+
+import { Globe2 } from 'lucide-react'
 
 const SDGS = [
   {
-    number: 2,
+    number: '02',
     title: 'Zero Hunger',
-    text: 'More meals reach people who need them.',
-    tone: 'bg-sdg2 text-brand-950',
+    desc: 'Targeted surplus redirection prevents meal wastage and supports community nutritional security.',
+    tag: 'Goal 2',
   },
   {
-    number: 3,
-    title: 'Good Health',
-    text: 'Clear handling and inspection guidance.',
-    tone: 'bg-sdg3 text-brand-950',
+    number: '03',
+    title: 'Good Health & Well-being',
+    desc: 'Standardized safe handling guidelines, temperature warnings, and human verification at handoff.',
+    tag: 'Goal 3',
   },
   {
-    number: 11,
+    number: '11',
     title: 'Sustainable Cities',
-    text: 'Local recovery instead of long transport.',
-    tone: 'bg-sdg11 text-brand-950',
+    desc: 'Hyperlocal mapping keeps transit routes under 10 km, reducing emissions and vehicle miles.',
+    tag: 'Goal 11',
   },
   {
-    number: 12,
+    number: '12',
     title: 'Responsible Consumption',
-    text: 'Less edible food is thrown away.',
-    tone: 'bg-sdg12 text-brand-950',
+    desc: 'Equips commercial catering and banquets to track, document, and divert edible leftovers.',
+    tag: 'Goal 12',
   },
   {
-    number: 17,
-    title: 'Partnerships',
-    text: 'Donors, volunteers and NGOs working together.',
-    tone: 'bg-sdg17 text-white',
+    number: '17',
+    title: 'Partnerships for the Goals',
+    desc: 'Direct bridge connecting food businesses, verified charities, and municipal volunteer groups.',
+    tag: 'Goal 17',
   },
 ]
 
 export default function SdgGrid() {
   return (
-    <section className="bg-canvas">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-        <div className="max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
-            Aligned with global goals
-          </p>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
-            Small handoffs, wider impact.
+    <section className="bg-canvas py-16 px-4 sm:px-6 lg:px-8 border-b border-line dark:border-white/10">
+      <div className="mx-auto max-w-7xl">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-1.5 rounded-[8px] border border-line bg-surface px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#0A7A5C] shadow-sm dark:border-white/10 dark:bg-[#0B2219] dark:text-[#3EE6B8]">
+            <Globe2 className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Sustainable Development Goals</span>
+          </div>
+          <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-ink dark:text-[#F2F7F4]">
+            Aligned with <span className="fresh-gradient-text">global impact</span> targets
           </h2>
-          <p className="mt-3 leading-relaxed text-ink-soft">
-            Each rescued meal touches several Sustainable Development Goals at
-            once — from hunger relief to responsible consumption.
-          </p>
         </div>
 
-        <ul className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {/* Small Bordered Tiles */}
+        <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
           {SDGS.map((sdg) => (
-            <li key={sdg.number}>
-              <div
-                className={`group flex h-full min-h-[164px] flex-col justify-between rounded-2xl p-4 shadow-soft ring-1 ring-inset ring-brand-950/10 transition duration-200 hover:-translate-y-1 hover:shadow-card ${sdg.tone}`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <span className="font-display text-3xl font-extrabold leading-none">
+            <div
+              key={sdg.number}
+              className="flex flex-col justify-between rounded-[10px] border border-line bg-surface p-4 shadow-sm transition hover:border-[#3EE6B8]/40 dark:border-white/10 dark:bg-[#0B2219]/70"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-base font-black text-brand-600 dark:text-[#3EE6B8]">
                     {sdg.number}
                   </span>
-                  <span className="rounded-full bg-white/25 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                    SDG
+                  <span className="rounded-[4px] border border-line bg-elevated px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ink-muted dark:border-white/10 dark:bg-[#06130F] dark:text-[#A9BBB2]">
+                    {sdg.tag}
                   </span>
                 </div>
-                <div className="mt-5">
-                  <h3 className="text-sm font-bold leading-snug">{sdg.title}</h3>
-                  <p className="mt-1 text-[13px] leading-snug opacity-85">{sdg.text}</p>
-                </div>
+                <h3 className="mt-2 text-xs font-bold text-ink dark:text-[#F2F7F4]">
+                  {sdg.title}
+                </h3>
+                <p className="mt-1 text-[11px] leading-relaxed text-ink-soft dark:text-[#A9BBB2]">
+                  {sdg.desc}
+                </p>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
-
-        <p className="mt-5 text-xs leading-relaxed text-ink-muted">
-          Colored tiles reference the UN Sustainable Development Goals. No
-          official UN logos are used.
-        </p>
+        </div>
       </div>
     </section>
   )

@@ -249,7 +249,7 @@ export function AppProvider({ children }) {
         fetch(loginUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password: password || 'FreshSecurePass2026!' }),
+          body: JSON.stringify({ email, password: 'FreshSecurePass2026!' }),
         })
           .then((res) => (res.ok ? res.json() : null))
           .then((data) => {
