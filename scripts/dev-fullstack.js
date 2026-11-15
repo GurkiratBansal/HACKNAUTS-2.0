@@ -4,7 +4,7 @@
 import { spawn } from 'node:child_process'
 import process from 'node:process'
 
-console.log('🌱 Starting FRESH Full-Stack with Supabase Cloud Database + Vite Frontend...')
+console.log('🌱 Starting FRESH with Supabase Cloud Database + Vite Frontend...')
 
 const isWindows = process.platform === 'win32'
 const npmCmd = isWindows ? 'npm.cmd' : 'npm'
@@ -15,15 +15,15 @@ const backend = spawn(npmCmd, ['--prefix', 'server', 'run', 'dev'], {
   env: { ...process.env, PORT: '4000' },
 })
 
-const frontend = spawn(npmCmd, ['run', 'dev'], {
+const frontend = spawn(npmCmd, ['run', 'dev', '--', ...process.argv.slice(2)], {
   stdio: 'inherit',
   shell: true,
-  env: { ...process.env, VITE_BACKEND_URL: 'http://localhost:4000' },
+  env: { ...process.env },
 })
 
 function shutdown() {
-  backend.kill('SIGINT')
-  frontend.kill('SIGINT')
+  try { backend.kill('SIGINT') } catch {}
+  try { frontend.kill('SIGINT') } catch {}
   process.exit(0)
 }
 

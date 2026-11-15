@@ -244,24 +244,23 @@ export function AppProvider({ children }) {
         }
       }
       setCurrentUser(found)
-      if (BACKEND_API_URL) {
-        try {
-          fetch(`${BACKEND_API_URL}/api/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password: password || 'FreshSecurePass2026!' }),
+      try {
+        const loginUrl = BACKEND_API_URL ? `${BACKEND_API_URL}/api/auth/login` : '/api/auth/login'
+        fetch(loginUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: password || 'FreshSecurePass2026!' }),
+        })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (data?.token) {
+              found.token = data.token
+              write(LS.currentUser, found)
+            }
           })
-            .then((res) => (res.ok ? res.json() : null))
-            .then((data) => {
-              if (data?.token) {
-                found.token = data.token
-                write(LS.currentUser, found)
-              }
-            })
-            .catch(() => {})
-        } catch {
-          // offline fallback
-        }
+          .catch(() => {})
+      } catch {
+        // offline fallback
       }
       addToast(`Welcome back, ${found.orgName || found.name}.`, 'success')
       return { ok: true }
@@ -320,34 +319,33 @@ export function AppProvider({ children }) {
       setCurrentUser(user)
 
       // Sync with Supabase cloud backend database
-      if (BACKEND_API_URL) {
-        try {
-          fetch(`${BACKEND_API_URL}/api/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: user.name,
-              email: user.email,
-              password: payload.password || 'FreshSecurePass2026!',
-              phone: user.phone,
-              city: user.city,
-              role: user.role,
-              organizationName: user.orgName,
-            }),
+      try {
+        const regUrl = BACKEND_API_URL ? `${BACKEND_API_URL}/api/auth/register` : '/api/auth/register'
+        fetch(regUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: user.name,
+            email: user.email,
+            password: payload.password || 'FreshSecurePass2026!',
+            phone: user.phone || '9876543210',
+            city: user.city || 'Ludhiana',
+            role: user.role,
+            organizationName: user.orgName,
+          }),
+        })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (data?.token) {
+              user.token = data.token
+              write(LS.currentUser, user)
+            }
           })
-            .then((res) => (res.ok ? res.json() : null))
-            .then((data) => {
-              if (data?.token) {
-                user.token = data.token
-                write(LS.currentUser, user)
-              }
-            })
-            .catch(() => {
-              // Graceful fallback when backend is offline
-            })
-        } catch {
-          // Ignore offline network errors
-        }
+          .catch(() => {
+            // Graceful fallback when backend is offline
+          })
+      } catch {
+        // Ignore offline network errors
       }
 
       addToast(`Account created. Welcome to FRESH, ${user.orgName}.`, 'success')
@@ -396,38 +394,37 @@ export function AppProvider({ children }) {
       setDonations((prev) => [donation, ...prev])
 
       // Sync donation with Supabase cloud backend database
-      if (BACKEND_API_URL) {
-        try {
-          fetch(`${BACKEND_API_URL}/api/donations`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...(currentUser?.token ? { Authorization: `Bearer ${currentUser.token}` } : {}),
-            },
-            body: JSON.stringify({
-              foodName: donation.foodName,
-              category: donation.category === 'cooked' ? 'cooked_meal' : 'snacks',
-              quantityServings: Math.min(10000, Math.max(1, Math.round(donation.quantity))),
-              cookedAt: donation.cookedAt,
-              pickupDeadline: donation.deadline,
-              storageCondition:
-                donation.storage === 'refrigerated'
-                  ? 'refrigerated'
-                  : donation.storage === 'hot-holding'
-                  ? 'hot_holding'
-                  : 'room_temp',
-              state: place?.state || 'Punjab',
-              lat: location.lat,
-              lng: location.lng,
-              declarationAccepted: true,
-              declarationVersion: '2.0',
-            }),
-          }).catch(() => {
-            // Graceful fallback when backend is offline
-          })
-        } catch {
-          // Ignore offline network errors
-        }
+      try {
+        const donUrl = BACKEND_API_URL ? `${BACKEND_API_URL}/api/donations` : '/api/donations'
+        fetch(donUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(currentUser?.token ? { Authorization: `Bearer ${currentUser.token}` } : {}),
+          },
+          body: JSON.stringify({
+            foodName: donation.foodName,
+            category: donation.category === 'cooked' ? 'cooked_meal' : 'snacks',
+            quantityServings: Math.min(10000, Math.max(1, Math.round(donation.quantity))),
+            cookedAt: donation.cookedAt,
+            pickupDeadline: donation.deadline,
+            storageCondition:
+              donation.storage === 'refrigerated'
+                ? 'refrigerated'
+                : donation.storage === 'hot-holding'
+                ? 'hot_holding'
+                : 'room_temp',
+            state: place?.state || 'Punjab',
+            lat: location.lat,
+            lng: location.lng,
+            declarationAccepted: true,
+            declarationVersion: '2.0',
+          }),
+        }).catch(() => {
+          // Graceful fallback when backend is offline
+        })
+      } catch {
+        // Ignore offline network errors
       }
 
       addToast(

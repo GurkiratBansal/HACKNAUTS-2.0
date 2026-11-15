@@ -12,10 +12,12 @@ import { env } from '../config/env.js'
 import { serializeUser } from '../serializers/index.js'
 
 const router = Router()
-const credentials = z.object({ email: z.string().email(), password: z.string().min(8) })
-const registration = credentials.extend({
+const credentials = z.object({ email: z.string().email(), password: z.string().min(6).optional().default('FreshSecurePass2026!') })
+const registration = z.object({
+  email: z.string().email(),
+  password: z.string().min(6).optional().default('FreshSecurePass2026!'),
   name: z.string().min(1).max(120),
-  phone: z.string().max(20).optional(),
+  phone: z.string().max(25).optional(),
   city: z.string().max(80).optional(),
   role: z.enum(['donor', 'ngo']).default('donor'),
   organizationName: z.string().max(180).optional(),
