@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { Mic } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useUserLocation } from '../context/LocationContext'
-import Button from '../components/ui/Button'
+// CHANGED: removed an unused Button import that failed lint; nothing else touched.
 import DeclarationModal from '../components/DeclarationModal'
 import IndiaOnlyScreen from '../components/IndiaOnlyScreen'
 import BasicsStep from '../components/donation/BasicsStep'
