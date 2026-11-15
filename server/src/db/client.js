@@ -7,5 +7,18 @@ import { env } from '../config/env.js'
 import * as schema from './schema/index.js'
 
 const { Pool } = pg
-export const pool = new Pool({ connectionString: env.DATABASE_URL, ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined })
+const isCloud =
+  env.DATABASE_URL?.includes('supabase.co') ||
+  env.DATABASE_URL?.includes('neon.tech') ||
+  env.DATABASE_URL?.includes('sslmode') ||
+  env.NODE_ENV === 'production'
+
+const cleanUrl = env.DATABASE_URL
+  ? env.DATABASE_URL.replace(/[?&]sslmode=[^&]+/gi, '')
+  : ''
+
+export const pool = new Pool({
+  connectionString: cleanUrl,
+  ssl: isCloud ? { rejectUnauthorized: false } : undefined,
+})
 export const db = drizzle(pool, { schema })
