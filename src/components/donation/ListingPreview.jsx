@@ -13,8 +13,8 @@ import AiNutritionCard from './AiNutritionCard'
 export default function ListingPreview({ form, preview, nutrition, safetyData }) {
   return (
     <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
-      <div className="overflow-hidden rounded-3xl border border-line bg-surface shadow-card">
-        <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-brand-100 via-cream to-saffron-100 dark:from-brand-900 dark:via-brand-950 dark:to-saffron-900/40">
+      <div className="overflow-hidden rounded-[12px] border border-fresh-border bg-fresh-light-card shadow-fresh-sm dark:bg-fresh-dark-card">
+        <div className="relative aspect-[16/10] overflow-hidden bg-fresh-mint/10">
           {preview ? (
             <img
               src={preview}
@@ -23,39 +23,39 @@ export default function ListingPreview({ form, preview, nutrition, safetyData })
             />
           ) : (
             <div className="flex h-full items-center justify-center">
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/60 text-brand-700/60 ring-1 ring-inset ring-brand-900/10 backdrop-blur dark:text-brand-300/70 dark:ring-white/10">
+              <span className="flex h-16 w-16 items-center justify-center rounded-[12px] bg-white/40 text-fresh-mint border border-fresh-border backdrop-blur dark:bg-black/30">
                 <Camera className="h-7 w-7" aria-hidden="true" />
               </span>
             </div>
           )}
-          <span className="absolute left-3 top-3 rounded-full bg-brand-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur">
+          <span className="absolute left-3 top-3 rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur">
             Live preview
           </span>
         </div>
 
         <div className="p-5">
-          <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+          <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-fresh-mint">
             <UtensilsCrossed className="h-3.5 w-3.5" aria-hidden="true" />
             Donor listing
           </p>
-          <h2 className="mt-1.5 font-display text-lg font-bold leading-snug text-ink">
+          <h2 className="mt-1.5 font-display text-lg font-bold leading-snug text-fresh-ink dark:text-fresh-light-bg">
             {form.foodName || 'Your food name'}
           </h2>
 
           <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-            <span className="rounded-full bg-elevated px-2 py-0.5 font-semibold text-ink-soft ring-1 ring-inset ring-line">
+            <span className="rounded-[6px] border border-fresh-border bg-black/5 px-2 py-0.5 font-semibold text-fresh-ink-muted dark:bg-white/5 dark:text-fresh-ink-soft">
               {categoryLabel(form.category)}
             </span>
-            <span className="rounded-full bg-brand-50 px-2 py-0.5 font-semibold text-brand-700 ring-1 ring-inset ring-brand-200 dark:bg-brand-900/40 dark:text-brand-200 dark:ring-brand-700">
+            <span className="rounded-[6px] border border-fresh-mint/30 bg-fresh-mint/15 px-2 py-0.5 font-semibold text-fresh-mint">
               {form.diet === 'veg' ? 'Veg' : 'Non-veg'}
             </span>
-            <span className="rounded-full bg-elevated px-2 py-0.5 font-semibold text-ink-soft ring-1 ring-inset ring-line">
+            <span className="rounded-[6px] border border-fresh-border bg-black/5 px-2 py-0.5 font-semibold text-fresh-ink-muted dark:bg-white/5 dark:text-fresh-ink-soft">
               {storageLabel(form.storage)}
             </span>
           </div>
 
-          <p className="mt-3 text-xs leading-relaxed text-ink-soft">
-            <span className="font-semibold text-ink">
+          <p className="mt-3 text-xs leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
+            <span className="font-semibold text-fresh-ink dark:text-fresh-light-bg">
               {form.quantity || '0'} servings
             </span>{' '}
             · {form.address || 'Pickup address'}
@@ -82,21 +82,21 @@ export default function ListingPreview({ form, preview, nutrition, safetyData })
           quantity={form.quantity || 1}
         />
       ) : (
-        <div className="rounded-3xl border border-dashed border-emerald-400/80 bg-gradient-to-br from-emerald-50/70 to-brand-50/50 p-4 dark:border-emerald-700 dark:bg-emerald-950/20">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-800 dark:text-emerald-300">
+        <div className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-4 shadow-fresh-sm dark:bg-fresh-dark-card">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-fresh-mint">
             AI Food Vision &amp; Safety
           </p>
-          <h3 className="mt-1 flex items-center gap-2 font-display text-sm font-bold text-ink">
-            <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+          <h3 className="mt-1 flex items-center gap-2 font-display text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">
+            <Sparkles className="h-4 w-4 text-fresh-mint" aria-hidden="true" />
             Upload a Photo to Auto-Scan
           </h3>
-          <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+          <p className="mt-1 text-xs leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
             When you attach a photo, AI figures out the food name, category, portion count, and generates a full Nutrition Chart automatically!
           </p>
         </div>
       )}
 
-      <p className="rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-ink-muted">
+      <p className="rounded-[10px] border border-fresh-border bg-fresh-light-card p-4 text-xs leading-relaxed text-fresh-ink-muted dark:bg-fresh-dark-card dark:text-fresh-ink-soft">
         {URGENCY_DISCLAIMER} Never list food you would not serve to your own
         family.
       </p>

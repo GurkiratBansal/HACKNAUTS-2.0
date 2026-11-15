@@ -63,12 +63,12 @@ function SidebarLink({ item, collapsed }) {
       title={collapsed ? item.label : undefined}
       aria-label={collapsed ? item.label : undefined}
       className={({ isActive }) =>
-        `flex min-h-11 items-center gap-2.5 rounded-xl text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 ${
+        `flex min-h-11 items-center gap-2.5 rounded-[8px] text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fresh-mint ${
           collapsed ? 'justify-center px-0' : 'px-3'
         } ${
           isActive
-            ? 'bg-brand-600 text-white shadow-soft'
-            : 'text-ink-soft hover:bg-elevated hover:text-ink'
+            ? 'border border-fresh-mint/30 bg-fresh-mint/15 text-fresh-mint shadow-fresh-sm'
+            : 'text-fresh-ink-muted hover:bg-black/5 hover:text-fresh-ink dark:text-fresh-ink-soft dark:hover:bg-white/5 dark:hover:text-fresh-light-bg'
         }`
       }
     >
@@ -105,9 +105,9 @@ export default function DashboardShell({
   }
 
   return (
-    <main className="relative min-h-[60vh] bg-canvas">
+    <main className="relative min-h-[60vh] bg-fresh-light-bg dark:bg-fresh-dark-bg">
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-brand-50/80 via-canvas to-transparent dark:from-brand-950/60 dark:via-canvas"
+        className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-fresh-mint/5 via-transparent to-transparent"
         aria-hidden="true"
       />
 
@@ -120,21 +120,21 @@ export default function DashboardShell({
             }`}
           >
             <div className="sticky top-24 space-y-3">
-              <div className="rounded-3xl border border-line bg-surface p-2 shadow-card">
+              <div className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-2 shadow-fresh-sm dark:bg-fresh-dark-card">
                 <div
-                  className={`flex items-center gap-2.5 rounded-2xl bg-elevated/60 px-2 py-2 ${
+                  className={`flex items-center gap-2.5 rounded-[8px] bg-black/5 px-2 py-2 dark:bg-white/5 ${
                     collapsed ? 'justify-center px-0' : ''
                   }`}
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-fresh-mint/15 text-fresh-mint">
                     <RoleIcon className="h-4 w-4" aria-hidden="true" />
                   </span>
                   {!collapsed && (
                     <div className="min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-fresh-ink-muted">
                         Workspace
                       </p>
-                      <p className="truncate text-sm font-bold text-ink">
+                      <p className="truncate text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">
                         {roleMeta.label}
                       </p>
                     </div>
@@ -159,7 +159,7 @@ export default function DashboardShell({
                       ? 'Expand dashboard sidebar'
                       : 'Collapse dashboard sidebar'
                   }
-                  className={`mt-2 flex min-h-10 w-full items-center gap-2 rounded-xl border-t border-line px-3 pt-2 text-xs font-semibold text-ink-muted transition hover:bg-elevated hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 ${
+                  className={`mt-2 flex min-h-10 w-full items-center gap-2 rounded-[8px] border-t border-fresh-border px-3 pt-2 text-xs font-semibold text-fresh-ink-muted transition hover:bg-black/5 hover:text-fresh-ink dark:text-fresh-ink-soft dark:hover:bg-white/5 dark:hover:text-fresh-light-bg focus-visible:outline focus-visible:outline-2 focus-visible:outline-fresh-mint ${
                     collapsed ? 'justify-center px-0' : ''
                   }`}
                 >
@@ -174,7 +174,7 @@ export default function DashboardShell({
               </div>
 
               {!collapsed && (
-                <p className="rounded-2xl border border-dashed border-line bg-surface/60 px-3 py-2.5 text-[11px] leading-relaxed text-ink-muted">
+                <p className="rounded-[10px] border border-fresh-border bg-fresh-light-card/60 px-3 py-2.5 text-[11px] leading-relaxed text-fresh-ink-muted dark:bg-fresh-dark-card/60 dark:text-fresh-ink-soft">
                   {roleMeta.tip}
                 </p>
               )}
@@ -186,7 +186,7 @@ export default function DashboardShell({
               aria-label="Dashboard sections"
               className="-mx-4 mb-5 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:hidden"
             >
-              <div className="flex w-max gap-1.5 rounded-2xl border border-line bg-surface p-1.5 shadow-soft">
+              <div className="flex w-max gap-1.5 rounded-[10px] border border-fresh-border bg-fresh-light-card p-1.5 shadow-fresh-sm dark:bg-fresh-dark-card">
                 {items.map((item) => {
                   const Icon = item.icon
                   return (
@@ -195,10 +195,10 @@ export default function DashboardShell({
                       to={item.to}
                       end={item.end}
                       className={({ isActive }) =>
-                        `inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 ${
+                        `inline-flex min-h-11 items-center gap-2 rounded-[8px] px-3 text-xs font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-fresh-mint ${
                           isActive
-                            ? 'bg-brand-600 text-white shadow-soft'
-                            : 'text-ink-soft hover:bg-elevated hover:text-ink'
+                            ? 'border border-fresh-mint/30 bg-fresh-mint/15 text-fresh-mint shadow-fresh-sm'
+                            : 'text-fresh-ink-muted hover:bg-black/5 hover:text-fresh-ink dark:text-fresh-ink-soft dark:hover:bg-white/5 dark:hover:text-fresh-light-bg'
                         }`
                       }
                     >
@@ -213,16 +213,16 @@ export default function DashboardShell({
             <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-fresh-mint">
                     {eyebrow}
                   </p>
                   {badge}
                 </div>
-                <h1 className="mt-1.5 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                <h1 className="mt-1.5 font-display text-3xl font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg sm:text-4xl">
                   {title}
                 </h1>
                 {description && (
-                  <div className="mt-1.5 text-sm leading-relaxed text-ink-soft">
+                  <div className="mt-1.5 text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
                     {description}
                   </div>
                 )}

@@ -66,21 +66,17 @@ export default function Login() {
   }
 
   return (
-    <main className="relative overflow-hidden bg-canvas">
-      <div className="pointer-events-none absolute inset-0 pattern-dots opacity-40" aria-hidden="true" />
-      <div className="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-brand-200/40 blur-3xl dark:bg-brand-800/30" aria-hidden="true" />
-      <div className="pointer-events-none absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-saffron-200/40 blur-3xl dark:bg-saffron-900/20" aria-hidden="true" />
-
+    <main className="relative min-h-[calc(100vh-4.5rem)] overflow-hidden bg-fresh-light-bg dark:bg-fresh-dark-bg">
       <div className="relative mx-auto grid max-w-6xl items-start gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_1.02fr] lg:gap-14 lg:px-8 lg:py-16">
         <div className="hidden lg:block">
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-surface/90 px-3.5 py-1.5 text-xs font-semibold text-brand-700 shadow-soft dark:border-brand-700 dark:text-brand-200">
-            <Leaf className="h-3.5 w-3.5 text-saffron-600 dark:text-saffron-400" aria-hidden="true" />
+          <span className="inline-flex items-center gap-2 rounded-full border border-fresh-border bg-fresh-light-card px-3.5 py-1.5 text-xs font-semibold text-fresh-mint shadow-fresh-sm dark:bg-fresh-dark-card">
+            <Leaf className="h-3.5 w-3.5 text-fresh-mint" aria-hidden="true" />
             FRESH access
           </span>
-          <h1 className="mt-5 font-display text-4xl font-extrabold leading-tight tracking-tight text-ink xl:text-5xl">
+          <h1 className="mt-5 font-display text-4xl font-bold leading-tight tracking-tight text-fresh-ink dark:text-fresh-light-bg xl:text-5xl">
             Good food deserves a second chance.
           </h1>
-          <p className="mt-4 max-w-md leading-relaxed text-ink-soft">
+          <p className="mt-4 max-w-md leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
             Log in as a donor to list surplus food, or as an NGO to discover and
             accept nearby pickups.
           </p>
@@ -89,35 +85,35 @@ export default function Login() {
             {PROMISES.map((item) => (
               <div
                 key={item.title}
-                className="flex items-start gap-3 rounded-2xl border border-line bg-surface/80 p-4 shadow-soft"
+                className="flex items-start gap-3 rounded-[10px] border border-fresh-border bg-fresh-light-card p-4 shadow-fresh-sm dark:bg-fresh-dark-card"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-fresh-mint/15 text-fresh-mint">
                   <item.icon className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div>
-                  <p className="text-sm font-bold text-ink">{item.title}</p>
-                  <p className="mt-0.5 text-[13px] leading-relaxed text-ink-soft">{item.text}</p>
+                  <p className="text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">{item.title}</p>
+                  <p className="mt-0.5 text-[13px] leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">{item.text}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <p className="mt-6 flex items-start gap-2 text-xs leading-relaxed text-ink-muted">
-            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-300" aria-hidden="true" />
+          <p className="mt-6 flex items-start gap-2 text-xs leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-fresh-mint" aria-hidden="true" />
             Frontend access. Sample accounts and listings stay in this browser.
           </p>
         </div>
 
-        <div className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-8">
-          <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink">
+        <div className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 shadow-fresh-sm dark:bg-fresh-dark-card sm:p-8">
+          <h2 className="font-display text-2xl font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg">
             Welcome back
           </h2>
-          <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+          <p className="mt-1 text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
             Choose a role, then log in or continue with a sample account.
           </p>
 
           <div
-            className="mt-5 grid grid-cols-2 gap-1 rounded-xl bg-elevated p-1 ring-1 ring-line"
+            className="mt-5 grid grid-cols-2 gap-1 rounded-[8px] bg-black/5 p-1 border border-fresh-border dark:bg-white/5"
             role="tablist"
             aria-label="Choose role"
           >
@@ -134,10 +130,10 @@ export default function Login() {
                   setRole(tab.key)
                   setError('')
                 }}
-                className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition ${
+                className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-[6px] px-3 text-sm font-semibold transition ${
                   role === tab.key
-                    ? 'bg-surface text-brand-700 shadow-soft ring-1 ring-line dark:text-brand-200'
-                    : 'text-ink-muted hover:text-ink'
+                    ? 'bg-fresh-light-card text-fresh-mint shadow-fresh-sm dark:bg-fresh-dark-card border border-fresh-border'
+                    : 'text-fresh-ink-muted hover:text-fresh-ink dark:text-fresh-ink-soft dark:hover:text-fresh-light-bg'
                 }`}
               >
                 <tab.icon className="h-4 w-4" aria-hidden="true" />
@@ -174,7 +170,7 @@ export default function Login() {
             {error && (
               <p
                 role="alert"
-                className="flex items-start gap-2 rounded-xl border border-danger-200 bg-danger-50 px-3 py-2.5 text-[13px] font-medium leading-relaxed text-danger-700 dark:border-danger-800 dark:bg-danger-900/30 dark:text-danger-200"
+                className="flex items-start gap-2 rounded-[8px] border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-[13px] font-medium leading-relaxed text-red-900 dark:text-red-200"
               >
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 {error}
@@ -193,11 +189,11 @@ export default function Login() {
           </form>
 
           <div className="my-5 flex items-center gap-3">
-            <span className="h-px flex-1 bg-line" />
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+            <span className="h-px flex-1 bg-fresh-border" />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-fresh-ink-muted">
               or skip the form
             </span>
-            <span className="h-px flex-1 bg-line" />
+            <span className="h-px flex-1 bg-fresh-border" />
           </div>
 
           <div className="grid gap-2 sm:grid-cols-2">
@@ -221,11 +217,11 @@ export default function Login() {
             </Button>
           </div>
 
-          <p className="mt-5 text-center text-sm text-ink-muted">
+          <p className="mt-5 text-center text-sm text-fresh-ink-muted dark:text-fresh-ink-soft">
             New here?{' '}
             <Link
               to="/register"
-              className="font-semibold text-brand-700 underline-offset-4 hover:underline dark:text-brand-200"
+              className="font-semibold text-fresh-mint underline-offset-4 hover:underline"
             >
               Create an account
             </Link>

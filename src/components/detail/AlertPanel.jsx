@@ -7,27 +7,27 @@ import { formatDistance } from '../../utils/format'
 function AlertRow({ ngo, accepted, escalated = false }) {
   return (
     <div
-      className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 ring-1 ${
+      className={`flex items-center justify-between gap-3 rounded-[8px] px-3 py-2.5 border ${
         accepted
-          ? 'bg-brand-50 ring-brand-200 dark:bg-brand-900/30 dark:ring-brand-700'
+          ? 'border-fresh-mint/30 bg-fresh-mint/10'
           : escalated
-            ? 'bg-warning-50/70 ring-warning-200 dark:bg-warning-900/20 dark:ring-warning-800'
-            : 'bg-elevated ring-line'
+            ? 'border-amber-500/30 bg-amber-500/10'
+            : 'border-fresh-border bg-black/5 dark:bg-white/5'
       }`}
     >
       <div className="min-w-0">
-        <p className="truncate text-sm font-bold text-ink">{ngo.name}</p>
-        <p className="truncate text-xs text-ink-muted">
+        <p className="truncate text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">{ngo.name}</p>
+        <p className="truncate text-xs text-fresh-ink-muted dark:text-fresh-ink-soft">
           {ngo.focus} · {formatDistance(ngo.distanceKm)} away
         </p>
       </div>
       <span
-        className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-bold ${
+        className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold border ${
           accepted
-            ? 'bg-brand-600 text-white'
+            ? 'border-fresh-mint/40 bg-fresh-mint text-fresh-cta'
             : escalated
-              ? 'bg-warning-100 text-warning-900 dark:bg-warning-900/40 dark:text-warning-100'
-              : 'bg-surface text-ink-soft ring-1 ring-line'
+              ? 'border-amber-500/30 bg-amber-500/20 text-amber-700 dark:text-amber-300'
+              : 'border-fresh-border bg-white/50 text-fresh-ink-muted dark:bg-black/40 dark:text-fresh-ink-soft'
         }`}
       >
         {accepted ? 'Accepted' : escalated ? 'Escalated' : 'Alerted'}
@@ -48,17 +48,17 @@ export default function AlertPanel({
   const accepted = donation.status === 'accepted'
 
   return (
-    <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+    <section className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 shadow-fresh-sm dark:bg-fresh-dark-card sm:p-6">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
         <div>
-          <h2 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
+          <h2 className="flex items-center gap-2 font-display text-lg font-bold text-fresh-ink dark:text-fresh-light-bg">
             <Sparkles
-              className="h-5 w-5 text-brand-600 dark:text-brand-300"
+              className="h-5 w-5 text-fresh-mint"
               aria-hidden="true"
             />
             Smart alert simulation
           </h2>
-          <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+          <p className="mt-1 text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
             {accepted
               ? 'An NGO accepted the alert and will coordinate the pickup.'
               : stage2
@@ -67,12 +67,12 @@ export default function AlertPanel({
           </p>
         </div>
         <span
-          className={`inline-flex shrink-0 items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${
+          className={`inline-flex shrink-0 items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-xs font-bold border ${
             accepted
-              ? 'bg-brand-50 text-brand-800 ring-brand-200 dark:bg-brand-900/40 dark:text-brand-200 dark:ring-brand-700'
+              ? 'border-fresh-mint/30 bg-fresh-mint/15 text-fresh-mint'
               : stage2
-                ? 'bg-warning-50 text-warning-800 ring-warning-200 dark:bg-warning-900/30 dark:text-warning-200 dark:ring-warning-800'
-                : 'bg-info-50 text-info-800 ring-info-200 dark:bg-info-900/30 dark:text-info-200 dark:ring-info-800'
+                ? 'border-amber-500/30 bg-amber-500/15 text-amber-500 dark:text-amber-400'
+                : 'border-fresh-teal/30 bg-fresh-teal/15 text-fresh-teal'
           }`}
         >
           <span
@@ -84,8 +84,8 @@ export default function AlertPanel({
       </div>
 
       {waitingForEscalation && (
-        <div className="mt-3 rounded-xl border border-info-200/80 bg-info-50 p-3 text-sm text-info-900 dark:border-info-800 dark:bg-info-900/25 dark:text-info-100">
-          <Clock className="mr-1.5 inline h-4 w-4" aria-hidden="true" />
+        <div className="mt-3 rounded-[8px] border border-fresh-teal/30 bg-fresh-teal/10 p-3 text-sm text-fresh-ink dark:text-fresh-light-bg">
+          <Clock className="mr-1.5 inline h-4 w-4 text-fresh-teal" aria-hidden="true" />
           Auto-escalating in{' '}
           <span className="font-bold tabular-nums">
             {Math.ceil(escalationMs / 1000)}s
@@ -95,13 +95,13 @@ export default function AlertPanel({
       )}
 
       {stage2 && !donation.escalatedAt && (
-        <p className="mt-3 rounded-xl border border-warning-200/80 bg-warning-50 p-3 text-sm text-warning-900 dark:border-warning-800 dark:bg-warning-900/25 dark:text-warning-100">
+        <p className="mt-3 rounded-[8px] border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-200">
           This listing has moved to the second alert ring.
         </p>
       )}
 
       <div className="mt-4">
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-fresh-ink-muted">
           First alert ring
         </p>
         <div className="mt-2 space-y-2">
@@ -113,7 +113,7 @@ export default function AlertPanel({
 
       {stage2 && laterThree.length > 0 && (
         <div className="mt-4">
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-warning-700 dark:text-warning-300">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-amber-600 dark:text-amber-400">
             Second alert ring · escalated
           </p>
           <div className="mt-2 space-y-2">
@@ -129,8 +129,8 @@ export default function AlertPanel({
         </div>
       )}
 
-      <p className="mt-4 text-xs leading-relaxed text-ink-muted">
-              If no NGO accepts within 60 seconds, the next three nearest
+      <p className="mt-4 text-xs leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
+        If no NGO accepts within 60 seconds, the next three nearest
         verified NGOs are added automatically. The panel updates live on this page
         and on the donor dashboard.
       </p>

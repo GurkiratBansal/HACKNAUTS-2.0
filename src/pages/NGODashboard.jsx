@@ -125,10 +125,10 @@ export default function NGODashboard() {
       title={currentUser?.orgName || ngo.name}
       badge={
         <span
-          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ring-inset ${
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold border ${
             ngo.verified
-              ? 'bg-brand-50 text-brand-700 ring-brand-200 dark:bg-brand-900/40 dark:text-brand-200 dark:ring-brand-700'
-              : 'bg-warning-50 text-warning-800 ring-warning-200 dark:bg-warning-900/30 dark:text-warning-200 dark:ring-warning-800'
+              ? 'border-fresh-mint/30 bg-fresh-mint/15 text-fresh-mint'
+              : 'border-amber-500/30 bg-amber-500/15 text-amber-500 dark:text-amber-400'
           }`}
         >
           <ShieldCheck className="h-3 w-3" aria-hidden="true" />
@@ -138,7 +138,7 @@ export default function NGODashboard() {
       description={
         <span className="inline-flex flex-wrap items-center gap-1.5">
           <MapPin
-            className="h-4 w-4 shrink-0 text-brand-600 dark:text-brand-300"
+            className="h-4 w-4 shrink-0 text-fresh-mint"
             aria-hidden="true"
           />
           {ngo.city} · Live surplus from donors near your team
@@ -152,7 +152,7 @@ export default function NGODashboard() {
     >
       <LocationBar className="mb-5" />
       {emergencyActive && (
-        <p className="mb-5 rounded-2xl border border-warning-200 bg-warning-50 p-3 text-sm leading-relaxed text-warning-950 dark:border-warning-800 dark:bg-warning-900/25 dark:text-warning-100">
+        <p className="mb-5 rounded-[10px] border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-relaxed text-amber-900 dark:text-amber-200">
           Weather and conditions can make food unsafe faster. Final food safety checking rests with the donor and the receiving organization.
         </p>
       )}
@@ -197,15 +197,15 @@ export default function NGODashboard() {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="font-display text-xl font-bold tracking-tight text-ink">
+              <h2 className="font-display text-xl font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg">
                 Nearby available food
               </h2>
-              <p className="mt-0.5 text-xs text-ink-muted">
+              <p className="mt-0.5 text-xs text-fresh-ink-muted dark:text-fresh-ink-soft">
                 Showing {available.length} of {allNearby.length} open listings
                 within your filters.
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-ink-soft shadow-soft">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-fresh-border bg-fresh-light-card px-3 py-1 text-xs font-semibold text-fresh-ink-muted dark:bg-fresh-dark-card dark:text-fresh-ink-soft">
               <Filter className="h-3.5 w-3.5" aria-hidden="true" />
               Sorted by urgency, then distance
             </span>
@@ -241,25 +241,25 @@ export default function NGODashboard() {
             </div>
           )}
 
-          <div className="mt-8 flex flex-col justify-between gap-3 rounded-3xl border border-dashed border-brand-300 bg-brand-50/60 p-5 dark:border-brand-700 dark:bg-brand-900/20 sm:flex-row sm:items-center">
+          <div className="mt-8 flex flex-col justify-between gap-3 rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 dark:bg-fresh-dark-card sm:flex-row sm:items-center">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-brand-700 dark:text-brand-300">
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-fresh-mint">
                 Future feature
               </p>
-              <h2 className="mt-1 flex items-center gap-2 font-display text-base font-bold text-ink">
+              <h2 className="mt-1 flex items-center gap-2 font-display text-base font-bold text-fresh-ink dark:text-fresh-light-bg">
                 <Sparkles
-                  className="h-4 w-4 text-brand-600 dark:text-brand-300"
+                  className="h-4 w-4 text-fresh-mint"
                   aria-hidden="true"
                 />
                 AI Food Safety Assistant
               </h2>
-              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft">
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
                 Coming soon: photo-based freshness prompts and handling
                 checklists. This app does not fake AI output — inspection always
                 stays with your team.
               </p>
             </div>
-            <span className="shrink-0 rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-brand-800 dark:text-brand-200">
+            <span className="shrink-0 rounded-full border border-fresh-border bg-white/40 px-3 py-1 text-xs font-semibold text-fresh-mint dark:bg-black/30">
               Coming soon
             </span>
           </div>

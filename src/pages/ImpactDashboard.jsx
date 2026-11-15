@@ -51,17 +51,17 @@ export default function ImpactDashboard() {
     .join(' ')
 
   return (
-    <main className="bg-canvas">
+    <main className="min-h-[calc(100vh-4.5rem)] bg-fresh-light-bg dark:bg-fresh-dark-bg">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div className="max-w-2xl">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-fresh-mint">
               Impact dashboard
             </p>
-            <h1 className="mt-1.5 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+            <h1 className="mt-1.5 font-display text-3xl font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg sm:text-4xl">
               Every meal counts.
             </h1>
-            <p className="mt-2 text-sm leading-relaxed text-ink-soft sm:text-base">
+            <p className="mt-2 text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft sm:text-base">
               Live totals combine seeded baseline data with the donations completed
               in this browser.
             </p>
@@ -114,17 +114,17 @@ export default function ImpactDashboard() {
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
-          <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+          <section className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 shadow-fresh-sm dark:bg-fresh-dark-card sm:p-6">
             <div className="flex flex-wrap items-end justify-between gap-2">
               <div>
-                <h2 className="font-display text-lg font-bold text-ink">
+                <h2 className="font-display text-lg font-bold text-fresh-ink dark:text-fresh-light-bg">
                   Meals saved over time
                 </h2>
-                <p className="mt-0.5 text-xs text-ink-muted">
+                <p className="mt-0.5 text-xs text-fresh-ink-muted dark:text-fresh-ink-soft">
                   Seeded baseline plus the current month.
                 </p>
               </div>
-              <p className="text-sm font-bold text-brand-700 dark:text-brand-300">
+              <p className="text-sm font-bold text-fresh-mint">
                 {formatNumber(totalTrend)} meals
               </p>
             </div>
@@ -139,14 +139,14 @@ export default function ImpactDashboard() {
                   key={item.label}
                   className="flex h-full flex-1 flex-col items-center justify-end gap-2"
                 >
-                  <span className="text-[11px] font-bold tabular-nums text-ink-muted">
+                  <span className="text-[11px] font-bold tabular-nums text-fresh-ink-muted">
                     {formatNumber(item.meals)}
                   </span>
                   <div
-                    className="w-full rounded-t-lg bg-gradient-to-t from-brand-600 to-brand-400 transition-all duration-700 dark:from-brand-500 dark:to-brand-300"
+                    className="w-full rounded-t-[6px] bg-gradient-to-t from-fresh-teal to-fresh-mint transition-all duration-700"
                     style={{ height: `${Math.max(6, (item.meals / max) * 100)}%` }}
                   />
-                  <span className="text-xs font-semibold text-ink-muted">
+                  <span className="text-xs font-semibold text-fresh-ink-muted">
                     {item.label}
                   </span>
                 </div>
@@ -161,12 +161,12 @@ export default function ImpactDashboard() {
               ))}
             </dl>
 
-            <div className="mt-6 rounded-2xl bg-elevated p-4 ring-1 ring-inset ring-line">
+            <div className="mt-6 rounded-[10px] border border-fresh-border bg-black/5 p-4 dark:bg-white/5">
               <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-fresh-ink-muted">
                   Trend line
                 </p>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-brand-700 dark:text-brand-300">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-fresh-mint">
                   <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                   growing
                 </span>
@@ -174,7 +174,7 @@ export default function ImpactDashboard() {
               <svg
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
-                className="mt-2 h-24 w-full text-brand-600 dark:text-brand-300"
+                className="mt-2 h-24 w-full text-fresh-mint"
                 aria-hidden="true"
               >
                 <defs>
@@ -198,11 +198,11 @@ export default function ImpactDashboard() {
           </section>
 
           <section className="space-y-4">
-            <div className="rounded-3xl border border-line bg-surface p-5 shadow-card">
-              <h2 className="font-display text-base font-bold text-ink">
+            <div className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 shadow-fresh-sm dark:bg-fresh-dark-card">
+              <h2 className="font-display text-base font-bold text-fresh-ink dark:text-fresh-light-bg">
                 How this is calculated
               </h2>
-              <ul className="mt-3 space-y-2.5 text-sm leading-relaxed text-ink-soft">
+              <ul className="mt-3 space-y-2.5 text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
                 <li className="flex items-start gap-2">
                   <Dot /> 1 serving = 0.4 kg of food.
                 </li>
@@ -221,24 +221,24 @@ export default function ImpactDashboard() {
               </ul>
             </div>
 
-            <div className="rounded-3xl border border-brand-200/80 bg-brand-50/80 p-5 shadow-soft dark:border-brand-800 dark:bg-brand-900/25">
-              <h2 className="font-display text-base font-bold text-ink">
-              Your contribution
+            <div className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 shadow-fresh-sm dark:bg-fresh-dark-card">
+              <h2 className="font-display text-base font-bold text-fresh-ink dark:text-fresh-light-bg">
+                Your contribution
               </h2>
-              <p className="mt-1 font-display text-4xl font-extrabold tabular-nums text-brand-800 dark:text-brand-200">
+              <p className="mt-1 font-display text-4xl font-bold tabular-nums text-fresh-mint">
                 {formatNumber(impact.distributedDonations)}
               </p>
-              <p className="text-sm text-ink-soft">
+              <p className="text-sm text-fresh-ink-muted dark:text-fresh-ink-soft">
                 completed donation
                 {impact.distributedDonations === 1 ? '' : 's'} in this browser
               </p>
-              <p className="mt-3 text-xs leading-relaxed text-ink-muted">
+              <p className="mt-3 text-xs leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
                 Complete the NGO pickup flow to watch these numbers rise. The totals
                 persist after refresh through localStorage.
               </p>
             </div>
 
-            <p className="rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-ink-muted">
+            <p className="rounded-[10px] border border-fresh-border bg-fresh-light-card p-4 text-xs leading-relaxed text-fresh-ink-muted dark:bg-fresh-dark-card dark:text-fresh-ink-soft">
               These are estimates, not audited environmental
               claims. FRESH does not guarantee food safety.
             </p>
@@ -252,7 +252,7 @@ export default function ImpactDashboard() {
 function Dot() {
   return (
     <span
-      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600 dark:bg-brand-300"
+      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-fresh-mint"
       aria-hidden="true"
     />
   )

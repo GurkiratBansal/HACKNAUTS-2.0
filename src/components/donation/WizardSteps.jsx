@@ -36,12 +36,12 @@ export default function WizardSteps({ current, onSelect }) {
               >
                 <span className="flex w-full min-w-0 items-center">
                   <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] text-xs font-bold transition-colors ${
                       done
-                        ? 'bg-brand-600 text-white dark:bg-brand-500'
+                        ? 'border border-fresh-mint/40 bg-fresh-mint/20 text-fresh-mint'
                         : active
-                          ? 'bg-brand-600 text-white ring-4 ring-brand-100 dark:bg-brand-500 dark:ring-brand-900/70'
-                          : 'bg-elevated text-ink-muted ring-1 ring-inset ring-line-strong'
+                          ? 'bg-gradient-to-r from-fresh-mint to-fresh-teal text-fresh-cta shadow-fresh-sm'
+                          : 'border border-fresh-border bg-black/5 text-fresh-ink-muted dark:bg-white/5'
                     }`}
                   >
                     {done ? (
@@ -53,7 +53,7 @@ export default function WizardSteps({ current, onSelect }) {
                   {index < STEPS.length - 1 && (
                     <span
                       className={`ml-1.5 h-0.5 min-w-2 flex-1 rounded-full transition-colors ${
-                        done ? 'bg-brand-500' : 'bg-line-strong/70'
+                        done ? 'bg-fresh-mint' : 'bg-fresh-border'
                       }`}
                       aria-hidden="true"
                     />
@@ -62,10 +62,10 @@ export default function WizardSteps({ current, onSelect }) {
                 <span
                   className={`text-[11px] font-semibold leading-tight sm:text-xs ${
                     active
-                      ? 'text-ink'
+                      ? 'font-bold text-fresh-ink dark:text-fresh-light-bg'
                       : done
-                        ? 'text-brand-700 dark:text-brand-300'
-                        : 'text-ink-muted'
+                        ? 'text-fresh-mint'
+                        : 'text-fresh-ink-muted'
                   }`}
                 >
                   {step.label}

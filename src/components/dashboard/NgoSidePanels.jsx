@@ -20,14 +20,14 @@ export default function NgoSidePanels() {
           {READINESS.map((item) => (
             <li key={item} className="flex items-start gap-2">
               <span
-                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500"
+                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-fresh-mint"
                 aria-hidden="true"
               />
               {item}
             </li>
           ))}
         </ul>
-        <p className="mt-3 rounded-xl bg-surface/70 p-2.5 text-[11px] font-medium text-ink-soft ring-1 ring-inset ring-line">
+        <p className="mt-3 rounded-[8px] bg-black/5 p-2.5 text-[11px] font-medium text-fresh-ink-muted dark:bg-white/5 dark:text-fresh-ink-soft border border-fresh-border">
           The final safety decision always stays with your team.
         </p>
       </SidePanel>

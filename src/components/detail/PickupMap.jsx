@@ -53,24 +53,24 @@ export default function PickupMap({
 
   if (!place) {
     return (
-      <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+      <section className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 shadow-fresh-sm dark:bg-fresh-dark-card sm:p-6">
         <LocationPicker idPrefix="detail-location-picker" />
       </section>
     )
   }
 
   return (
-    <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
-      <h2 className="font-display text-lg font-bold text-ink">Pickup location</h2>
-      <p className="mt-1.5 flex items-start gap-1.5 text-sm leading-relaxed text-ink-soft">
+    <section className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 shadow-fresh-sm dark:bg-fresh-dark-card sm:p-6">
+      <h2 className="font-display text-lg font-bold text-fresh-ink dark:text-fresh-light-bg">Pickup location</h2>
+      <p className="mt-1.5 flex items-start gap-1.5 text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
         <MapPin
-          className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-300"
+          className="mt-0.5 h-4 w-4 shrink-0 text-fresh-mint"
           aria-hidden="true"
         />
         {donation.address}
       </p>
       <LocationBar className="mt-3" />
-      <div className="mt-3">
+      <div className="mt-3 overflow-hidden rounded-[10px] border border-fresh-border">
         <MapView
           center={[place.lat, place.lng]}
           zoom={13}
@@ -97,7 +97,7 @@ export default function PickupMap({
           googleMapsUrl={googleMapsUrl}
         />
       )}
-      <p className="mt-2 text-[11px] text-ink-muted">
+      <p className="mt-2 text-[11px] text-fresh-ink-muted dark:text-fresh-ink-soft">
         The pickup pin is approximate. Coordinate the exact entrance with the donor.
       </p>
     </section>

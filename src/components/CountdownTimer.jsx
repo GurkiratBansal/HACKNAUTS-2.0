@@ -7,9 +7,9 @@ import { getUrgency } from '../utils/urgency'
 import { formatCountdown } from '../utils/format'
 
 const TONES = {
-  fresh: { text: 'text-emerald-700 dark:text-emerald-300', bar: 'bg-emerald-500' },
-  soon: { text: 'text-amber-700 dark:text-amber-300', bar: 'bg-amber-500' },
-  urgent: { text: 'text-red-700 dark:text-red-300', bar: 'bg-red-500' },
+  fresh: { text: 'text-emerald-800 dark:text-emerald-300', bar: 'bg-emerald-500' },
+  soon: { text: 'text-amber-800 dark:text-amber-300', bar: 'bg-amber-500' },
+  urgent: { text: 'text-red-800 dark:text-red-300', bar: 'bg-red-500' },
   expired: { text: 'text-ink-muted dark:text-[#A9BBB2]', bar: 'bg-slate-400' },
 }
 

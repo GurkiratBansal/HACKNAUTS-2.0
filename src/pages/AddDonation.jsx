@@ -278,17 +278,17 @@ export default function AddDonation() {
   }
 
   return (
-    <main className="bg-canvas">
+    <main className="min-h-[calc(100vh-4.5rem)] bg-fresh-light-bg dark:bg-fresh-dark-bg">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="max-w-2xl">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-fresh-mint">
               Add donation
             </p>
-            <h1 className="mt-1.5 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+            <h1 className="mt-1.5 font-display text-3xl font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg sm:text-4xl">
               List surplus food
             </h1>
-            <p className="mt-2 text-sm leading-relaxed text-ink-soft sm:text-base">
+            <p className="mt-2 text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft sm:text-base">
               Four short steps, then a final declaration. Accurate details help
               NGOs decide quickly and collect safely.
             </p>
@@ -303,28 +303,28 @@ export default function AddDonation() {
                   fileInputRef.current?.click()
                 }
               }}
-              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-2xl border border-emerald-300/80 bg-gradient-to-r from-emerald-50 via-teal-50 to-brand-50 px-4 py-2.5 text-sm font-bold text-emerald-950 shadow-soft transition-all duration-300 hover:border-emerald-500 hover:shadow-card active:scale-[0.98] dark:border-emerald-700/60 dark:from-emerald-950/60 dark:via-teal-950/40 dark:to-brand-950/40 dark:text-emerald-100"
+              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-[10px] border border-fresh-border bg-fresh-light-card px-4 py-2.5 text-sm font-bold text-fresh-ink shadow-fresh-sm transition-all duration-300 hover:border-fresh-mint hover:bg-black/5 active:scale-[0.98] dark:bg-fresh-dark-card dark:text-fresh-light-bg dark:hover:bg-white/5"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-xs transition-transform group-hover:scale-110">
+              <span className="flex h-7 w-7 items-center justify-center rounded-[6px] bg-gradient-to-tr from-fresh-mint to-fresh-teal text-fresh-cta shadow-xs transition-transform group-hover:scale-110">
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
               </span>
               <span className="flex flex-col text-left">
                 <span className="leading-tight">AI Food &amp; Safety Scan</span>
-                <span className="text-[10px] font-semibold text-emerald-700/80 dark:text-emerald-300/80">Auto-Fills Food &amp; Nutrition</span>
+                <span className="text-[10px] font-semibold text-fresh-mint">Auto-Fills Food &amp; Nutrition</span>
               </span>
             </button>
 
             <button
               type="button"
               onClick={() => setVoiceAssistantOpen(true)}
-              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-2xl border border-brand-300/80 bg-gradient-to-r from-brand-50 via-emerald-50 to-teal-50 px-4 py-2.5 text-sm font-bold text-brand-900 shadow-soft transition-all duration-300 hover:border-brand-500 hover:shadow-card active:scale-[0.98] dark:border-brand-700/60 dark:from-brand-950/60 dark:via-emerald-950/40 dark:to-teal-950/40 dark:text-brand-100"
+              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-[10px] border border-fresh-border bg-fresh-light-card px-4 py-2.5 text-sm font-bold text-fresh-ink shadow-fresh-sm transition-all duration-300 hover:border-fresh-mint hover:bg-black/5 active:scale-[0.98] dark:bg-fresh-dark-card dark:text-fresh-light-bg dark:hover:bg-white/5"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-brand-600 text-white shadow-xs transition-transform group-hover:scale-110 group-hover:bg-brand-500">
+              <span className="flex h-7 w-7 items-center justify-center rounded-[6px] bg-fresh-mint text-fresh-cta shadow-xs transition-transform group-hover:scale-110">
                 <Mic className="h-4 w-4" aria-hidden="true" />
               </span>
               <span className="flex flex-col text-left">
                 <span className="leading-tight">Fill by Voice AI</span>
-                <span className="text-[10px] font-semibold text-brand-700/80 dark:text-brand-300/80">Speech-to-Text Setup</span>
+                <span className="text-[10px] font-semibold text-fresh-mint">Speech-to-Text Setup</span>
               </span>
             </button>
 
@@ -345,11 +345,11 @@ export default function AddDonation() {
           noValidate
         >
           <div ref={cardRef} className="min-w-0 scroll-mt-24 space-y-4">
-            <div className="rounded-3xl border border-line bg-surface p-4 shadow-soft sm:p-5">
+            <div className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-4 shadow-fresh-sm dark:bg-fresh-dark-card sm:p-5">
               <WizardSteps current={step} onSelect={goTo} />
             </div>
 
-            <div className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+            <div className="rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 shadow-fresh-sm dark:bg-fresh-dark-card sm:p-6">
               <div
                 key={step}
                 ref={panelRef}

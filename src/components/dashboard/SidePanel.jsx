@@ -3,17 +3,16 @@
 
 const TONES = {
   brand: {
-    panel: 'border-brand-200/70 bg-brand-50/60 dark:border-brand-800 dark:bg-brand-900/20',
-    icon: 'bg-brand-600 text-white',
+    panel: 'border-fresh-border bg-fresh-light-card dark:bg-fresh-dark-card',
+    icon: 'bg-fresh-mint/15 text-fresh-mint',
   },
   saffron: {
-    panel:
-      'border-saffron-200/80 bg-saffron-50/70 dark:border-saffron-900 dark:bg-saffron-900/20',
-    icon: 'bg-saffron-500 text-brand-950',
+    panel: 'border-fresh-border bg-fresh-light-card dark:bg-fresh-dark-card',
+    icon: 'bg-amber-500/15 text-amber-500 dark:text-amber-400',
   },
   neutral: {
-    panel: 'border-line bg-surface',
-    icon: 'bg-elevated text-ink-soft ring-1 ring-inset ring-line-strong',
+    panel: 'border-fresh-border bg-fresh-light-card dark:bg-fresh-dark-card',
+    icon: 'bg-black/5 text-fresh-ink-muted dark:bg-white/10 dark:text-fresh-ink-soft',
   },
 }
 
@@ -21,18 +20,18 @@ export default function SidePanel({ icon: Icon, title, tone = 'brand', children 
   const style = TONES[tone] || TONES.brand
 
   return (
-    <section className={`rounded-3xl border p-4 shadow-soft sm:p-5 ${style.panel}`}>
-      <h2 className="flex items-center gap-2.5 text-sm font-bold text-ink">
+    <section className={`rounded-[12px] border p-4 shadow-fresh-sm sm:p-5 ${style.panel}`}>
+      <h2 className="flex items-center gap-2.5 text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">
         {Icon && (
           <span
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${style.icon}`}
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] ${style.icon}`}
           >
             <Icon className="h-4 w-4" aria-hidden="true" />
           </span>
         )}
         {title}
       </h2>
-      <div className="mt-3 text-[13px] leading-relaxed text-ink-soft">{children}</div>
+      <div className="mt-3 text-[13px] leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">{children}</div>
     </section>
   )
 }

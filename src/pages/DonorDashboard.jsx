@@ -101,15 +101,15 @@ export default function DonorDashboard() {
               <div>
                 <h2
                   id="active-donations"
-                  className="font-display text-xl font-bold tracking-tight text-ink"
+                  className="font-display text-xl font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg"
                 >
                   Active donations
                 </h2>
-                <p className="mt-0.5 text-xs text-ink-muted">
+                <p className="mt-0.5 text-xs text-fresh-ink-muted dark:text-fresh-ink-soft">
                   Listings still waiting for a pickup or distribution.
                 </p>
               </div>
-              <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-ink-soft shadow-soft">
+              <span className="inline-flex items-center rounded-full border border-fresh-border bg-fresh-light-card px-3 py-1 text-xs font-semibold text-fresh-ink-muted dark:bg-fresh-dark-card dark:text-fresh-ink-soft">
                 {active.length} open
               </span>
             </div>
@@ -145,11 +145,11 @@ export default function DonorDashboard() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2
                   id="completed-donations"
-                  className="font-display text-xl font-bold tracking-tight text-ink"
+                  className="font-display text-xl font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg"
                 >
                   Completed
                 </h2>
-                <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-ink-soft shadow-soft">
+                <span className="inline-flex items-center rounded-full border border-fresh-border bg-fresh-light-card px-3 py-1 text-xs font-semibold text-fresh-ink-muted dark:bg-fresh-dark-card dark:text-fresh-ink-soft">
                   {completed.length} delivered
                 </span>
               </div>
@@ -168,36 +168,32 @@ export default function DonorDashboard() {
         </div>
 
         <aside className="min-w-0 space-y-4 xl:sticky xl:top-24 xl:self-start">
-          <section className="relative overflow-hidden rounded-3xl border border-brand-800 bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 p-5 shadow-lift">
+          <section className="relative overflow-hidden rounded-[12px] border border-fresh-border bg-gradient-to-br from-[#0B2219] via-[#06130F] to-[#04100C] p-5 shadow-fresh-sm">
             <div
-              className="pointer-events-none absolute inset-0 pattern-grid opacity-40"
-              aria-hidden="true"
-            />
-            <div
-              className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-saffron-500/10 blur-2xl"
+              className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-fresh-mint/10 blur-2xl"
               aria-hidden="true"
             />
 
             <div className="relative">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-saffron-300">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-fresh-mint">
                 Your impact
               </p>
-              <p className="mt-2 font-display text-4xl font-extrabold tracking-tight text-white tabular-nums">
+              <p className="mt-2 font-display text-4xl font-bold tracking-tight text-white tabular-nums">
                 {formatNumber(mealsDistributed)}
               </p>
-              <p className="mt-0.5 text-xs leading-relaxed text-brand-100/70">
+              <p className="mt-0.5 text-xs leading-relaxed text-[#A9BBB2]">
                 servings distributed from your kitchen
               </p>
 
               <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
                 <div>
-                  <dt className="text-[11px] text-brand-100/60">Completed</dt>
+                  <dt className="text-[11px] text-[#A9BBB2]">Completed</dt>
                   <dd className="mt-0.5 text-lg font-bold text-white">
                     {completed.length}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-[11px] text-brand-100/60">Active</dt>
+                  <dt className="text-[11px] text-[#A9BBB2]">Active</dt>
                   <dd className="mt-0.5 text-lg font-bold text-white">
                     {active.length}
                   </dd>
@@ -206,7 +202,7 @@ export default function DonorDashboard() {
 
               <Button
                 to="/impact"
-                variant="onDark"
+                variant="primary"
                 size="sm"
                 iconRight={ArrowRight}
                 className="mt-4 w-full"
