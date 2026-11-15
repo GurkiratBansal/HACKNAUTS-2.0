@@ -1,4 +1,4 @@
-// FRESH:FILE  Card summarising one food listing: photo, urgency badge, distance and actions.
+// FRESH:FILE  Card summarising one food listing following the mobile reference design.
 // FRESH:AREA  Donations
 
 import { Link } from 'react-router-dom'
@@ -24,13 +24,13 @@ import {
 
 const STATUS_STYLES = {
   available:
-    'bg-brand-50/95 text-brand-800 ring-brand-200 dark:bg-brand-900/70 dark:text-brand-200 dark:ring-brand-700',
+    'bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700',
   accepted:
-    'bg-info-50/95 text-info-800 ring-info-200 dark:bg-info-900/60 dark:text-info-200 dark:ring-info-800',
+    'bg-sky-50 text-sky-800 border border-sky-300 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-700',
   picked_up:
-    'bg-saffron-50/95 text-saffron-800 ring-saffron-200 dark:bg-saffron-900/60 dark:text-saffron-200 dark:ring-saffron-800',
+    'bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700',
   distributed:
-    'bg-elevated/95 text-ink-soft ring-line-strong dark:bg-brand-950/80 dark:text-brand-100',
+    'bg-elevated text-ink-soft border border-line dark:bg-[#06130F] dark:text-[#A9BBB2] dark:border-white/10',
 }
 
 const STATUS_LABELS = {
@@ -40,14 +40,14 @@ const STATUS_LABELS = {
   distributed: 'Distributed',
 }
 
-function DietChip({ diet }) {
+function DietTag({ diet }) {
   const veg = diet === 'veg'
   return (
     <span
-      className={`rounded-full px-2 py-0.5 font-semibold ring-1 ring-inset ${
+      className={`rounded-[6px] px-2 py-0.5 text-[11px] font-bold border ${
         veg
-          ? 'bg-brand-50 text-brand-700 ring-brand-200 dark:bg-brand-900/40 dark:text-brand-200 dark:ring-brand-700'
-          : 'bg-saffron-50 text-saffron-800 ring-saffron-200 dark:bg-saffron-900/30 dark:text-saffron-200 dark:ring-saffron-800'
+          ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+          : 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800'
       }`}
     >
       {veg ? 'Veg' : 'Non-veg'}
@@ -67,40 +67,44 @@ export default function FoodCard({
   const isAvailable = donation.status === 'available' && !expired
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-card dark:hover:border-brand-700">
-      <div className="p-2 pb-0">
-        <div className="relative h-44 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-100 via-cream to-saffron-100 dark:from-brand-900 dark:via-brand-950 dark:to-saffron-900/40">
+    <article className="group flex h-full flex-col overflow-hidden rounded-[12px] border border-line bg-surface shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[#3EE6B8]/40 hover:shadow-md dark:border-white/10 dark:bg-[#0B2219]">
+      {/* Image or Category placeholder tile on top */}
+      <div className="p-3 pb-0">
+        <div className="relative h-44 overflow-hidden rounded-[10px] border border-line/60 bg-[#E9EEEC] dark:border-white/10 dark:bg-[#06130F]">
           <SmartImage
             src={donation.photo}
             alt={`${donation.foodName} listed for donation`}
-            className="h-full w-full"
-            imgClassName="transition duration-500 group-hover:scale-[1.04]"
+            className="h-full w-full object-cover"
+            imgClassName="transition duration-300 group-hover:scale-105"
             fallback={
-              <div className="flex h-full items-center justify-center">
-                <span className="flex h-20 w-20 items-center justify-center rounded-full bg-surface/60 text-brand-700/60 ring-1 ring-inset ring-brand-900/10 backdrop-blur dark:text-brand-300/70 dark:ring-white/10">
+              <div className="flex h-full flex-col items-center justify-center p-4 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#0B2219] text-[#3EE6B8] border border-white/10">
                   {donation.photo ? (
-                    <ImageOff className="h-9 w-9" aria-hidden="true" />
+                    <ImageOff className="h-6 w-6" aria-hidden="true" />
                   ) : (
-                    <UtensilsCrossed className="h-9 w-9" aria-hidden="true" />
+                    <UtensilsCrossed className="h-6 w-6" aria-hidden="true" />
                   )}
+                </span>
+                <span className="mt-2 text-xs font-semibold text-ink-muted dark:text-[#A9BBB2]">
+                  {categoryLabel(donation.category)}
                 </span>
               </div>
             }
           />
 
           <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/60 via-brand-950/5 to-transparent"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
             aria-hidden="true"
           />
 
-          <div className="absolute inset-x-2.5 top-2.5 flex flex-wrap items-start gap-1.5">
-            {/* Urgency only matters while a listing is still waiting for a pickup. */}
+          {/* Urgency Badge on top-left of image/tile */}
+          <div className="absolute left-2.5 top-2.5 flex flex-wrap items-start gap-1.5">
             {donation.status === 'available' && (
-              <UrgencyBadge urgency={urgency} className="shadow-soft" />
+              <UrgencyBadge urgency={urgency} />
             )}
             {donation.status !== 'available' && (
               <span
-                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${
+                className={`inline-flex items-center rounded-[8px] px-2.5 py-1 text-xs font-bold ${
                   STATUS_STYLES[donation.status] || STATUS_STYLES.available
                 }`}
               >
@@ -108,77 +112,78 @@ export default function FoodCard({
               </span>
             )}
           </div>
-
-          <div className="absolute inset-x-2.5 bottom-2.5 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-950/70 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
-              <UtensilsCrossed className="h-3 w-3" aria-hidden="true" />
-              {donation.quantity} servings
-            </span>
-            {Number.isFinite(distanceKm) && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-brand-950/70 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
-                <MapPin className="h-3 w-3" aria-hidden="true" />
-                {formatDistance(distanceKm)} away
-              </span>
-            )}
-          </div>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <h3 className="font-display text-lg font-bold leading-snug text-ink">
+        {/* Two small tags: category and veg/non-veg */}
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+          <span className="rounded-[6px] border border-line bg-elevated px-2 py-0.5 font-semibold text-ink-soft dark:border-white/10 dark:bg-[#06130F] dark:text-[#A9BBB2]">
+            {categoryLabel(donation.category)}
+          </span>
+          <DietTag diet={donation.diet} />
+          <span className="rounded-[6px] border border-line bg-elevated px-2 py-0.5 font-semibold text-ink-soft dark:border-white/10 dark:bg-[#06130F] dark:text-[#A9BBB2]">
+            {storageLabel(donation.storage)}
+          </span>
+        </div>
+
+        {/* Title with tight tracking */}
+        <h3 className="mt-2 font-display text-base sm:text-lg font-bold leading-snug tracking-tight text-ink dark:text-[#F2F7F4]">
           <Link
             to={`/donation/${donation.id}`}
-            className="underline-offset-4 hover:text-brand-700 hover:underline focus-visible:outline-none focus-visible:underline focus-visible:decoration-saffron-500 focus-visible:decoration-2 dark:hover:text-brand-300"
+            className="hover:text-emerald-700 dark:hover:text-[#3EE6B8] focus-visible:outline-none focus-visible:underline"
           >
             {donation.foodName}
           </Link>
         </h3>
 
-        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
-          <span className="rounded-full bg-elevated px-2 py-0.5 font-semibold text-ink-soft ring-1 ring-inset ring-line">
-            {categoryLabel(donation.category)}
+        {/* Distance and Servings */}
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-ink-muted dark:text-[#A9BBB2]">
+          <span className="inline-flex items-center gap-1">
+            <UtensilsCrossed className="h-3.5 w-3.5 text-[#3EE6B8]" aria-hidden="true" />
+            <span className="font-bold text-ink dark:text-white">{donation.quantity}</span> servings
           </span>
-          <DietChip diet={donation.diet} />
-          <span className="rounded-full bg-elevated px-2 py-0.5 font-semibold text-ink-soft ring-1 ring-inset ring-line">
-            {storageLabel(donation.storage)}
-          </span>
+          {Number.isFinite(distanceKm) && (
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 text-[#19C8D8]" aria-hidden="true" />
+              <span>{formatDistance(distanceKm)} away</span>
+            </span>
+          )}
         </div>
 
-        <p className="mt-3 flex items-start gap-1.5 text-[13px] leading-relaxed text-ink-soft">
+        <p className="mt-2.5 flex items-start gap-1.5 text-xs leading-relaxed text-ink-soft dark:text-[#A9BBB2]">
           <MapPin
-            className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-400"
+            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-[#3EE6B8]"
             aria-hidden="true"
           />
-          <span className="line-clamp-2">{donation.address}</span>
+          <span className="line-clamp-1">{donation.address}</span>
         </p>
 
         {showSafetyHint && (
-          <p className="mt-3 flex items-start gap-2 rounded-xl border border-warning-200/80 bg-warning-50/80 p-2.5 text-[11px] leading-relaxed text-warning-900 dark:border-warning-800/60 dark:bg-warning-900/25 dark:text-warning-100">
-            <ShieldAlert
-              className="mt-0.5 h-3.5 w-3.5 shrink-0"
-              aria-hidden="true"
-            />
-            {getSafetyHint(donation.category, donation.storage)}
-          </p>
+          <div className="mt-3 flex items-start gap-2 rounded-[8px] border border-amber-200/80 bg-amber-50/80 p-2.5 text-[11px] leading-relaxed text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/20 dark:text-amber-200">
+            <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden="true" />
+            <span>{getSafetyHint(donation.category, donation.storage)}</span>
+          </div>
         )}
 
+        {/* Actions & "View details" link with arrow */}
         <div className="mt-auto pt-4">
           {donation.status === 'available' && (
             <CountdownTimer
               deadline={donation.deadline}
               startAt={donation.createdAt}
               showProgress
-              className="mb-4"
+              className="mb-3"
             />
           )}
 
-          <div className="flex items-center justify-between gap-2 border-t border-line pt-3 text-[11px] text-ink-muted">
+          <div className="flex items-center justify-between border-t border-line dark:border-white/10 pt-3 text-xs text-ink-muted dark:text-[#A9BBB2]">
             <span>Listed {timeAgo(donation.createdAt)}</span>
             <Link
               to={`/donation/${donation.id}`}
-              className="inline-flex items-center gap-1 font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:underline dark:text-brand-300"
+              className="inline-flex items-center gap-1 font-bold text-emerald-700 hover:text-emerald-800 dark:text-[#3EE6B8] dark:hover:text-[#3EE6B8]/80 transition"
             >
-              Details
+              View details
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </div>
@@ -203,7 +208,7 @@ export default function FoodCard({
               iconRight={ArrowRight}
               className="mt-3 w-full"
             >
-              View listing
+              View details
             </Button>
           )}
         </div>

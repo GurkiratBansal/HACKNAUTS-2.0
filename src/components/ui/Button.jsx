@@ -1,4 +1,4 @@
-// FRESH:FILE  Styled button/link primitive with variants and loading state.
+// FRESH:FILE  Styled button/link primitive: mint-to-teal gradient primary, dark secondary with light border, 8-12px radii.
 // FRESH:AREA  Layout
 
 import { Link } from 'react-router-dom'
@@ -6,32 +6,32 @@ import { Loader2 } from 'lucide-react'
 
 const VARIANTS = {
   primary:
-    'bg-saffron-500 text-brand-950 shadow-glow hover:bg-saffron-400 focus-visible:outline-brand-500',
+    'bg-gradient-to-r from-[#3EE6B8] to-[#19C8D8] text-[#04201A] font-bold shadow-sm hover:brightness-105 active:scale-[0.98] border border-transparent',
   secondary:
-    'bg-brand-600 text-white shadow-soft hover:bg-brand-700 focus-visible:outline-brand-500',
+    'bg-[#0B2219] text-[#F2F7F4] border border-white/15 hover:bg-[#123427] hover:border-[#3EE6B8]/40 active:scale-[0.98]',
   outline:
-    'border border-brand-600 bg-surface/70 text-brand-700 hover:bg-brand-50 dark:border-brand-400 dark:text-brand-200 dark:hover:bg-brand-900/40',
+    'border border-line bg-surface/80 text-ink hover:bg-elevated dark:border-white/15 dark:bg-[#0B2219]/60 dark:text-[#F2F7F4] dark:hover:bg-white/10 active:scale-[0.98]',
   ghost:
-    'text-ink-soft hover:bg-elevated hover:text-ink focus-visible:outline-brand-500',
+    'text-ink-soft hover:bg-elevated hover:text-ink dark:text-[#A9BBB2] dark:hover:bg-white/5 dark:hover:text-[#F2F7F4] active:scale-[0.98]',
   ghostDanger:
-    'text-danger-700 hover:bg-danger-50 dark:text-danger-300 dark:hover:bg-danger-900/30 focus-visible:outline-danger-500',
+    'text-danger-700 hover:bg-danger-50 dark:text-danger-300 dark:hover:bg-danger-900/30 active:scale-[0.98]',
   onDark:
-    'border border-white/30 bg-white/5 text-white hover:bg-white/10 focus-visible:outline-white',
+    'border border-white/20 bg-white/5 text-[#F2F7F4] hover:bg-white/10 active:scale-[0.98]',
   danger:
-    'bg-danger-600 text-white shadow-soft hover:bg-danger-700 focus-visible:outline-danger-500',
+    'bg-danger-600 text-white shadow-sm hover:bg-danger-700 active:scale-[0.98]',
   'outline-danger':
-    'border border-danger-200 bg-danger-50 text-danger-700 hover:bg-danger-100 dark:border-danger-800 dark:bg-danger-900/30 dark:text-danger-200 dark:hover:bg-danger-900/50',
+    'border border-danger-200 bg-danger-50 text-danger-700 hover:bg-danger-100 dark:border-danger-800 dark:bg-danger-900/30 dark:text-danger-200 active:scale-[0.98]',
 }
 
 const SIZES = {
-  sm: 'h-10 gap-1.5 rounded-lg px-3 text-xs',
-  md: 'h-11 gap-2 rounded-xl px-4 text-sm',
-  lg: 'h-12 gap-2 rounded-xl px-5 text-sm',
+  sm: 'min-h-[40px] gap-1.5 rounded-[8px] px-3.5 text-xs',
+  md: 'min-h-[44px] gap-2 rounded-[10px] px-4.5 text-sm',
+  lg: 'min-h-[48px] gap-2 rounded-[10px] px-6 text-sm',
 }
 
 /**
- * One button language across the app: saffron primary, emerald secondary,
- * outlined/ghost utilities. Links and anchors share the same styling.
+ * One button language across the app: mint-to-teal gradient primary,
+ * dark secondary with 1px border, 8-12px rounded rectangles, min 44px targets.
  */
 export default function Button({
   children,
@@ -58,7 +58,7 @@ export default function Button({
       {...(isButton ? { type, disabled: isDisabled } : {})}
       aria-busy={loading || undefined}
       aria-disabled={!isButton && isDisabled ? true : undefined}
-      className={`inline-flex shrink-0 items-center justify-center font-bold transition duration-150 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50 ${VARIANTS[variant] || VARIANTS.primary} ${SIZES[size] || SIZES.md} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center font-bold transition duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3EE6B8] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${VARIANTS[variant] || VARIANTS.primary} ${SIZES[size] || SIZES.md} ${className}`}
       {...props}
     >
       {loading ? (

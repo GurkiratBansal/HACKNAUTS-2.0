@@ -89,30 +89,30 @@ export default function EmptyState({
   action,
 }) {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-dashed border-line-strong bg-surface/60 px-6 py-12 text-center">
+    <div className="relative overflow-hidden rounded-[12px] border border-fresh-border bg-fresh-light-card/80 p-8 text-center shadow-fresh-sm dark:bg-fresh-dark-card/60">
       <div
-        className="pointer-events-none absolute -right-12 -top-14 h-44 w-44 rounded-full bg-brand-100/70 blur-3xl dark:bg-brand-900/40"
+        className="pointer-events-none absolute -right-12 -top-14 h-44 w-44 rounded-full bg-fresh-mint/10 blur-3xl"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-saffron-100/60 blur-3xl dark:bg-saffron-900/20"
+        className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-fresh-teal/10 blur-3xl"
         aria-hidden="true"
       />
 
       <div className="relative mx-auto w-fit">
         <EmptyPlateArt />
         {Icon && (
-          <span className="absolute -right-2 top-1 flex h-10 w-10 items-center justify-center rounded-full bg-saffron-500 text-brand-950 shadow-glow ring-4 ring-surface">
+          <span className="absolute -right-2 top-1 flex h-10 w-10 items-center justify-center rounded-[8px] bg-fresh-mint text-fresh-cta shadow-fresh-sm ring-4 ring-fresh-light-card dark:ring-fresh-dark-card">
             <Icon className="h-5 w-5" aria-hidden="true" />
           </span>
         )}
       </div>
 
-      <h3 className="relative mt-4 font-display text-xl font-bold tracking-tight text-ink">
+      <h3 className="relative mt-4 font-display text-lg font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg">
         {title}
       </h3>
       {description && (
-        <p className="relative mx-auto mt-1.5 max-w-md text-sm leading-relaxed text-ink-soft">
+        <p className="relative mx-auto mt-1.5 max-w-md text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
           {description}
         </p>
       )}

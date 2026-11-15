@@ -7,23 +7,23 @@ import { useApp } from '../context/AppContext'
 const STYLES = {
   success: {
     icon: CheckCircle2,
-    border: 'border-l-brand-500',
-    tile: 'bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200',
+    border: 'border-l-fresh-mint',
+    tile: 'bg-fresh-mint/15 text-fresh-mint',
   },
   info: {
     icon: Info,
-    border: 'border-l-info-500',
-    tile: 'bg-info-50 text-info-700 dark:bg-info-900/30 dark:text-info-200',
+    border: 'border-l-fresh-teal',
+    tile: 'bg-fresh-teal/15 text-fresh-teal',
   },
   warning: {
     icon: AlertTriangle,
-    border: 'border-l-warning-500',
-    tile: 'bg-warning-50 text-warning-700 dark:bg-warning-900/30 dark:text-warning-200',
+    border: 'border-l-amber-500',
+    tile: 'bg-amber-500/15 text-amber-500 dark:text-amber-400',
   },
   error: {
     icon: XCircle,
-    border: 'border-l-danger-500',
-    tile: 'bg-danger-50 text-danger-700 dark:bg-danger-900/30 dark:text-danger-200',
+    border: 'border-l-red-500',
+    tile: 'bg-red-500/15 text-red-500 dark:text-red-400',
   },
 }
 
@@ -43,19 +43,19 @@ export default function Toast() {
           <div
             key={toast.id}
             role="status"
-            className={`pointer-events-auto flex w-full animate-toast-in items-start gap-3 rounded-2xl border border-l-4 border-line bg-surface p-3.5 shadow-card ${style.border}`}
+            className={`pointer-events-auto flex w-full animate-toast-in items-start gap-3 rounded-[12px] border border-l-4 border-fresh-border bg-fresh-light-card p-3.5 shadow-fresh-sm dark:bg-fresh-dark-card ${style.border}`}
           >
-            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${style.tile}`}>
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] ${style.tile}`}>
               <Icon className="h-4 w-4" aria-hidden="true" />
             </span>
-            <p className="flex-1 pt-0.5 text-[13px] font-medium leading-relaxed text-ink-soft">
+            <p className="flex-1 pt-0.5 text-[13px] font-medium leading-relaxed text-fresh-ink dark:text-fresh-light-bg">
               {toast.message}
             </p>
             <button
               type="button"
               onClick={() => removeToast(toast.id)}
               aria-label="Dismiss notification"
-              className="rounded-lg p-1.5 text-ink-muted transition hover:bg-elevated hover:text-ink focus-visible:outline-brand-500 active:scale-95"
+              className="rounded-[6px] p-1.5 text-fresh-ink-muted transition hover:bg-black/5 hover:text-fresh-ink dark:hover:bg-white/10 dark:hover:text-fresh-light-bg focus-visible:outline-fresh-mint active:scale-95"
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>

@@ -1,4 +1,4 @@
-// FRESH:FILE  Accessible dialog primitive (focus handling, escape to close).
+// FRESH:FILE  Accessible dialog primitive with 12px radius, hairline borders, and focus trap.
 // FRESH:AREA  Layout
 
 import { useEffect, useRef } from 'react'
@@ -14,12 +14,6 @@ const SIZES = {
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
-/**
- * Shell for every dialog: blurred warm overlay, bottom sheet on mobile,
- * centered card on larger screens, Escape to close and scroll lock.
- * Focus moves into the dialog, stays trapped while it is open and returns
- * to the trigger on close.
- */
 export default function Modal({
   open,
   onClose,
@@ -31,8 +25,6 @@ export default function Modal({
   const dialogRef = useRef(null)
   const onCloseRef = useRef(onClose)
 
-  // Keep the latest close handler without restarting the focus effect each
-  // time the parent re-renders (the donation page ticks every second).
   useEffect(() => {
     onCloseRef.current = onClose
   }, [onClose])
@@ -45,7 +37,6 @@ export default function Modal({
     const focusables = () =>
       Array.from(dialog?.querySelectorAll(FOCUSABLE) || [])
 
-    // Move focus into the dialog without scrolling the page behind it.
     const first = focusables()[0]
     ;(first || dialog)?.focus({ preventScroll: true })
 
@@ -100,7 +91,7 @@ export default function Modal({
       role="presentation"
     >
       <div
-        className="fixed inset-0 animate-fade-in bg-overlay/60 backdrop-blur-sm"
+        className="fixed inset-0 animate-fade-in bg-[#06130F]/70 backdrop-blur-sm"
         aria-hidden="true"
         onClick={onClose}
       />
@@ -110,15 +101,15 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={labelledBy}
         tabIndex={-1}
-        className={`relative z-10 my-auto flex flex-col max-h-[86vh] w-full animate-scale-in overflow-hidden rounded-3xl border border-line bg-surface shadow-2xl focus:outline-none ${SIZES[size] || SIZES.md}`}
+        className={`relative z-10 my-auto flex flex-col max-h-[86vh] w-full animate-scale-in overflow-hidden rounded-[12px] border border-line bg-surface shadow-2xl focus:outline-none dark:border-white/15 dark:bg-[#0B2219] ${SIZES[size] || SIZES.md}`}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label={closeLabel}
-          className="absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-muted transition hover:bg-elevated hover:text-ink focus-visible:outline-brand-500 active:scale-95"
+          className="absolute right-4 top-4 z-10 inline-flex h-8 w-8 items-center justify-center rounded-[8px] border border-line text-ink-muted transition hover:bg-elevated hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3EE6B8] active:scale-95 dark:border-white/10 dark:text-[#A9BBB2] dark:hover:bg-white/10 dark:hover:text-white"
         >
-          <X className="h-5 w-5" aria-hidden="true" />
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
         {children}
       </div>

@@ -173,19 +173,19 @@ export default function LocationPicker({ onComplete, className = '', idPrefix = 
 
   return (
     <section
-      className={`rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6 ${className}`.trim()}
+      className={`rounded-[12px] border border-fresh-border bg-fresh-light-card p-5 shadow-fresh-sm dark:bg-fresh-dark-card sm:p-6 ${className}`.trim()}
       aria-labelledby={`${idPrefix}-title`}
     >
-      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-fresh-mint">
         Set your location
       </p>
       <h2
         id={`${idPrefix}-title`}
-        className="mt-1 font-display text-2xl font-extrabold tracking-tight text-ink"
+        className="mt-1 font-display text-2xl font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg"
       >
         Where are you sharing food?
       </h2>
-      <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
+      <p className="mt-1.5 text-sm leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
         Choose your current location, an area, or a 6-digit Indian pincode.
       </p>
 
@@ -193,7 +193,7 @@ export default function LocationPicker({ onComplete, className = '', idPrefix = 
         role="status"
         aria-live="polite"
         aria-atomic="true"
-        className="mt-4 min-h-5 text-sm font-medium text-ink-soft"
+        className="mt-4 min-h-5 text-sm font-medium text-fresh-ink-muted dark:text-fresh-ink-soft"
       >
         {message || (status === 'detecting' ? 'Finding your current location…' : '')}
       </div>
@@ -231,8 +231,8 @@ export default function LocationPicker({ onComplete, className = '', idPrefix = 
         />
 
         {suggestions.length > 0 && (
-          <div className="rounded-2xl border border-line bg-elevated/60 p-1.5">
-            <p className="px-2 pb-1 pt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+          <div className="rounded-[10px] border border-fresh-border bg-white/40 p-1.5 dark:bg-black/20">
+            <p className="px-2 pb-1 pt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-fresh-ink-muted">
               Address results
             </p>
             <ul aria-label="Address results">
@@ -245,16 +245,16 @@ export default function LocationPicker({ onComplete, className = '', idPrefix = 
                       setAddress(suggestion.label)
                       setSuggestions([])
                     }}
-                    className="flex min-h-11 w-full items-start gap-2 rounded-xl px-2 py-2 text-left text-sm text-ink transition hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500"
+                    className="flex min-h-11 w-full items-start gap-2 rounded-[8px] px-2 py-2 text-left text-sm text-fresh-ink transition hover:bg-black/5 dark:text-fresh-light-bg dark:hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-fresh-mint"
                   >
                     <MapPin
-                      className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-300"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-fresh-mint"
                       aria-hidden="true"
                     />
                     <span className="min-w-0">
                       <span className="block font-semibold">{suggestion.label}</span>
                       {suggestion.state && (
-                        <span className="block text-[11px] text-ink-muted">
+                        <span className="block text-[11px] text-fresh-ink-muted">
                           {suggestion.state}
                           {suggestion.pincode ? ` · ${suggestion.pincode}` : ''}
                         </span>
@@ -315,7 +315,7 @@ export default function LocationPicker({ onComplete, className = '', idPrefix = 
         </div>
       )}
 
-      <p className="mt-4 flex items-start gap-2 rounded-2xl bg-elevated p-3 text-[11px] leading-relaxed text-ink-muted">
+      <p className="mt-4 flex items-start gap-2 rounded-[10px] border border-fresh-border bg-white/40 p-3 text-[11px] leading-relaxed text-fresh-ink-muted dark:bg-black/20 dark:text-fresh-ink-soft">
         <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
         Your live GPS position stays in this browser tab and is never stored. Manual
         places are saved so the map reopens nearby.

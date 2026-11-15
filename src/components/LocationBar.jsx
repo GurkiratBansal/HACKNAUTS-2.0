@@ -13,10 +13,10 @@ export default function LocationBar({ className = '' }) {
 
   return (
     <div
-      className={`fresh-location-bar flex items-center gap-2 rounded-2xl border border-line bg-surface/95 px-3 py-2 shadow-soft backdrop-blur-md ${className}`}
+      className={`fresh-location-bar flex items-center gap-2 rounded-[10px] border border-fresh-border bg-fresh-light-card/95 px-3 py-2 shadow-fresh-sm backdrop-blur-md dark:bg-fresh-dark-card/95 ${className}`}
     >
       <span
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-fresh-mint/15 text-fresh-mint"
         aria-hidden="true"
       >
         <MapPin className="h-4 w-4" />
@@ -24,11 +24,11 @@ export default function LocationBar({ className = '' }) {
       <span
         role="status"
         aria-live="polite"
-        className="min-w-0 flex-1 truncate text-xs text-ink-soft"
+        className="min-w-0 flex-1 truncate text-xs text-fresh-ink-muted dark:text-fresh-ink-soft"
       >
         {place ? (
           <>
-            Showing near <strong className="font-bold text-ink">{place.label}</strong>
+            Showing near <strong className="font-bold text-fresh-ink dark:text-fresh-light-bg">{place.label}</strong>
           </>
         ) : (
           'Set a location to see nearby food and partners'
@@ -37,7 +37,7 @@ export default function LocationBar({ className = '' }) {
       <button
         type="button"
         onClick={openPicker}
-        className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-line bg-surface px-3 text-xs font-bold text-brand-700 transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 dark:text-brand-300"
+        className="inline-flex min-h-[36px] shrink-0 items-center rounded-[8px] border border-fresh-border bg-white/50 px-3 text-xs font-semibold text-fresh-ink transition hover:bg-white dark:bg-white/5 dark:text-fresh-mint dark:hover:bg-white/10 focus-visible:outline-fresh-mint"
       >
         {place ? 'Change location' : 'Set location'}
       </button>
