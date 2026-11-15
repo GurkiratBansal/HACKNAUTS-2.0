@@ -223,13 +223,14 @@ export default function AddDonation() {
       ...(formattedDeadline ? { deadline: formattedDeadline } : {}),
       ...(updates.address ? { address: updates.address } : {}),
       ...(updates.contactPhone ? { contactPhone: updates.contactPhone } : {}),
+      ...(updates.notes ? { notes: updates.notes } : {}),
     }))
     setErrors({})
     addToast(
-      `✨ Voice details applied: ${rawExtracted?.foodName || updates.foodName || 'Listing data'}!`,
+      `✨ Entire form filled with Voice AI: ${rawExtracted?.foodName || updates.foodName || 'Listing data'}!`,
       'success',
     )
-    goTo(1)
+    goTo(3)
   }
 
   const applyAiAnalysis = (analysis) => {

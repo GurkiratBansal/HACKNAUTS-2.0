@@ -1,4 +1,4 @@
-// FRESH:FILE  Voice-to-Food Listing Modal with Multilingual STT, Conversational Interview, and Online Expiry Research.
+// FRESH:FILE  Voice-to-Food Listing Modal with Multilingual STT, Conversational Interview (All Form Fields), and Online Expiry Research.
 // FRESH:AREA  Voice AI & Donations
 
 import React, { useEffect, useRef, useState } from 'react'
@@ -11,8 +11,10 @@ import {
   Clock,
   Globe2,
   HelpCircle,
+  MapPin,
   Mic,
   MicOff,
+  Phone,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -33,43 +35,99 @@ const LANGUAGES = [
   { code: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)', flag: '🌾', tts: 'pa-IN' },
 ]
 
-const INTERVIEW_QUESTIONS = [
+export const INTERVIEW_QUESTIONS = [
   {
     key: 'foodName',
-    title: 'What food would you like to donate?',
-    subtitle: 'Say the dish name, e.g. "Vegetable Biryani", "Dal Makhani with Rice", or "Fresh Rotis".',
+    title: '1. Food Dish Name',
+    subtitle: 'Say the dish name, e.g. "Dal Makhani with Jeera Rice", "Vegetable Biryani", or "Paneer Butter Masala".',
     spokenPrompt: 'What food would you like to donate? Please say the dish name.',
-    suggestions: ['Vegetable Biryani', 'Dal Makhani with Rice', 'Rajma Chawal', 'Roti and Sabzi', 'Fresh Kheer', 'Chole Bhature'],
+    suggestions: ['Dal Makhani with Jeera Rice', 'Vegetable Biryani', 'Paneer Butter Masala', 'Rajma Chawal', 'Fresh Rotis and Sabzi', 'Fresh Rice Kheer'],
+  },
+  {
+    key: 'diet',
+    title: '2. Dietary Preference',
+    subtitle: 'Is the food Vegetarian, Non-Vegetarian, or Jain?',
+    spokenPrompt: 'Is this food Vegetarian, Non-Vegetarian, or Jain?',
+    suggestions: ['Vegetarian (Veg)', 'Non-Vegetarian', 'Jain (No Onion/Garlic)', 'Vegan'],
+  },
+  {
+    key: 'category',
+    title: '3. Food Category',
+    subtitle: 'What category is this: Cooked Meal, Bakery, Snacks, or Packaged Food?',
+    spokenPrompt: 'What category is this food: Cooked Meal, Bakery, Snacks, or Packaged Food?',
+    suggestions: ['Cooked Meals', 'Bakery & Bread', 'Snacks & Savories', 'Raw & Packaged Food'],
   },
   {
     key: 'quantity',
-    title: 'How much food is available?',
-    subtitle: 'Say the quantity and unit, e.g. "30 plates", "50 servings", or "10 kg".',
-    spokenPrompt: 'How many plates, servings, or kilograms do you have available?',
-    suggestions: ['20 plates', '40 plates', '60 plates', '10 kg', '15 kg', '100 servings'],
+    title: '4. Quantity / Portions',
+    subtitle: 'How many plates, servings, or kilograms do you have available?',
+    spokenPrompt: 'How many plates, servings, or kilograms are available for donation?',
+    suggestions: ['25 plates', '40 plates', '60 plates', '10 kg', '20 kg', '100 servings'],
   },
   {
     key: 'cookedAt',
-    title: 'When was this food prepared or cooked?',
-    subtitle: 'Say preparation time, e.g. "1 hour ago", "Just cooked", or "This morning at 10 AM".',
-    spokenPrompt: 'When was this food cooked or prepared?',
-    suggestions: ['Just cooked (Fresh)', '30 minutes ago', '1 hour ago', '2 hours ago', '3 hours ago'],
+    title: '5. Preparation / Cooking Time',
+    subtitle: 'When was this food cooked or prepared?',
+    spokenPrompt: 'When was this food prepared or cooked? For example, 1 hour ago or freshly cooked.',
+    suggestions: ['Just cooked (Fresh)', '30 minutes ago', '1 hour ago', '2 hours ago', 'This morning at 10 AM'],
   },
   {
     key: 'storage',
-    title: 'How is the food currently stored?',
-    subtitle: 'Say the storage condition: room temperature, hot holding, or refrigerated.',
+    title: '6. Storage Condition',
+    subtitle: 'How is the food currently stored: room temperature, hot holding, or refrigerated?',
     spokenPrompt: 'How is the food stored: room temperature, hot holding, or refrigerated?',
-    suggestions: ['Room Temperature (25°C)', 'Hot & Covered (>60°C)', 'Refrigerated (<4°C)'],
+    suggestions: ['Room Temperature (25°C)', 'Hot Holding (>60°C)', 'Refrigerated (<4°C)'],
   },
   {
-    key: 'research',
-    title: 'Food Safety & Expiry Research',
-    subtitle: 'Do you have a strict expiry time, or should our AI research the safe expiry window?',
-    spokenPrompt: 'Would you like our Food Safety AI to research the accurate expiry timer and safe consumption window for this dish?',
-    suggestions: ['Research Expiry Automatically', 'Consume within 3 hours', 'Consume within 4 hours', 'Pick up before 8 PM'],
+    key: 'expiryAnswer',
+    title: '7. Safe Expiry & AI Research',
+    subtitle: 'Do you have an expiry time, or should our AI research the safe consumption window?',
+    spokenPrompt: 'Do you have an exact expiry time, or would you like our AI to research the safe consumption window for this dish?',
+    suggestions: ['🔍 Research Expiry Automatically', 'Consume within 3 hours', 'Consume within 4 hours', 'Pick up before 8 PM'],
+  },
+  {
+    key: 'address',
+    title: '8. Pickup Address & Locality',
+    subtitle: 'Where can NGOs collect the food? Say your street address or locality.',
+    spokenPrompt: 'What is the pickup address or locality where NGOs can collect the food?',
+    suggestions: ['Model Town, Ludhiana', 'Civil Lines, Ludhiana', 'Mall Road, Ludhiana', 'Sector 32, Ludhiana', 'Sarabha Nagar, Ludhiana'],
+  },
+  {
+    key: 'contactPhone',
+    title: '9. Donor Contact Phone',
+    subtitle: 'Say your 10-digit mobile number for pickup coordination.',
+    spokenPrompt: 'What is your 10-digit mobile phone number for pickup coordination?',
+    suggestions: ['9876543210', '9814012345', '9872098765', 'Type Phone Manually'],
+  },
+  {
+    key: 'notes',
+    title: '10. Special Notes & Instructions',
+    subtitle: 'Any packaging details, utensils needed, or gate instructions?',
+    spokenPrompt: 'Are there any special handling notes, packaging requirements, or gate instructions?',
+    suggestions: ['Bring insulated carry boxes', 'Packed in disposable foil containers', 'Gate 2 pickup, parking available', 'No special notes'],
   },
 ]
+
+export function normalizeSpokenPhone(text) {
+  if (!text) return ''
+  const wordMap = {
+    zero: '0', one: '1', two: '2', three: '3', four: '4',
+    five: '5', six: '6', seven: '7', eight: '8', nine: '9',
+  }
+  let str = text.toLowerCase()
+  str = str.replace(/double\s+(\w+)/g, '$1 $1')
+  str = str.replace(/triple\s+(\w+)/g, '$1 $1 $1')
+  Object.entries(wordMap).forEach(([word, digit]) => {
+    str = str.replace(new RegExp(`\\b${word}\\b`, 'g'), digit)
+  })
+  const digits = str.replace(/\D/g, '')
+  if (digits.length >= 10) {
+    const match = digits.match(/[6-9]\d{9}/)
+    if (match) return match[0]
+    return digits.slice(-10)
+  }
+  return text.replace(/[^\d+]/g, '') || text
+}
 
 export default function VoiceListingModal({
   open,
@@ -78,29 +136,31 @@ export default function VoiceListingModal({
   currentForm = {},
   apiBaseUrl = '/api/v1',
 }) {
-  const [mode, setMode] = useState('interview') // 'interview' | 'oneshot'
+  const [mode, setMode] = useState('interview')
   const [questionIndex, setQuestionIndex] = useState(0)
   const [language, setLanguage] = useState('auto')
   const [voiceMuted, setVoiceMuted] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [recordSeconds, setRecordSeconds] = useState(0)
-  const [status, setStatus] = useState('idle') // idle | recording | processing | researched | error
+  const [status, setStatus] = useState('idle')
   const [errorMessage, setErrorMessage] = useState('')
   const [liveCaption, setLiveCaption] = useState('')
 
-  // Interview answers
+  // 10 form fields
   const [answers, setAnswers] = useState({
     foodName: currentForm?.foodName || '',
+    diet: currentForm?.diet || 'veg',
+    category: currentForm?.category || 'cooked',
     quantity: currentForm?.quantity || '',
     cookedAt: '1 hour ago',
-    storage: 'room',
+    storage: currentForm?.storage || 'room',
     expiryAnswer: '',
+    address: currentForm?.address || '',
+    contactPhone: currentForm?.contactPhone || '',
+    notes: currentForm?.notes || '',
   })
 
-  // One-shot transcript
   const [oneShotTranscript, setOneShotTranscript] = useState('')
-
-  // AI Extraction & Research results
   const [extractedData, setExtractedData] = useState(null)
   const [researchData, setResearchData] = useState(null)
   const [isSpeakingResearch, setIsSpeakingResearch] = useState(false)
@@ -113,7 +173,6 @@ export default function VoiceListingModal({
   const speechRecognitionRef = useRef(null)
   const liveTranscriptRef = useRef('')
 
-  // Cleanup on unmount or close
   useEffect(() => {
     return () => {
       cleanupAudio()
@@ -133,13 +192,17 @@ export default function VoiceListingModal({
       setResearchData(null)
       setAnswers({
         foodName: currentForm?.foodName || '',
+        diet: currentForm?.diet || 'veg',
+        category: currentForm?.category || 'cooked',
         quantity: currentForm?.quantity || '',
         cookedAt: '1 hour ago',
-        storage: 'room',
+        storage: currentForm?.storage || 'room',
         expiryAnswer: '',
+        address: currentForm?.address || '',
+        contactPhone: currentForm?.contactPhone || '',
+        notes: currentForm?.notes || '',
       })
 
-      // Speak initial prompt if not muted
       if (!voiceMuted) {
         speakCurrentQuestion(0)
       }
@@ -178,7 +241,6 @@ export default function VoiceListingModal({
     }
   }
 
-  // Toggle voice mute
   const toggleMute = () => {
     if (!voiceMuted) {
       ttsService.stop()
@@ -189,7 +251,6 @@ export default function VoiceListingModal({
     }
   }
 
-  // Start microphone
   const startListening = async () => {
     try {
       setErrorMessage('')
@@ -297,12 +358,35 @@ export default function VoiceListingModal({
     }
   }
 
-  // User spoke or clicked an answer in the Interview
-  const handleAnswerSpoken = (text) => {
+  const handleAnswerSpoken = (rawText) => {
     const currentQ = INTERVIEW_QUESTIONS[questionIndex]
     if (!currentQ) return
 
-    setAnswers((prev) => ({ ...prev, [currentQ.key]: text }))
+    let cleanVal = rawText.trim()
+
+    // Normalize specific field types
+    if (currentQ.key === 'diet') {
+      const low = cleanVal.toLowerCase()
+      if (low.includes('non') || low.includes('meat') || low.includes('chicken')) cleanVal = 'non-veg'
+      else if (low.includes('jain') || low.includes('satvik')) cleanVal = 'jain'
+      else cleanVal = 'veg'
+    } else if (currentQ.key === 'category') {
+      const low = cleanVal.toLowerCase()
+      if (low.includes('bake') || low.includes('bread') || low.includes('cake')) cleanVal = 'bakery'
+      else if (low.includes('snack') || low.includes('samosa') || low.includes('pakora')) cleanVal = 'snacks'
+      else if (low.includes('raw') || low.includes('packaged') || low.includes('fruit')) cleanVal = 'raw_packaged'
+      else cleanVal = 'cooked'
+    } else if (currentQ.key === 'storage') {
+      const low = cleanVal.toLowerCase()
+      if (low.includes('hot') || low.includes('garam') || low.includes('warm')) cleanVal = 'hot'
+      else if (low.includes('fridge') || low.includes('refrigerat') || low.includes('thanda') || low.includes('chilled')) cleanVal = 'refrigerated'
+      else cleanVal = 'room'
+    } else if (currentQ.key === 'contactPhone') {
+      cleanVal = normalizeSpokenPhone(cleanVal)
+    }
+
+    const updatedAnswers = { ...answers, [currentQ.key]: cleanVal }
+    setAnswers(updatedAnswers)
 
     if (questionIndex < INTERVIEW_QUESTIONS.length - 1) {
       const nextIdx = questionIndex + 1
@@ -310,21 +394,18 @@ export default function VoiceListingModal({
       setLiveCaption('')
       speakCurrentQuestion(nextIdx)
     } else {
-      // Completed interview questions! Execute AI research & extraction!
-      compileAndRunResearch({ ...answers, [currentQ.key]: text })
+      compileAndRunResearch(updatedAnswers)
     }
   }
 
-  // Compile interview answers into a complete donation profile and run research
   const compileAndRunResearch = async (data = answers) => {
     setIsResearching(true)
     setStatus('processing')
     setErrorMessage('')
 
-    const combinedTranscript = `We have ${data.quantity || '30 plates'} of ${data.foodName || 'wholesome meals'} prepared ${data.cookedAt || '1 hour ago'}, stored at ${data.storage || 'room temperature'}. ${data.expiryAnswer || ''}`
+    const combinedTranscript = `We want to donate ${data.quantity || '30 plates'} of ${data.diet || 'veg'} ${data.foodName || 'wholesome meals'} under category ${data.category || 'cooked'}. Prepared ${data.cookedAt || '1 hour ago'}, stored at ${data.storage || 'room'} temperature. Pickup at ${data.address || 'Model Town Ludhiana'}, phone ${data.contactPhone || '9876543210'}. Notes: ${data.notes || 'Handle with care'}. ${data.expiryAnswer || ''}`
 
     try {
-      // 1. Run AI Extraction
       const extracted = await aiExtractionService.extractFood(
         {
           transcript: combinedTranscript,
@@ -334,26 +415,32 @@ export default function VoiceListingModal({
         `${apiBaseUrl}/ai-extraction/food`,
       )
 
-      // 2. Run online food safety and expiry research
       const research = await aiExtractionService.researchExpiry(
         {
           foodName: extracted.foodName || data.foodName,
-          storage: extracted.storage || 'room',
-          category: extracted.category || 'cooked',
-          diet: extracted.diet || 'veg',
+          storage: data.storage || extracted.storage || 'room',
+          category: data.category || extracted.category || 'cooked',
+          diet: data.diet || extracted.diet || 'veg',
           cookedAt: extracted.cookedAt,
         },
         `${apiBaseUrl}/ai-extraction/research-expiry`,
       )
 
-      setExtractedData(extracted)
+      setExtractedData({
+        ...extracted,
+        diet: data.diet || extracted.diet,
+        category: data.category || extracted.category,
+        storage: data.storage || extracted.storage,
+        address: data.address || extracted.address || '',
+        contactPhone: data.contactPhone || extracted.contactPhone || '',
+        notes: data.notes || extracted.notes || '',
+      })
       setResearchData(research)
       setStatus('researched')
       setIsResearching(false)
 
-      // Speak researched findings
       if (!voiceMuted) {
-        const spokenResearch = `I researched ${research.foodName}. Stored at ${research.storageObserved} temperature, it has a safe consumption limit of ${research.safeHoursTotal} hours from cooking. I have set the expiry timer accordingly.`
+        const spokenResearch = `I researched ${research.foodName}. Safe consumption limit is ${research.safeHoursTotal} hours from cooking. All 10 fields of your donation form are now fully populated!`
         speakPrompt(spokenResearch)
       }
     } catch (err) {
@@ -363,7 +450,6 @@ export default function VoiceListingModal({
     }
   }
 
-  // Run One-Shot extraction
   const runExtraction = async (textToExtract = oneShotTranscript) => {
     if (!textToExtract.trim()) {
       setErrorMessage('Please provide spoken or typed donation details.')
@@ -384,9 +470,6 @@ export default function VoiceListingModal({
         `${apiBaseUrl}/ai-extraction/food`,
       )
 
-      setExtractedData(result)
-
-      // Also fetch detailed scientific research
       const research = await aiExtractionService.researchExpiry(
         {
           foodName: result.foodName,
@@ -398,13 +481,14 @@ export default function VoiceListingModal({
         `${apiBaseUrl}/ai-extraction/research-expiry`,
       )
 
+      setExtractedData(result)
       setResearchData(research)
       setStatus('researched')
       setIsResearching(false)
 
       if (!voiceMuted) {
         speakPrompt(
-          `Extracted ${result.quantity} ${result.quantityUnit} of ${result.diet} ${result.foodName}. Safe consumption timer set to ${research.safeRemainingHours} hours remaining.`,
+          `Extracted ${result.quantity} ${result.quantityUnit} of ${result.diet} ${result.foodName}. Safe consumption timer set to ${research.safeRemainingHours} hours remaining. All details filled!`,
         )
       }
     } catch (err) {
@@ -414,7 +498,6 @@ export default function VoiceListingModal({
     }
   }
 
-  // Read aloud research explanation
   const handleReadAloudResearch = () => {
     if (isSpeakingResearch) {
       ttsService.stop()
@@ -435,22 +518,24 @@ export default function VoiceListingModal({
     })
   }
 
-  // Apply to form
   const handleApplyToForm = () => {
     const finalData = extractedData || {}
     const finalResearch = researchData || {}
 
     const updates = {
       foodName: finalData.foodName || answers.foodName || 'Surplus Food',
-      quantity: String(finalData.quantity || '30'),
-      category: finalData.category || 'cooked',
-      diet: finalData.diet || 'veg',
-      storage: finalData.storage || answers.storage || 'room',
+      quantity: String(finalData.quantity || answers.quantity || '30'),
+      category: answers.category || finalData.category || 'cooked',
+      diet: answers.diet || finalData.diet || 'veg',
+      storage: answers.storage || finalData.storage || 'room',
       cookedAt: finalData.cookedAt || finalResearch.calculatedCookedAt,
       deadline: finalData.expiresAt || finalResearch.calculatedExpiresAt,
-      notes: finalResearch.scientificReason
-        ? `[AI Safety Note]: ${finalResearch.scientificReason} (${finalResearch.authorityStandards})`
-        : '',
+      address: answers.address || finalData.address || '',
+      contactPhone: answers.contactPhone || finalData.contactPhone || '',
+      notes: [
+        answers.notes,
+        finalResearch.scientificReason ? `[AI Safety]: ${finalResearch.scientificReason} (${finalResearch.authorityStandards})` : '',
+      ].filter(Boolean).join(' | '),
     }
 
     if (onApplyExtractedData) {
@@ -482,11 +567,11 @@ export default function VoiceListingModal({
                   Voice Donation AI
                 </h2>
                 <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
-                  Online Research Active
+                  Full Form AI
                 </span>
               </div>
               <p className="text-xs text-gray-500">
-                Interactive voice questions + scientific food safety expiry research
+                Fills every single detail of the donation form purely via natural voice
               </p>
             </div>
           </div>
@@ -512,7 +597,6 @@ export default function VoiceListingModal({
 
         {/* Mode Selector & Language */}
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-          {/* Mode Tabs */}
           <div className="inline-flex rounded-2xl bg-gray-100 p-1 dark:bg-gray-800">
             <button
               type="button"
@@ -527,7 +611,7 @@ export default function VoiceListingModal({
                   : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
-              💬 Guided Interview
+              💬 Complete 10-Step Interview
             </button>
             <button
               type="button"
@@ -541,11 +625,10 @@ export default function VoiceListingModal({
                   : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
-              ⚡ One-Shot AI
+              ⚡ One-Shot Spoken Sentence
             </button>
           </div>
 
-          {/* Language Selector */}
           <div className="flex items-center gap-1">
             <Globe2 className="h-3.5 w-3.5 text-emerald-600" />
             <select
@@ -568,14 +651,14 @@ export default function VoiceListingModal({
             {/* Progress Bar */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs font-bold text-gray-500">
-                <span>Step {questionIndex + 1} of {INTERVIEW_QUESTIONS.length}</span>
-                <span className="text-emerald-600 dark:text-emerald-400">
-                  {Math.round(((questionIndex + 1) / INTERVIEW_QUESTIONS.length) * 100)}%
+                <span>Question {questionIndex + 1} of {INTERVIEW_QUESTIONS.length}</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-black">
+                  {Math.round(((questionIndex + 1) / INTERVIEW_QUESTIONS.length) * 100)}% Complete
                 </span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                 <div
-                  className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 transition-all duration-300"
                   style={{ width: `${((questionIndex + 1) / INTERVIEW_QUESTIONS.length) * 100}%` }}
                 />
               </div>
@@ -614,10 +697,9 @@ export default function VoiceListingModal({
                 )}
 
                 <p className="mt-3 text-xs font-bold text-gray-700 dark:text-gray-300">
-                  {isRecording ? `Listening... ${recordSeconds}s (Tap to Finish)` : 'Tap Mic & Answer'}
+                  {isRecording ? `Listening... ${recordSeconds}s (Tap to Finish)` : 'Tap Mic & Speak'}
                 </p>
 
-                {/* Real-time speech caption */}
                 {liveCaption && (
                   <div className="mt-3 w-full max-w-md rounded-2xl border border-emerald-200 bg-emerald-50/90 p-3 text-left dark:border-emerald-800 dark:bg-emerald-950/40">
                     <p className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase">
@@ -633,7 +715,7 @@ export default function VoiceListingModal({
               {/* Quick Tap Suggestions */}
               <div className="mt-6 space-y-2">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                  Quick One-Tap Options:
+                  Quick One-Tap Suggestions:
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-1.5">
                   {currentQ.suggestions.map((suggestion) => (
@@ -648,9 +730,20 @@ export default function VoiceListingModal({
                   ))}
                 </div>
               </div>
+
+              {/* Manual input for this field if desired */}
+              <div className="mt-4 max-w-sm mx-auto">
+                <input
+                  type="text"
+                  value={answers[currentQ.key] || ''}
+                  onChange={(e) => setAnswers({ ...answers, [currentQ.key]: e.target.value })}
+                  placeholder="Or type answer directly..."
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-900 focus:border-emerald-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white text-center"
+                />
+              </div>
             </div>
 
-            {/* Step Navigation & AI Research Direct Trigger */}
+            {/* Navigation Buttons */}
             <div className="flex items-center justify-between pt-2">
               <button
                 type="button"
@@ -662,17 +755,32 @@ export default function VoiceListingModal({
                 }}
                 className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-100 disabled:opacity-30 dark:text-gray-300 dark:hover:bg-gray-800"
               >
-                <ArrowLeft className="h-3.5 w-3.5" /> Back
+                <ArrowLeft className="h-3.5 w-3.5" /> Previous Question
               </button>
 
-              <button
-                type="button"
-                onClick={() => compileAndRunResearch(answers)}
-                className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-xs font-black text-white shadow-md hover:from-emerald-700 hover:to-teal-700 transition"
-              >
-                <Search className="h-3.5 w-3.5" />
-                <span>Run AI Food &amp; Expiry Research</span>
-              </button>
+              {questionIndex < INTERVIEW_QUESTIONS.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextIdx = questionIndex + 1
+                    setQuestionIndex(nextIdx)
+                    speakCurrentQuestion(nextIdx)
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-emerald-700 transition"
+                >
+                  <span>Next Question</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => compileAndRunResearch(answers)}
+                  className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-black text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 transition"
+                >
+                  <Search className="h-4 w-4" />
+                  <span>Research &amp; Fill Entire Form</span>
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -682,10 +790,10 @@ export default function VoiceListingModal({
           <div className="mt-5 space-y-4">
             <div className="rounded-3xl border border-gray-200 bg-gray-50/70 p-6 text-center dark:border-gray-800 dark:bg-gray-800/30">
               <p className="text-sm font-bold text-gray-900 dark:text-white">
-                Describe the entire food donation in one natural sentence:
+                Describe everything in one sentence to fill the entire form:
               </p>
               <p className="mt-1 text-xs text-gray-500 max-w-md mx-auto italic">
-                "We have 50 plates of veg biryani cooked 1 hour ago at Model Town Ludhiana, keep hot, pick up before 8 PM."
+                "I want to donate 50 plates of veg biryani cooked 1 hour ago at Model Town Ludhiana phone 9876543210 keep hot."
               </p>
 
               <div className="mt-6 flex flex-col items-center">
@@ -710,19 +818,19 @@ export default function VoiceListingModal({
                   </button>
                 )}
                 <p className="mt-3 text-xs font-bold text-gray-700 dark:text-gray-300">
-                  {isRecording ? `Recording speech... (${recordSeconds}s)` : 'Tap Mic & Speak Sentence'}
+                  {isRecording ? `Recording speech... (${recordSeconds}s)` : 'Tap Mic & Speak Full Description'}
                 </p>
               </div>
 
               <div className="mt-5 text-left">
                 <label className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                  Transcribed or Typed Text:
+                  Spoken Sentence:
                 </label>
                 <textarea
                   rows={3}
                   value={oneShotTranscript}
                   onChange={(e) => setOneShotTranscript(e.target.value)}
-                  placeholder="Your complete spoken donation details appear here..."
+                  placeholder="Say or type your complete donation description..."
                   className="mt-1.5 w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 />
               </div>
@@ -731,32 +839,32 @@ export default function VoiceListingModal({
                 <button
                   type="button"
                   onClick={() => runExtraction(oneShotTranscript)}
-                  className="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-600 px-4 py-2 text-xs font-black text-white shadow-md hover:bg-emerald-700 transition"
+                  className="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-600 px-5 py-2.5 text-xs font-black text-white shadow-md hover:bg-emerald-700 transition"
                 >
                   <Sparkles className="h-4 w-4" />
-                  <span>Analyze &amp; Research Expiry</span>
+                  <span>Analyze &amp; Fill Entire Form</span>
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* LOADING / RESEARCHING STATE */}
+        {/* LOADING / RESEARCHING */}
         {isResearching && (
           <div className="mt-8 flex flex-col items-center justify-center py-8">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50">
               <RefreshCw className="h-8 w-8 animate-spin text-emerald-600" />
             </div>
             <h4 className="mt-4 text-base font-black text-gray-900 dark:text-white">
-              Food Safety AI is researching guidelines...
+              Food Safety AI is researching and populating form...
             </h4>
             <p className="mt-1 text-xs text-gray-500 max-w-sm text-center">
-              Checking FSSAI &amp; USDA scientific storage databases, calculating microbiological spore limits and accurate safe expiry timer...
+              FSSAI &amp; USDA scientific storage databases, calculating microbiological spore limits and accurate safe expiry timer...
             </p>
           </div>
         )}
 
-        {/* RESEARCHED & EXTRACTED RESULTS VIEW */}
+        {/* COMPLETED RESULTS: ALL 10 FIELDS DISPLAYED */}
         {status === 'researched' && researchData && (
           <div className="mt-5 space-y-4">
             {/* Food Safety & Online Expiry Research Card */}
@@ -784,11 +892,10 @@ export default function VoiceListingModal({
                 </button>
               </div>
 
-              {/* Research Highlights Grid */}
               <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-emerald-200/80 bg-white p-3 shadow-xs dark:border-gray-800 dark:bg-gray-800/70">
                   <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 uppercase">
-                    <Clock className="h-3.5 w-3.5" /> Safe Expiry Timer
+                    <Clock className="h-3.5 w-3.5" /> Researched Safe Expiry
                   </span>
                   <p className="mt-1 text-base font-black text-gray-900 dark:text-white">
                     {new Date(researchData.calculatedExpiresAt).toLocaleTimeString([], {
@@ -826,10 +933,9 @@ export default function VoiceListingModal({
                 </div>
               </div>
 
-              {/* Scientific Explanation */}
               <div className="mt-4 rounded-2xl bg-white/90 p-3.5 border border-emerald-100 text-xs text-gray-700 dark:border-gray-800 dark:bg-gray-800/60 dark:text-gray-300">
-                <p className="font-bold text-emerald-950 dark:text-emerald-200 flex items-center gap-1">
-                  <span>🔬 Scientific Safety Finding:</span>
+                <p className="font-bold text-emerald-950 dark:text-emerald-200">
+                  🔬 Scientific Safety Finding:
                 </p>
                 <p className="mt-1 leading-relaxed">
                   {researchData.scientificReason}
@@ -840,34 +946,76 @@ export default function VoiceListingModal({
               </div>
             </div>
 
-            {/* Extracted Details Grid */}
-            {extractedData && (
-              <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-xs dark:border-gray-800 dark:bg-gray-900">
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Populated Listing Fields
-                </span>
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase">Dish</p>
-                    <p className="text-xs font-black text-gray-900 dark:text-white truncate">{extractedData.foodName}</p>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase">Servings</p>
-                    <p className="text-xs font-black text-gray-900 dark:text-white">
-                      {extractedData.quantity} {extractedData.quantityUnit}
-                    </p>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase">Diet</p>
-                    <p className="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase">{extractedData.diet}</p>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase">Storage</p>
-                    <p className="text-xs font-black text-gray-900 dark:text-white capitalize">{extractedData.storage}</p>
-                  </div>
+            {/* Complete 10-Field Form Summary */}
+            <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-xs dark:border-gray-800 dark:bg-gray-900 space-y-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                All 10 Donation Form Fields Populated:
+              </span>
+
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">1. Dish</p>
+                  <p className="text-xs font-black text-gray-900 dark:text-white truncate">{answers.foodName || extractedData?.foodName}</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">2. Diet</p>
+                  <p className="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase">{answers.diet || extractedData?.diet}</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">3. Category</p>
+                  <p className="text-xs font-black text-gray-900 dark:text-white capitalize">{answers.category || extractedData?.category}</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">4. Quantity</p>
+                  <p className="text-xs font-black text-gray-900 dark:text-white">
+                    {extractedData?.quantity || answers.quantity} {extractedData?.quantityUnit || 'plates'}
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">5. Made Time</p>
+                  <p className="text-xs font-black text-gray-900 dark:text-white truncate">
+                    {answers.cookedAt || '1 hour ago'}
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">6. Storage</p>
+                  <p className="text-xs font-black text-gray-900 dark:text-white capitalize">{answers.storage || 'room'} temp</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">7. Expiry Deadline</p>
+                  <p className="text-xs font-black text-rose-600 dark:text-rose-400">
+                    {new Date(researchData.calculatedExpiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">8. Phone</p>
+                  <p className="text-xs font-black text-gray-900 dark:text-white">{answers.contactPhone || '9876543210'}</p>
                 </div>
               </div>
-            )}
+
+              <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 text-xs flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-emerald-600 shrink-0" />
+                <div className="truncate">
+                  <span className="font-bold text-gray-500">9. Pickup Address: </span>
+                  <span className="font-semibold text-gray-900 dark:text-white">{answers.address || 'Model Town, Ludhiana'}</span>
+                </div>
+              </div>
+
+              {answers.notes && (
+                <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 text-xs">
+                  <span className="font-bold text-gray-500">10. Special Notes: </span>
+                  <span className="text-gray-900 dark:text-white">{answers.notes}</span>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -906,7 +1054,7 @@ export default function VoiceListingModal({
                 onClick={handleApplyToForm}
                 className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-black text-white shadow-lg hover:bg-emerald-700 transition"
               >
-                <span>Apply Researched Listing to Form</span>
+                <span>Apply &amp; Fill Entire Form</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
@@ -916,7 +1064,7 @@ export default function VoiceListingModal({
               onClick={() => compileAndRunResearch(answers)}
               className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white shadow-md hover:bg-emerald-700"
             >
-              <span>Research Expiry &amp; Fill</span>
+              <span>Research Expiry &amp; Fill Form</span>
               <Sparkles className="h-4 w-4" />
             </button>
           )}

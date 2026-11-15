@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { voiceService } from './voiceService'
 import { ttsService } from './ttsService'
 import { aiExtractionService } from './aiExtractionService'
+import { normalizeSpokenPhone, INTERVIEW_QUESTIONS } from '../components/donation/VoiceListingModal'
 
 describe('voiceService', () => {
   it('detects browser support methods safely', () => {
@@ -19,7 +20,6 @@ describe('voiceService', () => {
       onResult: () => {},
       onError,
     })
-    // In node/vitest environment without window.SpeechRecognition, triggers onError
     expect(onError).toHaveBeenCalled()
     expect(rec).toBeNull()
   })
@@ -96,5 +96,28 @@ describe('aiExtractionService', () => {
     expect(result.scientificReason).toContain('Dairy')
 
     global.fetch = originalFetch
+  })
+})
+
+describe('VoiceListingModal Helpers', () => {
+  it('contains all 10 questions to fill the complete donation form', () => {
+    expect(INTERVIEW_QUESTIONS.length).toBe(10)
+    const keys = INTERVIEW_QUESTIONS.map((q) => q.key)
+    expect(keys).toContain('foodName')
+    expect(keys).toContain('diet')
+    expect(keys).toContain('category')
+    expect(keys).toContain('quantity')
+    expect(keys).toContain('cookedAt')
+    expect(keys).toContain('storage')
+    expect(keys).toContain('expiryAnswer')
+    expect(keys).toContain('address')
+    expect(keys).toContain('contactPhone')
+    expect(keys).toContain('notes')
+  })
+
+  it('normalizes spoken phone numbers into 10-digit format', () => {
+    expect(normalizeSpokenPhone('nine eight seven six five four three two one zero')).toBe('9876543210')
+    expect(normalizeSpokenPhone('my number is 9814012345 please call')).toBe('9814012345')
+    expect(normalizeSpokenPhone('double nine eight seven six five four three two one')).toBe('9987654321')
   })
 })
