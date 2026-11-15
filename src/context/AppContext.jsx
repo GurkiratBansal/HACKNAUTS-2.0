@@ -11,6 +11,7 @@ import { mockNgos } from '../data/mockNgos'
 import { makeMockDonations } from '../data/mockDonations'
 import { getUrgency } from '../utils/urgency'
 import { haversineKm, nearestNgos } from '../utils/distance'
+import { inIndiaBox } from '../utils/india'
 import { useUserLocation } from './LocationContext'
 import {
   demoDonations,
@@ -338,6 +339,11 @@ export function AppProvider({ children }) {
 
   const acceptDonation = useCallback(
     (id) => {
+      if (place && !inIndiaBox(place)) {
+        const message = 'Pickups can only be accepted from locations within India.'
+        addToast(message, 'warning')
+        return { ok: false, message }
+      }
       if (currentUser?.role !== 'ngo') {
         return { ok: false, message: 'Only an NGO account can accept a pickup.' }
       }
@@ -380,7 +386,7 @@ export function AppProvider({ children }) {
       addToast('Pickup accepted. Donor contact details are now visible.', 'success')
       return { ok: true }
     },
-    [currentUser, ngos, donations, addToast],
+    [currentUser, ngos, donations, addToast, place],
   )
 
   const advanceStatus = useCallback(

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { useUserLocation } from '../context/LocationContext'
 import DeclarationModal from '../components/DeclarationModal'
+import IndiaOnlyScreen from '../components/IndiaOnlyScreen'
 import BasicsStep from '../components/donation/BasicsStep'
 import HandlingStep from '../components/donation/HandlingStep'
 import ListingPreview from '../components/donation/ListingPreview'
@@ -60,7 +61,7 @@ function compressImage(file) {
 
 export default function AddDonation() {
   const { addDonation, addToast } = useApp()
-  const { place, detect } = useUserLocation()
+  const { place, detect, isOutsideIndia } = useUserLocation()
   const { activeAlert } = useEmergency()
   const navigate = useNavigate()
   const emergencyActive = Boolean(activeAlert(place))
@@ -185,6 +186,10 @@ export default function AddDonation() {
     const donation = addDonation({ ...form, location, photo })
     setDeclarationOpen(false)
     navigate(`/donation/${donation.id}`)
+  }
+
+  if (isOutsideIndia) {
+    return <IndiaOnlyScreen title="Donating food is available in India only" />
   }
 
   return (

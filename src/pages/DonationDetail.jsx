@@ -24,7 +24,7 @@ export default function DonationDetail() {
     advanceStatus,
     reportDonation,
   } = useApp()
-  const { place } = useUserLocation()
+  const { place, isOutsideIndia } = useUserLocation()
   const [reportOpen, setReportOpen] = useState(false)
   const [now, setNow] = useState(Date.now())
   const [routeKey, setRouteKey] = useState(0)
@@ -74,7 +74,7 @@ export default function DonationDetail() {
     donation.acceptedBy &&
     (donation.acceptedBy === currentUser?.ngoId ||
       donation.acceptedByName === currentUser?.orgName)
-  const canAccept = isNgo && donation.status === 'available' && !isExpired
+  const canAccept = isNgo && donation.status === 'available' && !isExpired && !isOutsideIndia
   const canAdvance =
     acceptedByMe &&
     (donation.status === 'accepted' || donation.status === 'picked_up')

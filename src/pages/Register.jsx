@@ -7,6 +7,8 @@ import {
   UtensilsCrossed,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import { useUserLocation } from '../context/LocationContext'
+import IndiaOnlyScreen from '../components/IndiaOnlyScreen'
 import Button from '../components/ui/Button'
 import Field from '../components/ui/Field'
 
@@ -20,6 +22,7 @@ const empty = {
 
 export default function Register() {
   const { register } = useApp()
+  const { isOutsideIndia } = useUserLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const [role, setRole] = useState(params.get('role') === 'ngo' ? 'ngo' : 'donor')
@@ -55,6 +58,10 @@ export default function Register() {
       return
     }
     navigate(role === 'ngo' ? '/ngo' : '/donor')
+  }
+
+  if (isOutsideIndia) {
+    return <IndiaOnlyScreen title="Registration is available in India only" />
   }
 
   return (

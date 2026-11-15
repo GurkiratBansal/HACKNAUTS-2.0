@@ -148,7 +148,7 @@ export default function MapView({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MapRecenter center={mapCenter} zoom={13} />
+        <MapRecenter center={mapCenter} zoom={zoom} />
         <ClosePopupsOnChange trigger={closePopupsKey} />
         {onMapClick && <ClickHandler onMapClick={onMapClick} />}
         {children}

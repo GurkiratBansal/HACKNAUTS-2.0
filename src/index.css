@@ -223,6 +223,12 @@ body {
   border: 0;
 }
 
+@media (max-width: 640px) {
+  .leaflet-top.leaflet-right {
+    margin-top: 58px;
+  }
+}
+
 .fresh-location-bar {
   animation: fresh-location-bar-in 420ms ease-out both;
 }

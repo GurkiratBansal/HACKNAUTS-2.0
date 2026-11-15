@@ -10,6 +10,8 @@ import LocationBar from '../components/LocationBar'
 import MapView from '../components/MapView'
 import RouteLayer from '../components/RouteLayer'
 import MapPanel from '../components/map/MapPanel'
+import MobileMapSheet from '../components/map/MobileMapSheet'
+import IndiaOnlyScreen from '../components/IndiaOnlyScreen'
 import RouteSummary from '../components/RouteSummary'
 import UrgencyBadge from '../components/UrgencyBadge'
 import ReliefTag from '../components/ReliefTag'
@@ -31,7 +33,7 @@ const URGENCY_PIN = {
 
 export default function MapPage() {
   const { currentUser, donations, ngos, addToast } = useApp()
-  const { place } = useUserLocation()
+  const { place, isOutsideIndia } = useUserLocation()
   const { activeAlert, needs } = useEmergency()
   const role = currentUser?.role || 'donor'
   const [guestView, setGuestView] = useState('ngos')
@@ -43,6 +45,7 @@ export default function MapPage() {
   const [routeTargetId, setRouteTargetId] = useState(null)
   const [routeKey, setRouteKey] = useState(0)
   const [routeInfo, setRouteInfo] = useState(null)
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
 
   // ?demo=1 routing check panel state
   const [demoRunning, setDemoRunning] = useState(false)
@@ -249,20 +252,39 @@ export default function MapPage() {
           }))
 
     if (origin) {
-      list.push({
-        id: 'my-location',
-        lat: origin.lat,
-        lng: origin.lng,
-        kind: 'you',
-        color: 'var(--fresh-you)',
-        title: 'Your location',
-        popup: (
-          <div className="w-44">
-            <p className="text-sm font-bold text-ink">Your location</p>
-            <p className="text-xs text-ink-soft">{origin.label}</p>
-          </div>
-        ),
-      })
+      if (currentUser && role === 'ngo') {
+        list.push({
+          id: 'my-ngo',
+          lat: origin.lat,
+          lng: origin.lng,
+          kind: 'you',
+          color: 'var(--fresh-you)',
+          title: 'Your NGO location',
+          popup: (
+            <div className="w-48">
+              <p className="text-sm font-bold text-ink">
+                {currentUser.orgName || currentUser.name}
+              </p>
+              <p className="text-xs text-ink-soft">Your registered pickup base</p>
+            </div>
+          ),
+        })
+      } else {
+        list.push({
+          id: 'my-location',
+          lat: origin.lat,
+          lng: origin.lng,
+          kind: 'you',
+          color: 'var(--fresh-you)',
+          title: 'Your location',
+          popup: (
+            <div className="w-44">
+              <p className="text-sm font-bold text-ink">Your location</p>
+              <p className="text-xs text-ink-soft">{origin.label}</p>
+            </div>
+          ),
+        })
+      }
     }
 
     if (emergencyAlert) {
@@ -283,25 +305,6 @@ export default function MapPage() {
             </div>
           ),
         })
-      })
-    }
-
-    if (currentUser && role === 'ngo' && origin) {
-      list.push({
-        id: 'my-ngo',
-        lat: origin.lat,
-        lng: origin.lng,
-        kind: 'you',
-        color: 'var(--fresh-you)',
-        title: 'Your NGO location',
-        popup: (
-          <div className="w-48">
-            <p className="text-sm font-bold text-ink">
-              {currentUser.orgName || currentUser.name}
-            </p>
-            <p className="text-xs text-ink-soft">Your registered pickup base</p>
-          </div>
-        ),
       })
     }
 
@@ -412,6 +415,10 @@ export default function MapPage() {
     setRouteInfo(null)
   }
 
+  const retryRoute = () => {
+    setRouteKey((k) => k + 1)
+  }
+
   const handleMarkerClick = (id) => {
     if (id === 'my-location' || id === 'my-ngo' || id.startsWith('relief-')) return
     if (view === 'ngos') {
@@ -439,6 +446,10 @@ export default function MapPage() {
     onSelect: view === 'ngos' ? requestRouteFor : selectItem,
     showDashboardCta: !currentUser,
     ownBase: Boolean(currentUser && role === 'ngo'),
+  }
+
+  if (isOutsideIndia) {
+    return <IndiaOnlyScreen title="Map is available in India only" />
   }
 
   if (!place) {
@@ -480,6 +491,11 @@ export default function MapPage() {
       <NeedsBoard />
 
       <MapPanel {...panelProps} />
+      <MobileMapSheet
+        {...panelProps}
+        open={mobileSheetOpen}
+        onToggle={() => setMobileSheetOpen((prev) => !prev)}
+      />
 
       {routeInfo && (
         <RouteSummary
@@ -488,7 +504,7 @@ export default function MapPage() {
           toLabel={routeToLabel}
           onStart={triggerRoute}
           canStart={true}
-          onRetry={clearRoute}
+          onRetry={retryRoute}
           onClear={clearRoute}
           googleMapsUrl={
             routeTo

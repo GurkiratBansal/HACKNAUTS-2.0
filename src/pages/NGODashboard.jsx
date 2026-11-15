@@ -33,7 +33,7 @@ const DEFAULT_FILTERS = {
 
 export default function NGODashboard() {
   const { currentUser, donations, ngos, acceptDonation } = useApp()
-  const { place } = useUserLocation()
+  const { place, isOutsideIndia } = useUserLocation()
   const { activeAlert } = useEmergency()
   const emergencyActive = Boolean(activeAlert(place))
   const urgencyFactor = emergencyActive ? EMERGENCY_URGENCY_FACTOR : 1
@@ -228,7 +228,11 @@ export default function NGODashboard() {
                   key={donation.id}
                   donation={donation}
                   distanceKm={donation.distanceKm}
-                  onAccept={(d) => acceptDonation(d.id)}
+                  onAccept={
+                    isOutsideIndia
+                      ? undefined
+                      : (d) => acceptDonation(d.id)
+                  }
                 />
               ))}
             </div>

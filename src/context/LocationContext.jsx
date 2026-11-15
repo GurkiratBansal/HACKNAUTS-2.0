@@ -117,6 +117,14 @@ export function LocationProvider({ children }) {
           return
         }
 
+        if (!inIndiaBox({ lat, lng })) {
+          removeManualPlace()
+          setPlace({ lat, lng, label: 'Outside India', source: 'gps', outside: true })
+          setStatus('outside')
+          setError('That location is outside India. FRESH is available in India only for now.')
+          return
+        }
+
         // A fresh GPS result replaces any stale saved manual place. GPS is
         // deliberately kept in memory and is never written to localStorage.
         removeManualPlace()
@@ -191,8 +199,6 @@ export function LocationProvider({ children }) {
   // Priority: saved manual place first. GPS is detected automatically only
   // when the browser already reports permission as granted.
   useEffect(() => {
-    if (startedRef.current) return undefined
-    startedRef.current = true
     if (place) return undefined
     if (typeof navigator === 'undefined' || !navigator.permissions?.query) {
       return undefined
@@ -229,12 +235,19 @@ export function LocationProvider({ children }) {
   const openPicker = useCallback(() => setPickerOpen(true), [])
   const closePicker = useCallback(() => setPickerOpen(false), [])
 
+  const isOutsideIndia = useMemo(() => {
+    if (status === 'outside') return true
+    if (!place) return false
+    return Boolean(place.outside) || !inIndiaBox(place)
+  }, [place, status])
+
   const value = useMemo(
     () => ({
       place,
       status,
       error,
       pickerOpen,
+      isOutsideIndia,
       detect,
       setManual,
       chooseManualPlace: setManual,
@@ -242,7 +255,7 @@ export function LocationProvider({ children }) {
       openPicker,
       closePicker,
     }),
-    [place, status, error, pickerOpen, detect, setManual, clear, openPicker, closePicker],
+    [place, status, error, pickerOpen, isOutsideIndia, detect, setManual, clear, openPicker, closePicker],
   )
 
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>

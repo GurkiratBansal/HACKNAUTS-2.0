@@ -80,7 +80,7 @@ export function makeSampleKitchens(center) {
     const point = offsetPoint(center, template.km, template.bearing)
     return {
       id: template.id,
-      name: template.name,
+      name: template.name.includes('(Sample)') ? template.name : `${template.name} (Sample)`,
       type: template.type,
       focus: template.focus,
       area: template.area,
@@ -91,6 +91,8 @@ export function makeSampleKitchens(center) {
       verified: template.verified,
       phone: '',
       distanceKm: haversineKm(center, point),
+      isDemo: true,
+      isSample: true,
     }
   })
 }
@@ -112,9 +114,12 @@ export function makeSampleDonations(center) {
     const point = shiftPoint(donation.location, center)
     return {
       ...donation,
+      foodName: donation.foodName.includes('(Sample)') ? donation.foodName : `${donation.foodName} (Sample)`,
       location: point,
       address: localiseAddress(donation.address, center),
       donorType: DONOR_TYPES[donation.id] || 'individual',
+      isDemo: true,
+      isSample: true,
     }
   })
 }
