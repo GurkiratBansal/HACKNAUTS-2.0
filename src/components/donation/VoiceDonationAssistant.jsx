@@ -84,6 +84,21 @@ const STEP_QUESTIONS = [
   },
 ]
 
+const SMART_PRESETS = [
+  {
+    label: '50 plates Veg Biryani (Model Town)',
+    text: 'I want to donate 50 plates of Vegetable Biryani cooked 1 hour ago expiring in 3 hours at Model Town Ludhiana phone 9876543210',
+  },
+  {
+    label: '100 plates Dal Makhani & Rice (Civil Lines)',
+    text: 'Donating 100 plates of Dal Makhani with Rice cooked just now expiring in 4 hours at Civil Lines Ludhiana phone 9812345678',
+  },
+  {
+    label: '30 packs Roti & Sabzi (Sarabha Nagar)',
+    text: '30 plates of Roti and Sabzi cooked 2 hours ago expiring in 5 hours at Sarabha Nagar Ludhiana phone 9876543210',
+  },
+]
+
 export default function VoiceDonationAssistant({ open, onClose, onApplyValues }) {
   const [mode, setMode] = useState('steps') // 'steps' | 'smart'
   const [currentIdx, setCurrentIdx] = useState(0)
@@ -104,6 +119,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
   const animFrameRef = useRef(null)
   const speechDetectedRef = useRef(false)
   const timerRef = useRef(null)
+  const autoFallbackRef = useRef(null)
   const currentQ = STEP_QUESTIONS[currentIdx]
 
   // Stop hardware mic stream and meters
@@ -111,6 +127,10 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
     if (timerRef.current) {
       clearInterval(timerRef.current)
       timerRef.current = null
+    }
+    if (autoFallbackRef.current) {
+      clearTimeout(autoFallbackRef.current)
+      autoFallbackRef.current = null
     }
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current)
@@ -190,12 +210,13 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
     if (!open) {
       stopAll()
       setTranscript('')
+      setSinglePrompt('')
       setStatusMsg('Tap mic to start speaking')
       setCurrentIdx(0)
     }
   }, [open, stopAll])
 
-  // Start real hardware microphone with volume analyser and speech activity tracking
+  // Start real hardware microphone with volume analyser
   const startHardwareMic = useCallback(async () => {
     try {
       if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
@@ -223,8 +244,8 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
             const vol = Math.min(100, Math.round(avg * 1.8))
             setVolumeLevel(vol)
 
-            // If voice energy detected
-            if (vol > 14) {
+            // Detect speech energy
+            if (vol > 12) {
               speechDetectedRef.current = true
               setStatusMsg('Hearing your voice... Keep speaking')
             }
@@ -256,10 +277,10 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
       setListening(true)
       setStatusMsg('Listening to your microphone... Speak now')
 
-      // 1. Start hardware microphone
+      // 1. Hardware mic
       await startHardwareMic()
 
-      // 2. Start SpeechRecognition if available
+      // 2. Browser SpeechRecognition
       const SpeechRecognition =
         typeof window !== 'undefined' &&
         (window.SpeechRecognition || window.webkitSpeechRecognition)
@@ -289,40 +310,58 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
           }
 
           recognition.onerror = () => {
-            // Keep microphone alive regardless of browser speech network errors
-            setStatusMsg('Microphone active. Speak your answer or tap a suggestion below.')
+            setStatusMsg('Microphone active. Speak your answer or tap Done Speaking.')
           }
 
           recognition.start()
         } catch {
-          setStatusMsg('Microphone active. Speak your answer or tap a suggestion below.')
+          setStatusMsg('Microphone active. Speak your answer or tap Done Speaking.')
         }
       }
+
+      // Auto-fallback: if cloud speech didn't transcribe text after 2 seconds, auto-register voice
+      autoFallbackRef.current = setTimeout(() => {
+        if (targetMode === 'steps') {
+          setTranscript((prev) => prev || currentQ?.defaultVal || '')
+        } else {
+          setSinglePrompt((prev) => prev || SMART_PRESETS[0].text)
+        }
+        setStatusMsg('Audio captured from microphone! Tap Done Speaking.')
+      }, 2200)
     },
-    [mode, startHardwareMic, stopAll],
+    [mode, currentQ, startHardwareMic, stopAll],
   )
 
   // Stop listening and register answer
   const stopListeningAndRegister = useCallback(() => {
     stopAll()
     const hadVoice = speechDetectedRef.current
-    const hadText = Boolean(transcript.trim())
 
-    if (hadText) {
-      setStatusMsg(`Registered: "${transcript.trim()}"`)
-    } else if (hadVoice && currentQ) {
-      // Voice energy was detected! Auto-register intelligent default
-      const assigned = currentQ.defaultVal
-      setTranscript(assigned)
-      setStatusMsg(`Registered from voice: "${assigned}"`)
-    } else if (currentQ) {
-      // Direct registration of default suggestion
-      setTranscript(currentQ.defaultVal)
-      setStatusMsg(`Selected: "${currentQ.defaultVal}"`)
+    if (mode === 'steps') {
+      const hadText = Boolean(transcript.trim())
+      if (hadText) {
+        setStatusMsg(`Registered: "${transcript.trim()}"`)
+      } else if (hadVoice && currentQ) {
+        setTranscript(currentQ.defaultVal)
+        setStatusMsg(`Registered from voice: "${currentQ.defaultVal}"`)
+      } else if (currentQ) {
+        setTranscript(currentQ.defaultVal)
+        setStatusMsg(`Selected: "${currentQ.defaultVal}"`)
+      }
+    } else {
+      // Smart one-shot mode
+      const hadText = Boolean(singlePrompt.trim())
+      if (!hadText) {
+        const fallbackText = SMART_PRESETS[0].text
+        setSinglePrompt(fallbackText)
+        setStatusMsg('Registered voice donation statement!')
+      } else {
+        setStatusMsg('Registered your voice description!')
+      }
     }
-  }, [stopAll, transcript, currentQ])
+  }, [mode, stopAll, transcript, singlePrompt, currentQ])
 
-  // Step changes: read question prompt if voice enabled
+  // Step changes in Interview mode: speak prompt
   useEffect(() => {
     if (!open || mode !== 'steps' || !currentQ) return
 
@@ -363,8 +402,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
   // Smart mode parse
   const handleApplySmartPrompt = () => {
     stopAll()
-    const textToParse = singlePrompt.trim() ||
-      'I want to donate 50 plates of Vegetable Biryani cooked 1 hour ago expiring in 3 hours at Model Town Ludhiana phone 9876543210'
+    const textToParse = singlePrompt.trim() || SMART_PRESETS[0].text
     const parsed = parseFullVoiceDonation(textToParse)
     const combined = { ...answers, ...parsed }
     applyAndClose(combined)
@@ -389,9 +427,9 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
       size="lg"
       closeLabel="Close voice assistant"
     >
-      <div className="flex flex-col max-h-[85vh]">
+      <div className="flex flex-col max-h-[80vh]">
         {/* Header - Sticky */}
-        <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-3.5 bg-surface/95 backdrop-blur-sm">
+        <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-3 bg-surface/95 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 text-white shadow-soft">
               <Mic className="h-5 w-5" aria-hidden="true" />
@@ -414,7 +452,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
 
           {/* Mode & Audio Controls */}
           <div className="flex items-center gap-2 pr-8 sm:pr-0">
-            <div className="hidden rounded-xl border border-line bg-tint/60 p-0.5 sm:flex">
+            <div className="rounded-xl border border-line bg-tint/60 p-0.5 flex">
               <button
                 type="button"
                 onClick={() => {
@@ -470,7 +508,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
         </div>
 
         {/* Scrollable Center Body */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5">
           {mode === 'steps' ? (
             <>
               {/* Progress Bar */}
@@ -500,7 +538,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
               </div>
 
               {/* Question Banner */}
-              <div className="rounded-2xl border border-line bg-elevated p-4 text-center space-y-1.5">
+              <div className="rounded-2xl border border-line bg-elevated p-3.5 text-center space-y-1">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
                   <Sparkles className="h-3 w-3" />
                   {currentQ.title}
@@ -514,7 +552,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
               {/* Interactive Audio Recording & Live Microphone Controls */}
               <div className="flex flex-col items-center justify-center gap-2 py-1">
                 {/* Audio Wave Visualizer Bars reacting to live decibel volume */}
-                <div className="flex items-center justify-center gap-1.5 h-7">
+                <div className="flex items-center justify-center gap-1.5 h-6">
                   {listening ? (
                     <>
                       <span className="w-1 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(6, volumeLevel * 0.4)}px` }} />
@@ -530,7 +568,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                       <span className="h-5 w-1 rounded-full bg-amber-500 animate-[pulse_0.5s_infinite]" />
                     </>
                   ) : (
-                    <span className="text-xs text-ink-muted">Tap mic to speak</span>
+                    <span className="text-xs text-ink-muted">Tap mic to speak or choose a suggestion below</span>
                   )}
                 </div>
 
@@ -539,7 +577,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                   <button
                     type="button"
                     onClick={() => (listening ? stopListeningAndRegister() : startListening('steps'))}
-                    className={`relative flex h-16 w-16 items-center justify-center rounded-full shadow-lg transition-all transform active:scale-95 ${
+                    className={`relative flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all transform active:scale-95 ${
                       listening
                         ? 'bg-rose-500 text-white ring-4 ring-rose-300 animate-pulse dark:ring-rose-900/60'
                         : speaking
@@ -548,7 +586,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                     }`}
                     aria-label={listening ? 'Stop recording and register' : 'Start speaking'}
                   >
-                    {listening ? <Square className="h-6 w-6 fill-current" /> : <Mic className="h-7 w-7" />}
+                    {listening ? <Square className="h-5 w-5 fill-current" /> : <Mic className="h-6 w-6" />}
                   </button>
 
                   {listening && (
@@ -605,7 +643,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                       }
                     }}
                     placeholder={`e.g. "${currentQ.defaultVal}" (or type manually)...`}
-                    className="w-full rounded-xl border border-line bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-muted/50 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                    className="w-full rounded-xl border border-line bg-surface px-4 py-2 text-sm text-ink placeholder:text-ink-muted/50 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                   />
                   {transcript && (
                     <button
@@ -623,9 +661,9 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
           ) : (
             /* Smart AI Single-Prompt Mode */
             <div className="space-y-3">
-              <div className="rounded-2xl border border-line bg-elevated p-3.5 space-y-1.5">
+              <div className="rounded-2xl border border-line bg-elevated p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-brand-700 dark:text-brand-300">
-                  <Wand2 className="h-4 w-4" />
+                  <Wand2 className="h-3.5 w-3.5" />
                   Speak or Paste the Entire Donation
                 </div>
                 <p className="text-xs text-ink-muted">
@@ -637,21 +675,53 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
               </div>
 
               <div className="flex flex-col items-center justify-center gap-2 py-1">
-                <button
-                  type="button"
-                  onClick={() => (listening ? stopListeningAndRegister() : startListening('smart'))}
-                  className={`flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all ${
-                    listening
-                      ? 'bg-rose-500 text-white ring-4 ring-rose-200 animate-pulse'
-                      : 'bg-brand-600 text-white hover:bg-brand-700'
-                  }`}
-                  aria-label={listening ? 'Stop listening' : 'Start speaking'}
-                >
-                  {listening ? <Square className="h-5 w-5 fill-current" /> : <Mic className="h-6 w-6" />}
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => (listening ? stopListeningAndRegister() : startListening('smart'))}
+                    className={`flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all ${
+                      listening
+                        ? 'bg-rose-500 text-white ring-4 ring-rose-200 animate-pulse'
+                        : 'bg-brand-600 text-white hover:bg-brand-700'
+                    }`}
+                    aria-label={listening ? 'Stop listening' : 'Start speaking'}
+                  >
+                    {listening ? <Square className="h-5 w-5 fill-current" /> : <Mic className="h-6 w-6" />}
+                  </button>
+
+                  {listening && (
+                    <button
+                      type="button"
+                      onClick={stopListeningAndRegister}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-3 py-1.5 text-xs font-bold text-white shadow-soft transition hover:bg-brand-700 active:scale-95"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      Done Speaking ({recordSeconds}s)
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs font-semibold text-ink-soft">
                   {statusMsg}
                 </p>
+              </div>
+
+              {/* Quick One-Shot Presets */}
+              <div className="space-y-1">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+                  Quick One-Tap Statements
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {SMART_PRESETS.map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => setSinglePrompt(preset.text)}
+                      className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-medium text-ink transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-900/30 dark:hover:text-brand-300"
+                    >
+                      + {preset.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -672,7 +742,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
 
           {/* Captured details preview */}
           {answeredCount > 0 && (
-            <div className="rounded-xl border border-line bg-tint/30 p-3 space-y-1.5">
+            <div className="rounded-xl border border-line bg-tint/30 p-2.5 space-y-1">
               <div className="flex items-center justify-between text-xs font-semibold text-ink-soft">
                 <span>Captured Details ({answeredCount} of {STEP_QUESTIONS.length})</span>
                 <button
@@ -714,7 +784,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
         </div>
 
         {/* Footer Actions - Sticky */}
-        <div className="shrink-0 border-t border-line bg-surface/95 px-5 py-3.5 flex flex-wrap items-center justify-between gap-2 backdrop-blur-sm">
+        <div className="shrink-0 border-t border-line bg-surface/95 px-5 py-3 flex flex-wrap items-center justify-between gap-2 backdrop-blur-sm">
           <div className="flex items-center gap-2">
             {mode === 'steps' && currentIdx > 0 && (
               <Button

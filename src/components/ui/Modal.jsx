@@ -96,7 +96,7 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-[1300] flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-[1300] grid place-items-center p-3 sm:p-6 overflow-y-auto"
       role="presentation"
     >
       <div
@@ -110,7 +110,7 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={labelledBy}
         tabIndex={-1}
-        className={`relative z-10 my-auto max-h-[90vh] w-full animate-scale-in overflow-y-auto rounded-3xl border border-line bg-surface shadow-2xl focus:outline-none ${SIZES[size] || SIZES.md}`}
+        className={`relative z-10 m-auto max-h-[88vh] w-full animate-scale-in overflow-hidden rounded-3xl border border-line bg-surface shadow-2xl focus:outline-none ${SIZES[size] || SIZES.md}`}
       >
         <button
           type="button"
