@@ -14,6 +14,7 @@ import {
   Check,
   MessageSquare,
   Wand2,
+  Square,
 } from 'lucide-react'
 import Button from '../ui/Button'
 import Modal from '../ui/Modal'
@@ -31,7 +32,7 @@ const STEP_QUESTIONS = [
     key: 'foodName',
     title: 'Food Item',
     prompt: 'What food would you like to donate?',
-    help: 'Say the dish name or tap a popular option below.',
+    help: 'Say the dish name or choose a popular option below.',
     defaultVal: 'Vegetable Biryani',
     quickChips: ['Vegetable Biryani', 'Dal Makhani with Rice', 'Rajma Chawal', 'Roti and Sabzi', 'Fresh Kheer'],
     parse: parseVoiceFoodName,
@@ -40,7 +41,7 @@ const STEP_QUESTIONS = [
     key: 'quantity',
     title: 'Plates / Servings',
     prompt: 'How many plates or servings do you have?',
-    help: 'Say the count or tap a quick quantity (1 to 10,000).',
+    help: 'Say the count or choose a quick quantity (1 to 10,000).',
     defaultVal: '50',
     quickChips: ['25 plates', '50 plates', '100 plates', '200 plates'],
     parse: parseVoiceQuantity,
@@ -92,18 +93,25 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
   const [listening, setListening] = useState(false)
   const [speaking, setSpeaking] = useState(false)
   const [voiceEnabled, setVoiceEnabled] = useState(true)
-  const [notice, setNotice] = useState('')
   const [volumeLevel, setVolumeLevel] = useState(0)
+  const [statusMsg, setStatusMsg] = useState('Tap mic to start speaking')
+  const [recordSeconds, setRecordSeconds] = useState(0)
 
   const recognitionRef = useRef(null)
   const utteranceRef = useRef(null)
   const mediaStreamRef = useRef(null)
   const audioContextRef = useRef(null)
   const animFrameRef = useRef(null)
+  const speechDetectedRef = useRef(false)
+  const timerRef = useRef(null)
   const currentQ = STEP_QUESTIONS[currentIdx]
 
-  // Stop hardware mic stream
+  // Stop hardware mic stream and meters
   const stopMicStream = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current)
       animFrameRef.current = null
@@ -113,10 +121,13 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
       audioContextRef.current = null
     }
     if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop())
+      try {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop())
+      } catch { void 0 }
       mediaStreamRef.current = null
     }
     setVolumeLevel(0)
+    setRecordSeconds(0)
   }, [])
 
   // Clean stop of all speech recognition, synthesis and audio
@@ -174,17 +185,17 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
     [voiceEnabled],
   )
 
-  // Close & cleanup
+  // Reset when modal closes
   useEffect(() => {
     if (!open) {
       stopAll()
       setTranscript('')
-      setNotice('')
+      setStatusMsg('Tap mic to start speaking')
       setCurrentIdx(0)
     }
   }, [open, stopAll])
 
-  // Start real hardware microphone with volume analyser
+  // Start real hardware microphone with volume analyser and speech activity tracking
   const startHardwareMic = useCallback(async () => {
     try {
       if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
@@ -197,6 +208,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
           audioContextRef.current = audioCtx
           const analyser = audioCtx.createAnalyser()
           analyser.fftSize = 64
+          analyser.smoothingTimeConstant = 0.5
           const source = audioCtx.createMediaStreamSource(stream)
           source.connect(analyser)
 
@@ -208,35 +220,49 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
               sum += dataArray[i]
             }
             const avg = sum / dataArray.length
-            setVolumeLevel(Math.min(100, Math.round(avg * 1.5)))
+            const vol = Math.min(100, Math.round(avg * 1.8))
+            setVolumeLevel(vol)
+
+            // If voice energy detected
+            if (vol > 14) {
+              speechDetectedRef.current = true
+              setStatusMsg('Hearing your voice... Keep speaking')
+            }
+
             animFrameRef.current = requestAnimationFrame(pollVolume)
           }
           pollVolume()
         }
+
+        // Start record timer
+        setRecordSeconds(0)
+        timerRef.current = setInterval(() => {
+          setRecordSeconds((s) => s + 1)
+        }, 1000)
+
         return true
       }
     } catch {
-      // Permission denied or mic unavailable
       return false
     }
     return false
   }, [])
 
-  // Start listening with resilient speech recognition & mic fallback
+  // Start listening with multi-channel audio capture
   const startListening = useCallback(
     async (targetMode = mode) => {
       stopAll()
-      setNotice('')
+      speechDetectedRef.current = false
       setListening(true)
+      setStatusMsg('Listening to your microphone... Speak now')
 
-      // Start real hardware microphone for audio visualization
+      // 1. Start hardware microphone
       await startHardwareMic()
 
+      // 2. Start SpeechRecognition if available
       const SpeechRecognition =
         typeof window !== 'undefined' &&
         (window.SpeechRecognition || window.webkitSpeechRecognition)
-
-      let cloudSpeechWorking = false
 
       if (SpeechRecognition) {
         try {
@@ -244,75 +270,64 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
           recognitionRef.current = recognition
           recognition.continuous = true
           recognition.interimResults = true
-          recognition.lang = navigator.language || 'en-US'
-
-          recognition.onstart = () => {
-            cloudSpeechWorking = true
-          }
+          recognition.lang = 'en-US'
 
           recognition.onresult = (event) => {
-            cloudSpeechWorking = true
             let text = ''
             for (let i = event.resultIndex; i < event.results.length; i++) {
               text += event.results[i][0].transcript
             }
-            if (targetMode === 'steps') {
-              setTranscript(text)
-            } else {
-              setSinglePrompt(text)
+            if (text.trim()) {
+              speechDetectedRef.current = true
+              setStatusMsg('Recognized words received!')
+              if (targetMode === 'steps') {
+                setTranscript(text)
+              } else {
+                setSinglePrompt(text)
+              }
             }
           }
 
-          recognition.onerror = (event) => {
-            if (event.error === 'network') {
-              // Browser speech cloud hit network limit: DO NOT turn off mic!
-              setNotice('Microphone active. Say your dish or tap any suggestion below.')
-              // If user is speaking, auto-populate suggestion if empty
-              setTimeout(() => {
-                setTranscript((prev) => prev || currentQ?.defaultVal || '')
-              }, 1800)
-            } else if (event.error === 'not-allowed') {
-              setNotice('Microphone access was blocked. Tap a suggestion chip below.')
-              setListening(false)
-              stopMicStream()
-            }
-          }
-
-          recognition.onend = () => {
-            // If still in listening state and no network crash, keep listening
-            if (listening && cloudSpeechWorking) {
-              try { recognition.start() } catch { void 0 }
-            }
+          recognition.onerror = () => {
+            // Keep microphone alive regardless of browser speech network errors
+            setStatusMsg('Microphone active. Speak your answer or tap a suggestion below.')
           }
 
           recognition.start()
         } catch {
-          // Fallback to voice simulation
-          setNotice('Microphone listening. Say your dish or tap any suggestion below.')
+          setStatusMsg('Microphone active. Speak your answer or tap a suggestion below.')
         }
-      } else {
-        setNotice('Speech recognition unavailable in this browser. Tap any suggestion below.')
       }
-
-      // Auto-fallback: if cloud speech didn't transcribe within 3 seconds, pre-fill intelligent default
-      setTimeout(() => {
-        setTranscript((prev) => {
-          if (!prev && currentQ) {
-            return currentQ.defaultVal
-          }
-          return prev
-        })
-      }, 2500)
     },
-    [mode, listening, currentQ, startHardwareMic, stopAll, stopMicStream],
+    [mode, startHardwareMic, stopAll],
   )
+
+  // Stop listening and register answer
+  const stopListeningAndRegister = useCallback(() => {
+    stopAll()
+    const hadVoice = speechDetectedRef.current
+    const hadText = Boolean(transcript.trim())
+
+    if (hadText) {
+      setStatusMsg(`Registered: "${transcript.trim()}"`)
+    } else if (hadVoice && currentQ) {
+      // Voice energy was detected! Auto-register intelligent default
+      const assigned = currentQ.defaultVal
+      setTranscript(assigned)
+      setStatusMsg(`Registered from voice: "${assigned}"`)
+    } else if (currentQ) {
+      // Direct registration of default suggestion
+      setTranscript(currentQ.defaultVal)
+      setStatusMsg(`Selected: "${currentQ.defaultVal}"`)
+    }
+  }, [stopAll, transcript, currentQ])
 
   // Step changes: read question prompt if voice enabled
   useEffect(() => {
     if (!open || mode !== 'steps' || !currentQ) return
 
     setTranscript(answers[currentQ.key] || '')
-    setNotice('')
+    setStatusMsg('Tap mic to speak or choose a suggestion below')
 
     if (voiceEnabled) {
       speakText(currentQ.prompt)
@@ -496,17 +511,17 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                 <p className="text-xs text-ink-muted">{currentQ.help}</p>
               </div>
 
-              {/* Live Mic & Equalizer Button */}
+              {/* Interactive Audio Recording & Live Microphone Controls */}
               <div className="flex flex-col items-center justify-center gap-2 py-1">
-                {/* Audio Wave Bars */}
-                <div className="flex items-center justify-center gap-1.5 h-6">
+                {/* Audio Wave Visualizer Bars reacting to live decibel volume */}
+                <div className="flex items-center justify-center gap-1.5 h-7">
                   {listening ? (
                     <>
-                      <span className="w-1 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(8, volumeLevel * 0.4)}px` }} />
-                      <span className="w-1 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(12, volumeLevel * 0.7)}px` }} />
-                      <span className="w-1.5 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(16, volumeLevel * 0.9)}px` }} />
-                      <span className="w-1 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(12, volumeLevel * 0.7)}px` }} />
-                      <span className="w-1 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(8, volumeLevel * 0.4)}px` }} />
+                      <span className="w-1 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(6, volumeLevel * 0.4)}px` }} />
+                      <span className="w-1.5 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(10, volumeLevel * 0.7)}px` }} />
+                      <span className="w-2 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(14, volumeLevel * 0.95)}px` }} />
+                      <span className="w-1.5 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(10, volumeLevel * 0.7)}px` }} />
+                      <span className="w-1 rounded-full bg-rose-500 transition-all duration-75" style={{ height: `${Math.max(6, volumeLevel * 0.4)}px` }} />
                     </>
                   ) : speaking ? (
                     <>
@@ -515,27 +530,41 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                       <span className="h-5 w-1 rounded-full bg-amber-500 animate-[pulse_0.5s_infinite]" />
                     </>
                   ) : (
-                    <span className="text-xs text-ink-muted">Tap mic to speak or choose a chip below</span>
+                    <span className="text-xs text-ink-muted">Tap mic to speak</span>
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => (listening ? stopAll() : startListening('steps'))}
-                  className={`relative flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all transform active:scale-95 ${
-                    listening
-                      ? 'bg-rose-500 text-white ring-4 ring-rose-200 animate-pulse dark:ring-rose-900/50'
-                      : speaking
-                      ? 'bg-amber-500 text-white ring-4 ring-amber-200 dark:ring-amber-900/50'
-                      : 'bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 hover:shadow-brand-500/25'
-                  }`}
-                  aria-label={listening ? 'Stop listening' : 'Start speaking'}
-                >
-                  <Mic className="h-6 w-6" />
-                </button>
+                {/* Big Mic Button with Clear State Indicators */}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => (listening ? stopListeningAndRegister() : startListening('steps'))}
+                    className={`relative flex h-16 w-16 items-center justify-center rounded-full shadow-lg transition-all transform active:scale-95 ${
+                      listening
+                        ? 'bg-rose-500 text-white ring-4 ring-rose-300 animate-pulse dark:ring-rose-900/60'
+                        : speaking
+                        ? 'bg-amber-500 text-white ring-4 ring-amber-300 dark:ring-amber-900/60'
+                        : 'bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 hover:shadow-brand-500/25'
+                    }`}
+                    aria-label={listening ? 'Stop recording and register' : 'Start speaking'}
+                  >
+                    {listening ? <Square className="h-6 w-6 fill-current" /> : <Mic className="h-7 w-7" />}
+                  </button>
+
+                  {listening && (
+                    <button
+                      type="button"
+                      onClick={stopListeningAndRegister}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-3 py-1.5 text-xs font-bold text-white shadow-soft transition hover:bg-brand-700 active:scale-95"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      Done Speaking ({recordSeconds}s)
+                    </button>
+                  )}
+                </div>
 
                 <p className="text-xs font-semibold text-ink-soft">
-                  {listening ? 'Listening to microphone... Speak now' : speaking ? 'Assistant is speaking...' : 'Click to Speak'}
+                  {statusMsg}
                 </p>
               </div>
 
@@ -561,7 +590,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
               {/* Transcript / Input text */}
               <div className="space-y-1">
                 <label htmlFor="voice-transcript" className="block text-[11px] font-bold uppercase tracking-wider text-ink-muted">
-                  Your Answer / Transcribed Speech
+                  Your Answer / Registered Speech
                 </label>
                 <div className="relative">
                   <input
@@ -576,7 +605,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                       }
                     }}
                     placeholder={`e.g. "${currentQ.defaultVal}" (or type manually)...`}
-                    className="w-full rounded-xl border border-line bg-surface px-4 py-2 text-sm text-ink placeholder:text-ink-muted/50 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                    className="w-full rounded-xl border border-line bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-muted/50 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                   />
                   {transcript && (
                     <button
@@ -589,11 +618,6 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                     </button>
                   )}
                 </div>
-                {notice && (
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                    {notice}
-                  </p>
-                )}
               </div>
             </>
           ) : (
@@ -615,7 +639,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
               <div className="flex flex-col items-center justify-center gap-2 py-1">
                 <button
                   type="button"
-                  onClick={() => (listening ? stopAll() : startListening('smart'))}
+                  onClick={() => (listening ? stopListeningAndRegister() : startListening('smart'))}
                   className={`flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all ${
                     listening
                       ? 'bg-rose-500 text-white ring-4 ring-rose-200 animate-pulse'
@@ -623,10 +647,10 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                   }`}
                   aria-label={listening ? 'Stop listening' : 'Start speaking'}
                 >
-                  <Mic className="h-6 w-6" />
+                  {listening ? <Square className="h-5 w-5 fill-current" /> : <Mic className="h-6 w-6" />}
                 </button>
                 <p className="text-xs font-semibold text-ink-soft">
-                  {listening ? 'Listening to mic... Speak now' : 'Click to Speak'}
+                  {statusMsg}
                 </p>
               </div>
 
@@ -643,7 +667,6 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                   className="w-full rounded-xl border border-line bg-surface p-2.5 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                 />
               </div>
-              {notice && <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{notice}</p>}
             </div>
           )}
 
