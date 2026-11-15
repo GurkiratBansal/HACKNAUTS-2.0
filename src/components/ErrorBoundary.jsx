@@ -3,6 +3,7 @@
 
 import { Component } from 'react'
 
+// FRESH:Layout  Class component that catches render errors and shows a recovery screen.
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props)

@@ -207,6 +207,8 @@ export function LocationProvider({ children }) {
     setError('')
   }, [])
 
+  // FRESH:Location  Startup priority: 1) saved place 2) GPS only when permission
+  // is already granted 3) manual picker. GPS results are never persisted.
   // Priority: saved manual place first. GPS is detected automatically only
   // when the browser already reports permission as granted.
   useEffect(() => {

@@ -3,8 +3,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Mic } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useUserLocation } from '../context/LocationContext'
+import Button from '../components/ui/Button'
 import DeclarationModal from '../components/DeclarationModal'
 import IndiaOnlyScreen from '../components/IndiaOnlyScreen'
 import BasicsStep from '../components/donation/BasicsStep'
@@ -12,6 +14,7 @@ import HandlingStep from '../components/donation/HandlingStep'
 import ListingPreview from '../components/donation/ListingPreview'
 import PhotoStep from '../components/donation/PhotoStep'
 import PickupStep from '../components/donation/PickupStep'
+import VoiceDonationAssistant from '../components/donation/VoiceDonationAssistant'
 import WizardNav from '../components/donation/WizardNav'
 import WizardSteps from '../components/donation/WizardSteps'
 import {
@@ -78,6 +81,7 @@ export default function AddDonation() {
   const [photoBusy, setPhotoBusy] = useState(false)
   const [errors, setErrors] = useState({})
   const [declarationOpen, setDeclarationOpen] = useState(false)
+  const [voiceAssistantOpen, setVoiceAssistantOpen] = useState(false)
   const objectUrlRef = useRef('')
   const cardRef = useRef(null)
   const panelRef = useRef(null)
@@ -185,6 +189,20 @@ export default function AddDonation() {
     setDeclarationOpen(true)
   }
 
+  const applyVoiceValues = (values) => {
+    setForm((prev) => ({
+      ...prev,
+      ...(values.foodName ? { foodName: values.foodName } : {}),
+      ...(values.quantity ? { quantity: values.quantity } : {}),
+      ...(values.cookedAt ? { cookedAt: values.cookedAt } : {}),
+      ...(values.deadline ? { deadline: values.deadline } : {}),
+      ...(values.address ? { address: values.address } : {}),
+      ...(values.contactPhone ? { contactPhone: values.contactPhone } : {}),
+    }))
+    setErrors({})
+    addToast('Voice details applied to donation form!', 'success')
+  }
+
   const publish = () => {
     const donation = addDonation({ ...form, location, photo })
     setDeclarationOpen(false)
@@ -198,17 +216,30 @@ export default function AddDonation() {
   return (
     <main className="bg-canvas">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="max-w-2xl">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
-            Add donation
-          </p>
-          <h1 className="mt-1.5 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
-            List surplus food
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed text-ink-soft sm:text-base">
-            Four short steps, then a final declaration. Accurate details help
-            NGOs decide quickly and collect safely.
-          </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+              Add donation
+            </p>
+            <h1 className="mt-1.5 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+              List surplus food
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed text-ink-soft sm:text-base">
+              Four short steps, then a final declaration. Accurate details help
+              NGOs decide quickly and collect safely.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setVoiceAssistantOpen(true)}
+              className="inline-flex items-center gap-2 border-brand-200 bg-brand-50/80 text-brand-800 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-200"
+            >
+              <Mic className="h-4 w-4 text-brand-600 dark:text-brand-400" aria-hidden="true" />
+              Fill by Voice
+            </Button>
+          </div>
         </div>
 
         <form
@@ -280,6 +311,12 @@ export default function AddDonation() {
         onClose={() => setDeclarationOpen(false)}
         onConfirm={publish}
         foodName={form.foodName}
+      />
+
+      <VoiceDonationAssistant
+        open={voiceAssistantOpen}
+        onClose={() => setVoiceAssistantOpen(false)}
+        onApplyValues={applyVoiceValues}
       />
     </main>
   )
