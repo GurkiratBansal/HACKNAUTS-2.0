@@ -17,6 +17,7 @@ const EmergencyContext = createContext(null)
 
 const isDemoVisible = () => {
   if (import.meta.env.DEV) return true
+  if (EMERGENCY_USE_MOCK) return true
   if (typeof window === 'undefined') return false
   return new URLSearchParams(window.location.search).get('demo') === '1'
 }
@@ -30,13 +31,45 @@ function validAlert(alert) {
   return alert && alert.state && alert.expiresAt > Date.now()
 }
 
+const ALERT_STORAGE_KEY = 'fresh_emergency_alert_v1'
+
+function getInitialAlert() {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = sessionStorage.getItem(ALERT_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (validAlert(parsed)) return parsed
+    sessionStorage.removeItem(ALERT_STORAGE_KEY)
+    return null
+  } catch {
+    return null
+  }
+}
+
 export function EmergencyProvider({ children }) {
   const { place } = useUserLocation()
-  const [alert, setAlert] = useState(null)
+  const [alert, setAlertState] = useState(getInitialAlert)
   const [reportedConcerns, setReportedConcerns] = useState([])
   const [needs, setNeeds] = useState([])
 
-  const simulate = useCallback(({ state, hazardType, severity = 'moderate', districts = [] }) => {
+  const setAlert = useCallback((val) => {
+    setAlertState((prev) => {
+      const next = typeof val === 'function' ? val(prev) : val
+      try {
+        if (next && next.source === 'SIMULATED') {
+          sessionStorage.setItem(ALERT_STORAGE_KEY, JSON.stringify(next))
+        } else {
+          sessionStorage.removeItem(ALERT_STORAGE_KEY)
+        }
+      } catch {
+        // storage disabled or quota exceeded
+      }
+      return next
+    })
+  }, [])
+
+  const simulate = useCallback(({ state, hazardType, severity = 'moderate', districts = [], durationMs = 2 * 60 * 60 * 1000, expiresAt }) => {
     const now = Date.now()
     setAlert({
       id: `simulated-${now}`,
@@ -45,12 +78,33 @@ export function EmergencyProvider({ children }) {
       severity,
       source: 'SIMULATED',
       issuedAt: now,
-      expiresAt: now + 2 * 60 * 60 * 1000, // 1 day
+      expiresAt: expiresAt || (now + durationMs),
       districts,
     })
-  }, [])
+  }, [setAlert])
 
-  const clear = useCallback(() => setAlert(null), [])
+  const clear = useCallback(() => {
+    try {
+      sessionStorage.removeItem(ALERT_STORAGE_KEY)
+    } catch {
+      // storage disabled
+    }
+    setAlert(null)
+  }, [setAlert])
+
+  // Auto-clear active alert on expiry
+  useEffect(() => {
+    if (!alert?.expiresAt) return undefined
+    const delay = alert.expiresAt - Date.now()
+    if (delay <= 0) {
+      clear()
+      return undefined
+    }
+    const timer = setTimeout(() => {
+      clear()
+    }, delay)
+    return () => clearTimeout(timer)
+  }, [alert, clear])
 
   const reportConcern = useCallback((concern) => {
     setReportedConcerns((items) => [

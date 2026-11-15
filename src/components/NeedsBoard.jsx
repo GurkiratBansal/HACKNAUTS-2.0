@@ -57,7 +57,7 @@ export default function NeedsBoard() {
           })}
           <button type="button" className="inline-flex min-h-11 w-full items-center justify-center gap-1 rounded-xl border border-line text-xs font-bold text-ink" onClick={() => setPostOpen((value) => !value)}><Plus className="h-4 w-4" aria-hidden="true" />Post a need</button>
           {postOpen && <button type="button" className="min-h-11 w-full rounded-xl bg-brand-600 px-3 text-xs font-bold text-white" onClick={() => { postNeed({ requesterId: 'local-user', requesterName: 'Local relief partner', requesterType: 'kitchen', item: 'cooked_meals', quantity: 100, unit: 'meals', neededBy: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), area: place?.label || 'Nearby', lat: place.lat, lng: place.lng }); setMessage('Need posted.') }}>Post sample need</button>}
-          {message && <p className="text-xs font-semibold text-emerald-700" role="status">{message}</p>}
+          {message && <p className={`text-xs font-semibold ${message.startsWith('Enter') ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`} role="status">{message}</p>}
         </div>
       )}
     </aside>

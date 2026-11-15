@@ -21,7 +21,7 @@ function formatTime(value) {
 
 export default function EmergencyBanner() {
   const { place } = useUserLocation()
-  const { activeAlert, reportConcern } = useEmergency()
+  const { activeAlert, reportConcern, clear } = useEmergency()
   const [formOpen, setFormOpen] = useState(false)
   const [reason, setReason] = useState('Road access')
   const [comment, setComment] = useState('')
@@ -56,9 +56,16 @@ export default function EmergencyBanner() {
             <span>Expires {formatTime(alert.expiresAt)}</span>
           </p>
           <p className="mt-1.5 font-semibold">In danger, call 112. FRESH does not replace official emergency services. Follow instructions from your State Disaster Management Authority.</p>
-          <button type="button" className="mt-2 min-h-11 rounded-xl border border-warning-400 px-3 text-xs font-bold" onClick={() => setFormOpen((value) => !value)}>
-            Report a concern
-          </button>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button type="button" className="min-h-11 rounded-xl border border-warning-400 px-3 text-xs font-bold" onClick={() => setFormOpen((value) => !value)}>
+              Report a concern
+            </button>
+            {alert.source === 'SIMULATED' && (
+              <button type="button" className="min-h-11 rounded-xl border border-warning-400 bg-warning-200/50 px-3 text-xs font-bold text-warning-950 dark:bg-warning-900/40 dark:text-warning-100" onClick={clear}>
+                Dismiss simulation
+              </button>
+            )}
+          </div>
           {formOpen && !reported && (
             <form className="mt-2 grid gap-2 sm:grid-cols-[170px_1fr_auto]" onSubmit={(event) => { event.preventDefault(); reportConcern({ reason, comment }); setReported(true) }}>
               <label className="sr-only" htmlFor="emergency-concern-reason">Concern reason</label>
