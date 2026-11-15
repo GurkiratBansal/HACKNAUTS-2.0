@@ -1,8 +1,12 @@
+// FRESH:FILE  Holds the active emergency alert, simulated trigger, concern reports and relief needs. An alert is active only while unexpired and the place state matches.
+// FRESH:AREA  Emergency
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useUserLocation } from './LocationContext'
 import { makeSampleNeeds, pledgeNeedAmount } from '../data/emergencyNeeds'
 import { EMERGENCY_USE_MOCK } from '../config'
 
+// FRESH:Emergency  Hazard types offered by the simulator, with labels.
 export const EMERGENCY_HAZARDS = [
   ['flood', 'Flood'],
   ['storm', 'Storm'],
@@ -15,6 +19,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4010'
 
 const EmergencyContext = createContext(null)
 
+// FRESH:Emergency  The simulator control shows in dev builds or with ?demo=1.
 const isDemoVisible = () => {
   if (import.meta.env.DEV) return true
   if (EMERGENCY_USE_MOCK) return true
@@ -22,11 +27,13 @@ const isDemoVisible = () => {
   return new URLSearchParams(window.location.search).get('demo') === '1'
 }
 
+// FRESH:Emergency  An alert counts only when the place state matches the alert state and it has not expired.
 export function isEmergencyActive(alert, place, now = Date.now()) {
   if (!alert || !place?.state || alert.expiresAt <= now) return false
   return alert.state.toLowerCase() === place.state.toLowerCase()
 }
 
+// FRESH:Emergency  Sanity check that an alert object is complete and still live.
 function validAlert(alert) {
   return alert && alert.state && alert.expiresAt > Date.now()
 }
@@ -47,6 +54,7 @@ function getInitialAlert() {
   }
 }
 
+// FRESH:Emergency  Provides the alert, simulator, concern reports and the needs board.
 export function EmergencyProvider({ children }) {
   const { place } = useUserLocation()
   const [alert, setAlertState] = useState(getInitialAlert)
@@ -69,6 +77,7 @@ export function EmergencyProvider({ children }) {
     })
   }, [])
 
+  // FRESH:Emergency  Simulated trigger: creates a 2-hour SIMULATED alert for one state.
   const simulate = useCallback(({ state, hazardType, severity = 'moderate', districts = [], durationMs = 2 * 60 * 60 * 1000, expiresAt }) => {
     const now = Date.now()
     setAlert({
@@ -106,6 +115,7 @@ export function EmergencyProvider({ children }) {
     return () => clearTimeout(timer)
   }, [alert, clear])
 
+  // FRESH:Report  Records a concern locally; it never changes emergency mode.
   const reportConcern = useCallback((concern) => {
     setReportedConcerns((items) => [
       ...items,
@@ -113,6 +123,7 @@ export function EmergencyProvider({ children }) {
     ])
   }, [])
 
+  // FRESH:Needs  Adds a relief need to the local board.
   const postNeed = useCallback((need) => {
     const item = {
       ...need,
@@ -125,6 +136,7 @@ export function EmergencyProvider({ children }) {
     return item
   }, [])
 
+  // FRESH:Needs  Pledges units to a need using the shared pledge math.
   const pledgeNeed = useCallback((id, amount) => {
     let result = { ok: false, message: 'Need not found.' }
     setNeeds((items) => items.map((need) => {
@@ -175,7 +187,7 @@ export function EmergencyProvider({ children }) {
 
     fetchAlerts()
     return () => controller.abort()
-  }, [place])
+  }, [place, setAlert])
 
   useEffect(() => {
     if (!place) {
@@ -234,6 +246,7 @@ export function EmergencyProvider({ children }) {
   return <EmergencyContext.Provider value={value}>{children}</EmergencyContext.Provider>
 }
 
+// FRESH:Emergency  Hook: read emergency state and actions.
 export function useEmergency() {
   const context = useContext(EmergencyContext)
   if (!context) throw new Error('useEmergency must be used inside EmergencyProvider')

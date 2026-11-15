@@ -1,3 +1,6 @@
+// FRESH:FILE  Provides the active place. Priority: saved manual place, then GPS (only when already permitted), then the picker. India-only.
+// FRESH:AREA  Location
+
 import {
   createContext,
   useCallback,
@@ -13,12 +16,14 @@ import { inIndiaBox } from '../utils/india'
 
 const LocationContext = createContext(null)
 
+// FRESH:Location  A coordinate is valid only when numeric and inside the India bounding box.
 function validCoordinate(point) {
   const lat = Number(point?.lat)
   const lng = Number(point?.lng)
   return Number.isFinite(lat) && Number.isFinite(lng) && inIndiaBox({ lat, lng })
 }
 
+// FRESH:Location  Normalises and validates a stored or chosen place; returns null when invalid.
 export function validateStoredPlace(value) {
   if (!value || typeof value !== 'object') return null
   if (!validCoordinate(value)) return null
@@ -37,6 +42,7 @@ export function validateStoredPlace(value) {
   }
 }
 
+// FRESH:Location  Loads the saved place from localStorage, discarding invalid entries.
 function readManualPlace() {
   try {
     const raw = localStorage.getItem(LOCATION_STORAGE_KEY)
@@ -55,6 +61,7 @@ function readManualPlace() {
   }
 }
 
+// FRESH:Location  Persists the chosen place to localStorage.
 function writeManualPlace(place) {
   try {
     localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(place))
@@ -64,6 +71,7 @@ function writeManualPlace(place) {
   }
 }
 
+// FRESH:Location  Clears the saved place; the in-memory place stays usable.
 function removeManualPlace() {
   try {
     localStorage.removeItem(LOCATION_STORAGE_KEY)
@@ -72,21 +80,23 @@ function removeManualPlace() {
   }
 }
 
+// FRESH:Location  Browsers expose GPS only on HTTPS or localhost.
 function isSecureLocationPage() {
   if (typeof window === 'undefined') return false
   if (window.isSecureContext) return true
   return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)
 }
 
+// FRESH:Location  Owns place state, GPS detection, manual selection and picker open/close.
 export function LocationProvider({ children }) {
   const [place, setPlace] = useState(() => readManualPlace())
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
   const [pickerOpen, setPickerOpen] = useState(false)
-  const startedRef = useRef(false)
   const detectionRef = useRef(0)
   const reverseAbortRef = useRef(null)
 
+  // FRESH:Location  GPS detection: replaces any saved place, reverse geocodes a label and flags non-India results.
   const detect = useCallback(() => {
     if (!isSecureLocationPage()) {
       setStatus('unavailable')
@@ -172,6 +182,7 @@ export function LocationProvider({ children }) {
     )
   }, [])
 
+  // FRESH:Location  Chooses a place from picker/search, validates and saves it.
   const setManual = useCallback((candidate) => {
     const next = validateStoredPlace(candidate)
     if (!next) {
@@ -261,12 +272,14 @@ export function LocationProvider({ children }) {
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>
 }
 
+// FRESH:Location  Hook: read the active place and location controls.
 export function useUserLocation() {
   const context = useContext(LocationContext)
   if (!context) throw new Error('useUserLocation must be used inside LocationProvider')
   return context
 }
 
+// FRESH:Location  Backwards-compatible alias; new code should use useUserLocation.
 // Temporary compatibility alias for existing components; new code should use
 // useUserLocation.
 export const useLocation = useUserLocation

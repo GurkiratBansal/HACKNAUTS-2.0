@@ -77,8 +77,11 @@ async function ensureLudhianaPlace(page) {
     if (await demoBtn.isVisible().catch(() => false)) {
       await demoBtn.click()
     } else {
-      await page.locator('input[placeholder="141001"]').fill('141001')
-      await page.getByRole('button', { name: /use this place/i }).click()
+      const pinInput = page.locator('input[placeholder="141001"]')
+      if (await pinInput.isVisible().catch(() => false)) {
+        await pinInput.fill('141001')
+        await page.getByRole('button', { name: /use this place/i }).click()
+      }
     }
   }
 }
