@@ -1,3 +1,6 @@
+// FRESH:FILE  src/config/env.js
+// FRESH:AREA  CONFIG
+
 import 'dotenv/config'
 import { z } from 'zod'
 

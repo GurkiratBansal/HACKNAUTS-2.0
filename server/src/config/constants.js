@@ -1,3 +1,6 @@
+// FRESH:FILE  src/config/constants.js
+// FRESH:AREA  CONFIG
+
 export const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
   'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',

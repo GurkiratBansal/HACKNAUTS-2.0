@@ -1,3 +1,6 @@
+// FRESH:FILE  src/server.js
+// FRESH:AREA  API
+
 import { app } from './app.js'
 import { env } from './config/env.js'
 

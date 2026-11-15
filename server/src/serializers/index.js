@@ -1,3 +1,7 @@
+// FRESH:FILE  src/serializers/index.js
+// FRESH:AREA  API
+
+// FRESH:API  Function: serializeUser.
 export function serializeUser(user) {
   return {
     id: user.id, name: user.name, email: user.email, phone: user.phone,
@@ -8,6 +12,7 @@ export function serializeUser(user) {
   }
 }
 
+// FRESH:API  Function: serializeDonation.
 export function serializeDonation(row, { revealContact = false } = {}) {
   return {
     id: row.id, donorId: row.donorId, donorName: row.donorName || row.donor?.organizationName || row.donor?.name,

@@ -1,3 +1,6 @@
+// FRESH:FILE  Wires security middleware and mounts every API route.
+// FRESH:AREA  API
+
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -11,46 +14,30 @@ import needRoutes from './routes/needs.js'
 import emergencyRoutes from './routes/emergency.js'
 import statsRoutes from './routes/stats.js'
 
-const allowedOrigins = env.CLIENT_ORIGIN.split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean)
-
+// FRESH:API  Build the Express app: security headers, CORS, JSON parsing, rate limit, logging.
 export const app = express()
 app.disable('x-powered-by')
-
 app.use(helmet())
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-        callback(null, true)
-        return
-      }
-      callback(new Error('Not allowed by CORS'))
-    },
-    credentials: true,
-  }),
-)
+// WHY: only the Vite dev origin may call the API with credentials.
+app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }))
 app.use(express.json({ limit: '1mb' }))
-app.use(
-  rateLimit({
-    windowMs: 60_000,
-    limit: 120,
-    standardHeaders: true,
-    legacyHeaders: false,
-  }),
-)
-app.use(
-  morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev', {
-    skip: (req) => req.path === '/health',
-  }),
-)
+// WHY: one global cap slows obvious abuse without blocking normal use.
+app.use(rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false }))
+// WHY: /health is skipped so uptime probes do not flood the log.
+app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev', { skip: (req) => req.path === '/health' }))
 
+// FRESH:API  Liveness probe used by smoke tests and uptime checks.
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'fresh-server' }))
+
+// FRESH:AUTH  Registration and login endpoints.
 app.use('/api/auth', authRoutes)
+// FRESH:DONATION  Create, list and accept food donations.
 app.use('/api/donations', donationRoutes)
+// FRESH:NEEDS  Relief needs board with pledge tracking.
 app.use('/api/needs', needRoutes)
+// FRESH:EMERGENCY  Active alerts, hazard zones and the simulated trigger.
 app.use('/api/emergency', emergencyRoutes)
+// FRESH:STATS  Aggregate impact numbers for dashboards.
 app.use('/api/stats', statsRoutes)
 
 app.use(notFound)

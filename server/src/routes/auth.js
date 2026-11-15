@@ -15,12 +15,12 @@ const router = Router()
 const credentials = z.object({ email: z.string().email(), password: z.string().min(8) })
 const registration = credentials.extend({ name: z.string().min(1).max(120), role: z.enum(['donor', 'ngo']).default('donor'), organizationName: z.string().max(180).optional(), state: z.string().max(80).optional(), pincode: z.string().regex(/^[1-9][0-9]{5}$/).optional() })
 
-// FRESH:API  Function: tokenFor.`r`n
+// FRESH:API  Function: tokenFor.
 function tokenFor(user) {
   return jwt.sign({ sub: user.id, role: user.role }, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN })
 }
 
-// FRESH:API  HTTP route or middleware registration.`r`n
+// FRESH:API  HTTP route or middleware registration.
 router.post('/register', async (req, res, next) => {
   try {
     const input = registration.parse(req.body)
@@ -32,7 +32,7 @@ router.post('/register', async (req, res, next) => {
   } catch (error) { return next(error) }
 })
 
-// FRESH:API  HTTP route or middleware registration.`r`n
+// FRESH:API  HTTP route or middleware registration.
 router.post('/login', async (req, res, next) => {
   try {
     const input = credentials.parse(req.body)
