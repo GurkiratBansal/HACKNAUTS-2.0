@@ -2,7 +2,7 @@
 // FRESH:AREA  DB
 
 import { boolean, integer, pgEnum, pgTable, text, timestamp, uuid, geometry, index } from 'drizzle-orm/pg-core'
-import { users } from './users'
+import { users } from './users.js'
 
 export const emergencySource = pgEnum('emergency_source', ['SIMULATED', 'SACHET'])
 export const emergencyHazard = pgEnum('emergency_hazard', ['flood', 'cyclone', 'earthquake', 'heatwave', 'landslide', 'other'])

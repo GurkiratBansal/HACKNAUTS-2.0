@@ -43,3 +43,6 @@ export const EMERGENCY_URGENCY_FACTOR = 0.5
 
 // FRESH:Location  localStorage key for the saved manual place.
 export const LOCATION_STORAGE_KEY = 'fresh.v2.place'
+
+// FRESH:Backend  Live backend API base URL when cloud database sync is enabled.
+export const BACKEND_API_URL = import.meta.env.VITE_BACKEND_URL || ''

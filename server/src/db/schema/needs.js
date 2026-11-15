@@ -2,7 +2,7 @@
 // FRESH:AREA  DB
 
 import { boolean, integer, pgEnum, pgTable, text, timestamp, uuid, varchar, index, geometry } from 'drizzle-orm/pg-core'
-import { users } from './users'
+import { users } from './users.js'
 
 export const needItem = pgEnum('need_item', ['cooked_meals', 'dry_ration', 'packaged_food', 'drinking_water', 'baby_food'])
 export const needStatus = pgEnum('need_status', ['open', 'partly_pledged', 'fulfilled', 'expired', 'cancelled'])

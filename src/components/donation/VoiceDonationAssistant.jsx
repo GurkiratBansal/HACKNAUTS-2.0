@@ -291,20 +291,25 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
           recognitionRef.current = recognition
           recognition.continuous = true
           recognition.interimResults = true
-          recognition.lang = 'en-US'
+          try {
+            recognition.lang = 'en-IN'
+          } catch {
+            recognition.lang = 'en-US'
+          }
 
           recognition.onresult = (event) => {
-            let text = ''
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-              text += event.results[i][0].transcript
+            let combined = ''
+            for (let i = 0; i < event.results.length; i++) {
+              combined += event.results[i][0].transcript + ' '
             }
-            if (text.trim()) {
+            const cleanText = combined.trim()
+            if (cleanText) {
               speechDetectedRef.current = true
-              setStatusMsg('Recognized words received!')
+              setStatusMsg(`Recognized: "${cleanText}"`)
               if (targetMode === 'steps') {
-                setTranscript(text)
+                setTranscript(cleanText)
               } else {
-                setSinglePrompt(text)
+                setSinglePrompt(cleanText)
               }
             }
           }
@@ -319,7 +324,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
         }
       }
 
-      // Auto-fallback: if cloud speech didn't transcribe text after 2 seconds, auto-register voice
+      // Auto-fallback: if cloud speech didn't transcribe text after 2.2 seconds, auto-register voice
       autoFallbackRef.current = setTimeout(() => {
         if (targetMode === 'steps') {
           setTranscript((prev) => prev || currentQ?.defaultVal || '')
@@ -335,18 +340,14 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
   // Stop listening and register answer
   const stopListeningAndRegister = useCallback(() => {
     stopAll()
-    const hadVoice = speechDetectedRef.current
 
     if (mode === 'steps') {
       const hadText = Boolean(transcript.trim())
       if (hadText) {
         setStatusMsg(`Registered: "${transcript.trim()}"`)
-      } else if (hadVoice && currentQ) {
-        setTranscript(currentQ.defaultVal)
-        setStatusMsg(`Registered from voice: "${currentQ.defaultVal}"`)
       } else if (currentQ) {
         setTranscript(currentQ.defaultVal)
-        setStatusMsg(`Selected: "${currentQ.defaultVal}"`)
+        setStatusMsg(`Registered: "${currentQ.defaultVal}"`)
       }
     } else {
       // Smart one-shot mode
@@ -427,9 +428,9 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
       size="lg"
       closeLabel="Close voice assistant"
     >
-      <div className="flex flex-col max-h-[80vh]">
+      <div className="flex flex-col h-full max-h-[82vh] min-h-0">
         {/* Header - Sticky */}
-        <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-3 bg-surface/95 backdrop-blur-sm">
+        <div className="flex shrink-0 items-center justify-between border-b border-line px-4 py-2.5 sm:px-5 sm:py-3 bg-surface/95 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 text-white shadow-soft">
               <Mic className="h-5 w-5" aria-hidden="true" />
@@ -458,6 +459,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                 onClick={() => {
                   stopAll()
                   setMode('steps')
+                  setStatusMsg('Tap mic to speak or choose a suggestion below')
                 }}
                 className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
                   mode === 'steps'
@@ -473,6 +475,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                 onClick={() => {
                   stopAll()
                   setMode('smart')
+                  setStatusMsg('Tap mic to speak or choose a suggestion below')
                 }}
                 className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
                   mode === 'smart'
@@ -508,7 +511,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
         </div>
 
         {/* Scrollable Center Body */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-3">
           {mode === 'steps' ? (
             <>
               {/* Progress Bar */}
@@ -706,7 +709,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
               </div>
 
               {/* Quick One-Shot Presets */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
                   Quick One-Tap Statements
                 </p>
@@ -715,8 +718,11 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                     <button
                       key={preset.label}
                       type="button"
-                      onClick={() => setSinglePrompt(preset.text)}
-                      className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-medium text-ink transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-900/30 dark:hover:text-brand-300"
+                      onClick={() => {
+                        setSinglePrompt(preset.text)
+                        setStatusMsg('Statement loaded! Tap "Parse & Fill Form" below.')
+                      }}
+                      className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-ink transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-900/30 dark:hover:text-brand-300 active:scale-95 shadow-2xs"
                     >
                       + {preset.label}
                     </button>
@@ -733,7 +739,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
                   rows={2}
                   value={singlePrompt}
                   onChange={(e) => setSinglePrompt(e.target.value)}
-                  placeholder="Say or type your complete donation..."
+                  placeholder="Say or type your complete donation (e.g. 50 plates vegetable biryani cooked 1 hour ago...)"
                   className="w-full rounded-xl border border-line bg-surface p-2.5 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                 />
               </div>
@@ -784,7 +790,7 @@ export default function VoiceDonationAssistant({ open, onClose, onApplyValues })
         </div>
 
         {/* Footer Actions - Sticky */}
-        <div className="shrink-0 border-t border-line bg-surface/95 px-5 py-3 flex flex-wrap items-center justify-between gap-2 backdrop-blur-sm">
+        <div className="shrink-0 border-t border-line bg-surface/95 px-4 py-2.5 sm:px-5 sm:py-3 flex flex-wrap items-center justify-between gap-2 backdrop-blur-sm">
           <div className="flex items-center gap-2">
             {mode === 'steps' && currentIdx > 0 && (
               <Button

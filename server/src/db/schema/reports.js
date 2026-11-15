@@ -2,8 +2,8 @@
 // FRESH:AREA  DB
 
 import { pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
-import { donations } from './donations'
-import { users } from './users'
+import { donations } from './donations.js'
+import { users } from './users.js'
 
 // FRESH:DB  Store user concerns and donation safety reports for review.
 export const reports = pgTable('reports', {

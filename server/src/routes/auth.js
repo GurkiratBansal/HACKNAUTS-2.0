@@ -13,7 +13,15 @@ import { serializeUser } from '../serializers/index.js'
 
 const router = Router()
 const credentials = z.object({ email: z.string().email(), password: z.string().min(8) })
-const registration = credentials.extend({ name: z.string().min(1).max(120), role: z.enum(['donor', 'ngo']).default('donor'), organizationName: z.string().max(180).optional(), state: z.string().max(80).optional(), pincode: z.string().regex(/^[1-9][0-9]{5}$/).optional() })
+const registration = credentials.extend({
+  name: z.string().min(1).max(120),
+  phone: z.string().max(20).optional(),
+  city: z.string().max(80).optional(),
+  role: z.enum(['donor', 'ngo']).default('donor'),
+  organizationName: z.string().max(180).optional(),
+  state: z.string().max(80).optional(),
+  pincode: z.string().regex(/^[1-9][0-9]{5}$/).optional(),
+})
 
 // FRESH:API  Function: tokenFor.
 function tokenFor(user) {
@@ -27,7 +35,20 @@ router.post('/register', async (req, res, next) => {
     const email = input.email.trim().toLowerCase()
     const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1)
     if (existing.length) return res.status(409).json({ error: 'An account with this email already exists.' })
-    const [user] = await db.insert(users).values({ name: input.name.trim(), email, passwordHash: await bcrypt.hash(input.password, 12), role: input.role, organizationName: input.organizationName?.trim(), state: input.state, pincode: input.pincode }).returning()
+    const [user] = await db
+      .insert(users)
+      .values({
+        name: input.name.trim(),
+        email,
+        passwordHash: await bcrypt.hash(input.password, 12),
+        phone: input.phone?.trim() || null,
+        city: input.city?.trim() || null,
+        role: input.role,
+        organizationName: input.organizationName?.trim() || null,
+        state: input.state || null,
+        pincode: input.pincode || null,
+      })
+      .returning()
     return res.status(201).json({ user: serializeUser(user), token: tokenFor(user) })
   } catch (error) { return next(error) }
 })
