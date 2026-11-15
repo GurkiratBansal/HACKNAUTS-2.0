@@ -1,3 +1,6 @@
+// FRESH:FILE  Count-up animation for impact numbers; respects prefers-reduced-motion.
+// FRESH:AREA  Impact
+
 import { useEffect, useRef, useState } from 'react'
 
 /**

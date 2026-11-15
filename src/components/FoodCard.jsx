@@ -1,3 +1,6 @@
+// FRESH:FILE  Card summarising one food listing: photo, urgency badge, distance and actions.
+// FRESH:AREA  Donations
+
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,

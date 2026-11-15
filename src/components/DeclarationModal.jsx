@@ -1,3 +1,6 @@
+// FRESH:FILE  Modal where the donor accepts the food-safety declaration before publishing.
+// FRESH:AREA  Donations
+
 import { useEffect, useState } from 'react'
 import { ShieldCheck } from 'lucide-react'
 import Button from './ui/Button'

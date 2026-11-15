@@ -1,7 +1,11 @@
+// FRESH:FILE  Rule-based pickup urgency ladder: fresh (>2h), soon (30min-2h), urgent (<30min), expired (past deadline). An emergency factor shortens the safe windows.
+// FRESH:AREA  Donations
+
 // Rule-based pickup urgency. There is no AI or model call here.
 export const URGENCY_DISCLAIMER =
   'Urgency is guidance only. Final food safety verification rests with the donor and the receiving NGO.'
 
+// FRESH:Donation  The four urgency levels with labels, badge styles and map-marker colors.
 export const URGENCY = {
   fresh: {
     key: 'fresh',
@@ -41,6 +45,7 @@ export const URGENCY = {
   },
 }
 
+// FRESH:Donation  Maps ms-to-deadline to a level; thresholdFactor (emergency mode) shortens the 2h/30m windows.
 export function getUrgency(deadline, now = Date.now(), thresholdFactor = 1) {
   const msLeft = new Date(deadline).getTime() - now
   if (Number.isNaN(msLeft) || msLeft <= 0) {
@@ -61,6 +66,7 @@ export function getUrgency(deadline, now = Date.now(), thresholdFactor = 1) {
 
 const SENSITIVE_CATEGORIES = new Set(['cooked', 'snacks'])
 
+// FRESH:Donation  Conservative food-safety hint by category and storage; never claims food is safe.
 /**
  * Plain-language safety hint, deliberately conservative. It never asserts
  * the food is safe; it points the receiver to the relevant risk.
@@ -84,6 +90,7 @@ export function getSafetyHint(category, storage) {
   return 'Inspect the food, its packaging and its temperature on arrival. The receiving NGO makes the final safety decision.'
 }
 
+// FRESH:Donation  Sort rank: urgent first, expired last.
 export function urgencyRank(key) {
   return { urgent: 0, soon: 1, fresh: 2, expired: 3 }[key] ?? 4
 }

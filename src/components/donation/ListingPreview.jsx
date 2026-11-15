@@ -1,3 +1,6 @@
+// FRESH:FILE  Wizard final step: preview of the listing before publishing.
+// FRESH:AREA  Donations
+
 import { Camera, Sparkles, UtensilsCrossed } from 'lucide-react'
 import { categoryLabel, storageLabel } from '../../utils/format'
 import { URGENCY_DISCLAIMER } from '../../utils/urgency'

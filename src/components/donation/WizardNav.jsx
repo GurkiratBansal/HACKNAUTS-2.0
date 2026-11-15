@@ -1,3 +1,6 @@
+// FRESH:FILE  Back/next navigation for the donation wizard.
+// FRESH:AREA  Donations
+
 import { ArrowLeft, ArrowRight, Upload } from 'lucide-react'
 import Button from '../ui/Button'
 

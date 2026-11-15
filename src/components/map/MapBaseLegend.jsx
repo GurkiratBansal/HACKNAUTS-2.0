@@ -1,3 +1,6 @@
+// FRESH:FILE  Legend explaining base map tiles and data sources.
+// FRESH:AREA  Map
+
 /**
  * Explains the violet marker shown only to a logged-in NGO so the extra pin
  * never looks like an unexplained outlier.

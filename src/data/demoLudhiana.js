@@ -1,12 +1,18 @@
+// FRESH:FILE  SAMPLE DATA: Ludhiana demo pack (NGOs and donations) mounted only while the chosen place is near Ludhiana.
+// FRESH:AREA  Data
+
 import { haversineKm } from '../utils/distance.js'
 
+// FRESH:Data  Centre point of the Ludhiana demo.
 export const DEMO_CENTER = { lat: 30.9010, lng: 75.8573 }
+// FRESH:Data  Badge text marking sample rows.
 export const DEMO_LABEL = 'Sample data'
 
 const HOUR = 60 * 60 * 1000
 const MINUTE = 60 * 1000
 const at = (offset) => new Date(Date.now() + offset).toISOString()
 
+// FRESH:Data  Fictional Ludhiana partner organisations.
 // Fictional prospects based on the supplied Ludhiana directory areas.
 // Coordinates were snapped with scripts/verify-demo-points.mjs.
 export const demoNgos = [
@@ -131,6 +137,7 @@ const demoDonor = (id, name, donorType, location, foodName, category, deadline) 
   locationApproximate: donorType === 'individual',
 })
 
+// FRESH:Data  Fictional Ludhiana listings.
 export const demoDonations = [
   demoDonor(
     'demo-donation-3h',
@@ -161,6 +168,7 @@ export const demoDonations = [
   ),
 ]
 
+// FRESH:Data  True when the active place is close enough to mount the demo pack.
 export function isDemoPlaceActive(place) {
   if (
     !place ||

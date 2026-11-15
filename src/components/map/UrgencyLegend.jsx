@@ -1,3 +1,6 @@
+// FRESH:FILE  Legend explaining the four urgency colors on markers.
+// FRESH:AREA  Map
+
 import {
   AlertTriangle,
   CheckCircle2,

@@ -1,8 +1,12 @@
+// FRESH:FILE  Loads one road route via the routing service; aborts when endpoints change or the component unmounts.
+// FRESH:AREA  Routing
+
 import { useEffect, useState } from 'react'
 import { getRoute } from '../services/routing'
 
 const finite = (value) => Number.isFinite(Number(value))
 
+// FRESH:Routing  Hook: request a route between two points; returns { route, loading, error }.
 /**
  * Load one road route. The request is aborted when the endpoints change or
  * the component unmounts. requestKey can be changed to retry the same route.

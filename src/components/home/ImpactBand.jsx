@@ -1,3 +1,6 @@
+// FRESH:FILE  Landing strip with animated impact counters.
+// FRESH:AREA  Impact
+
 import { Leaf, ShieldCheck, Sparkles, Users, UtensilsCrossed } from 'lucide-react'
 import { useCountUp } from '../../hooks/useCountUp'
 import { useInView } from '../../hooks/useInView'

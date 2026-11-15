@@ -1,3 +1,6 @@
+// FRESH:FILE  Unit tests for the India-only gate (outside, unconfirmed, confirmed).
+// FRESH:AREA  Location
+
 import { describe, it, expect, vi } from 'vitest'
 import { verifyInIndia } from './locationGate'
 

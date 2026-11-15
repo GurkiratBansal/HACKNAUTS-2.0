@@ -1,3 +1,6 @@
+// FRESH:FILE  FRESH logo/wordmark with icon.
+// FRESH:AREA  Layout
+
 import freshLogo from '../assets/fresh-logo.png'
 
 /** Shared FRESH logo and wordmark. */

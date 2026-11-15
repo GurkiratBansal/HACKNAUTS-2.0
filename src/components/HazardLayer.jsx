@@ -1,3 +1,6 @@
+// FRESH:FILE  Draws hazard zone circles on the Leaflet map.
+// FRESH:AREA  Emergency
+
 import { Circle, Tooltip } from 'react-leaflet'
 
 export default function HazardLayer({ zones = [] }) {

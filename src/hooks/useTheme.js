@@ -1,3 +1,6 @@
+// FRESH:FILE  Shared dark/light theme state with a smooth transition class and localStorage persistence.
+// FRESH:AREA  Layout
+
 import { useEffect, useState } from 'react'
 
 const THEME_KEY = 'fresh_theme_v1'
@@ -9,6 +12,7 @@ let currentTheme =
     : 'light'
 const listeners = new Set()
 
+// FRESH:Layout  Applies the theme class, plays the transition animation and notifies listeners.
 function applyTheme(next) {
   currentTheme = next
   document.documentElement.classList.toggle('dark', next === 'dark')
@@ -27,6 +31,7 @@ function applyTheme(next) {
   listeners.forEach((listener) => listener())
 }
 
+// FRESH:Layout  Hook: read the current theme and toggle it; every mounted toggle stays in sync.
 /**
  * Shared appearance preference. Any toggle updates every mounted control
  * without involving app state or touching the donation data flow.

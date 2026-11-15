@@ -1,3 +1,6 @@
+// FRESH:FILE  SAMPLE DATA: fictional NGO and partner organisations (Delhi area). Names, contacts and coordinates are illustrative only.
+// FRESH:AREA  Data
+
 // Sample data for demo only. Organisations are inspired by real Indian
 // food-recovery efforts, but names, contacts and coordinates are illustrative.
 export const mockNgos = [

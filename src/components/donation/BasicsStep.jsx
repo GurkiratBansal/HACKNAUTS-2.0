@@ -1,3 +1,6 @@
+// FRESH:FILE  Wizard step 1: food name, category, diet and quantity.
+// FRESH:AREA  Donations
+
 import { Check, Sparkles } from 'lucide-react'
 import Field from '../ui/Field'
 import StepHeading from './StepHeading'

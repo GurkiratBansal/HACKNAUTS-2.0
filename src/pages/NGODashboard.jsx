@@ -1,3 +1,6 @@
+// FRESH:FILE  NGO dashboard: nearby available food, accepted pickups and needs board.
+// FRESH:AREA  Donations
+
 import { useEffect, useMemo, useState } from 'react'
 import {
   Filter,

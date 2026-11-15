@@ -1,3 +1,6 @@
+// FRESH:FILE  Reveal-on-scroll helper; fires once when an element enters the viewport.
+// FRESH:AREA  Layout
+
 import { useEffect, useRef, useState } from 'react'
 
 /**

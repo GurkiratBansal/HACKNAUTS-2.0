@@ -1,3 +1,6 @@
+// FRESH:FILE  Scrollable list of filtered donations and partners next to the map.
+// FRESH:AREA  Map
+
 import { MapPin, ShieldCheck } from 'lucide-react'
 import UrgencyBadge from '../UrgencyBadge'
 import { formatDistance } from '../../utils/format'

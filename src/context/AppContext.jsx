@@ -1,3 +1,6 @@
+// FRESH:FILE  App-wide demo state: users, donations and NGOs plus auth and the donation lifecycle (add, accept, advance status, report).
+// FRESH:AREA  Donations
+
 import {
   createContext,
   useCallback,
@@ -28,6 +31,7 @@ const LS = {
   seedAt: 'fresh_seed_at_v1',
 }
 
+// FRESH:Auth  Ready-made demo accounts for the donor and NGO roles.
 export const DEMO_USERS = {
   donor: {
     id: 'u-donor-demo',
@@ -52,11 +56,13 @@ export const DEMO_USERS = {
   },
 }
 
+// FRESH:Impact  Fixed starting totals so impact numbers are never zero.
 export const BASELINE_IMPACT = {
   meals: 4820,
   completed: 312,
 }
 
+// FRESH:Data  Safe localStorage JSON read.
 function read(key, fallback) {
   try {
     const raw = localStorage.getItem(key)
@@ -72,6 +78,7 @@ function read(key, fallback) {
   }
 }
 
+// FRESH:Data  Safe localStorage JSON write.
 function write(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value))
@@ -122,6 +129,7 @@ function sanitizeDonation(value) {
   }
 }
 
+// FRESH:Donation  Loads listings; refreshes time-based seed data every 6h but keeps user-created donations.
 function loadDonations() {
   const stored = read(LS.donations, null)
   if (!Array.isArray(stored) || stored.length === 0) return makeMockDonations()
@@ -140,6 +148,7 @@ function loadDonations() {
   return sanitized.length ? sanitized : makeMockDonations()
 }
 
+// FRESH:Donation  Central state: users, donations, NGOs, toasts and every lifecycle action.
 export function AppProvider({ children }) {
   const { place } = useUserLocation()
   const [users, setUsers] = useState(() => sanitizeUsers(read(LS.users, null)))
@@ -218,6 +227,7 @@ export function AppProvider({ children }) {
     return () => timers.forEach((t) => clearTimeout(t))
   }, [])
 
+  // FRESH:Auth  Email + role login against the local demo user list.
   const login = useCallback(
     (email, role) => {
       const found = users.find(
@@ -239,6 +249,7 @@ export function AppProvider({ children }) {
     [users, addToast],
   )
 
+  // FRESH:Auth  One-tap demo login for a role.
   const quickLogin = useCallback(
     (role) => {
       const demo = DEMO_USERS[role]
@@ -252,6 +263,7 @@ export function AppProvider({ children }) {
     [addToast],
   )
 
+  // FRESH:Auth  Creates a local account; new NGOs are never silently mapped onto sample organisations.
   const register = useCallback(
     (payload) => {
       const email = payload.email.trim().toLowerCase()
@@ -292,11 +304,13 @@ export function AppProvider({ children }) {
     [users, ngos, place, addToast],
   )
 
+  // FRESH:Auth  Clears the current user.
   const logout = useCallback(() => {
     setCurrentUser(null)
     addToast('Signed out.', 'info')
   }, [addToast])
 
+  // FRESH:Donation  Publishes a listing and alerts the 3 nearest verified NGOs.
   const addDonation = useCallback(
     (data) => {
       const now = new Date().toISOString()
@@ -337,6 +351,7 @@ export function AppProvider({ children }) {
     [currentUser, ngos, place, addToast],
   )
 
+  // FRESH:Accept  NGO-only accept; reveals donor contact and blocks expired listings.
   const acceptDonation = useCallback(
     (id) => {
       if (place && !inIndiaBox(place)) {
@@ -389,6 +404,7 @@ export function AppProvider({ children }) {
     [currentUser, ngos, donations, addToast, place],
   )
 
+  // FRESH:Status  Moves accepted -> picked_up -> distributed; only the accepting NGO may advance.
   const advanceStatus = useCallback(
     (id) => {
       if (currentUser?.role !== 'ngo') {
@@ -438,6 +454,7 @@ export function AppProvider({ children }) {
     [currentUser, donations, addToast],
   )
 
+  // FRESH:Report  Appends a safety report to a listing.
   const reportDonation = useCallback(
     (id, report) => {
       setDonations((prev) =>
@@ -548,6 +565,7 @@ export function AppProvider({ children }) {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
 
+// FRESH:Donation  Hook: read app state and actions.
 export function useApp() {
   const ctx = useContext(AppContext)
   if (!ctx) throw new Error('useApp must be used inside AppProvider')

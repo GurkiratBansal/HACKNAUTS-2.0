@@ -1,3 +1,6 @@
+// FRESH:FILE  Final call-to-action band on the landing page.
+// FRESH:AREA  Layout
+
 import { Link } from 'react-router-dom'
 import { ArrowRight, Building2, ShieldCheck } from 'lucide-react'
 

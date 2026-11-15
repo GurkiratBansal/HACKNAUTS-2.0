@@ -1,3 +1,6 @@
+// FRESH:FILE  Leaflet map wrapper shared by the map and detail pages.
+// FRESH:AREA  Map
+
 import { useEffect, useRef } from 'react'
 import {
   MapContainer,

@@ -1,3 +1,6 @@
+// FRESH:FILE  Panel listing which NGOs were alerted for this donation.
+// FRESH:AREA  Donations
+
 import { Clock, Sparkles } from 'lucide-react'
 import { formatDistance } from '../../utils/format'
 

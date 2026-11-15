@@ -1,3 +1,7 @@
+// FRESH:FILE  en-IN formatting helpers: dates, numbers, distance, countdown, relative time and label maps.
+// FRESH:AREA  Utils
+
+// FRESH:Utils  Short en-IN date-time for cards and rows.
 export function formatDate(value) {
   if (!value) return '—'
   return new Date(value).toLocaleString('en-IN', {
@@ -8,6 +12,7 @@ export function formatDate(value) {
   })
 }
 
+// FRESH:Utils  Short en-IN time.
 export function formatTime(value) {
   if (!value) return '—'
   return new Date(value).toLocaleTimeString('en-IN', {
@@ -16,6 +21,7 @@ export function formatTime(value) {
   })
 }
 
+// FRESH:Utils  Indian-grouping number format.
 export function formatNumber(value, digits = 0) {
   return new Intl.NumberFormat('en-IN', {
     maximumFractionDigits: digits,
@@ -23,12 +29,14 @@ export function formatNumber(value, digits = 0) {
   }).format(value || 0)
 }
 
+// FRESH:Utils  Metres under 1 km, otherwise kilometres.
 export function formatDistance(km) {
   if (!Number.isFinite(km)) return '—'
   if (km < 1) return `${Math.round(km * 1000)} m`
   return `${km.toFixed(1)} km`
 }
 
+// FRESH:Donation  mm:ss (or h:mm:ss) countdown text.
 export function formatCountdown(ms) {
   const total = Math.max(0, Math.floor(ms / 1000))
   const hours = Math.floor(total / 3600)
@@ -40,6 +48,7 @@ export function formatCountdown(ms) {
     : `${pad(minutes)}:${pad(seconds)}`
 }
 
+// FRESH:Utils  "just now / min ago / hr ago / days ago" text.
 export function timeAgo(value) {
   if (!value) return '—'
   const diff = Math.max(0, Date.now() - new Date(value).getTime())
@@ -52,12 +61,14 @@ export function timeAgo(value) {
   return `${days} day${days === 1 ? '' : 's'} ago`
 }
 
+// FRESH:Donation  Formats a date for <input type="datetime-local">.
 export function toLocalDateTimeInput(date) {
   const d = new Date(date)
   const pad = (n) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
+// FRESH:Donation  Category key to readable label.
 export function categoryLabel(category) {
   return {
     cooked: 'Cooked meal',
@@ -67,6 +78,7 @@ export function categoryLabel(category) {
   }[category] || category
 }
 
+// FRESH:Donation  Storage key to readable label.
 export function storageLabel(storage) {
   return {
     room: 'Room temperature',

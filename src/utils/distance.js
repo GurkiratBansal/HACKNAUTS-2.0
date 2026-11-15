@@ -1,3 +1,7 @@
+// FRESH:FILE  Distance helpers: Haversine kilometres, distance sorting and nearest-NGO selection.
+// FRESH:AREA  Utils
+
+// FRESH:Utils  Great-circle distance in km between two { lat, lng } points.
 /**
  * Haversine distance in kilometres between two lat/lng objects.
  * Used for NGO filtering, sorting and the smart-alert nearest-NGO list.
@@ -16,12 +20,14 @@ export function haversineKm(a, b) {
   return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)))
 }
 
+// FRESH:Utils  Copies a list sorted nearest-first from an origin.
 export function sortByDistance(items, origin) {
   return [...items].sort(
     (a, b) => haversineKm(origin, a) - haversineKm(origin, b),
   )
 }
 
+// FRESH:Donation  N nearest (optionally verified) NGOs with distanceKm attached.
 export function nearestNgos(ngos, origin, count = 3, onlyVerified = true) {
   const pool = onlyVerified ? ngos.filter((n) => n.verified) : ngos
   return sortByDistance(pool, origin)

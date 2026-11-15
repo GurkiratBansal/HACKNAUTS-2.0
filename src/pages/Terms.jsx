@@ -1,3 +1,6 @@
+// FRESH:FILE  Terms, safety declaration and data notes page.
+// FRESH:AREA  Layout
+
 import { AlertTriangle, FileText, ShieldCheck, Truck } from 'lucide-react'
 import Button from '../components/ui/Button'
 

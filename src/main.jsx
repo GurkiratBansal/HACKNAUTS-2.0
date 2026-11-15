@@ -1,3 +1,6 @@
+// FRESH:FILE  Entry point: boots React and wraps <App/> in the location, lite-mode, emergency and app-data providers.
+// FRESH:AREA  Layout
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
@@ -15,6 +18,7 @@ import { EmergencyProvider } from './context/EmergencyContext'
 import { LiteModeProvider } from './context/LiteModeContext'
 import './index.css'
 
+// FRESH:Layout  Mounts the provider tree and renders <App/> into #root.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

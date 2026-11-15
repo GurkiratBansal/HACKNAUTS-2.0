@@ -1,3 +1,6 @@
+// FRESH:FILE  Multi-step donation wizard; validates each step then publishes via AppContext.
+// FRESH:AREA  Donations
+
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'

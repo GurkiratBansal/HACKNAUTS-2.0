@@ -1,3 +1,6 @@
+// FRESH:FILE  Wrapper that fades content in when scrolled into view.
+// FRESH:AREA  Layout
+
 import { useInView } from '../hooks/useInView'
 
 /** Reveal content once as it enters the viewport. */

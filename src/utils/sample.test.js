@@ -1,3 +1,6 @@
+// FRESH:FILE  Unit tests for the sample-data generator.
+// FRESH:AREA  Data
+
 import { describe, it, expect } from 'vitest'
 import {
   makeSampleDonations,

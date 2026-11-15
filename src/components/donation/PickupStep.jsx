@@ -1,3 +1,6 @@
+// FRESH:FILE  Wizard step 3: pickup address and map point.
+// FRESH:AREA  Donations
+
 import { MapPin, ShieldAlert } from 'lucide-react'
 import Button from '../ui/Button'
 import Field from '../ui/Field'

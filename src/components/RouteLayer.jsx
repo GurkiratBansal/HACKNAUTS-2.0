@@ -1,3 +1,6 @@
+// FRESH:FILE  Draws the pickup route polyline on the Leaflet map.
+// FRESH:AREA  Routing
+
 import { useEffect } from 'react'
 import { Polyline, useMap } from 'react-leaflet'
 import { routeNearHazard } from '../utils/hazards'

@@ -1,3 +1,6 @@
+// FRESH:FILE  Modal form to report a safety concern about a listing.
+// FRESH:AREA  Donations
+
 import { useEffect, useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import Button from './ui/Button'

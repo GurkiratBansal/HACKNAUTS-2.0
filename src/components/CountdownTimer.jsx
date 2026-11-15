@@ -1,3 +1,6 @@
+// FRESH:FILE  Live countdown to a pickup deadline; turns warning colors as time runs out.
+// FRESH:AREA  Donations
+
 import { useEffect, useState } from 'react'
 import { CheckCircle2, Clock } from 'lucide-react'
 import { getUrgency } from '../utils/urgency'

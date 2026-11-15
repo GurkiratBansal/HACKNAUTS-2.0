@@ -1,3 +1,6 @@
+// FRESH:FILE  Login page with demo accounts and role selection.
+// FRESH:AREA  Auth
+
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {

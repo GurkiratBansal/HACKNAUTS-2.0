@@ -1,3 +1,6 @@
+// FRESH:FILE  Mini map on the detail page with the pickup point and route.
+// FRESH:AREA  Map
+
 import { MapPin } from 'lucide-react'
 import MapView from '../MapView'
 import LocationBar from '../LocationBar'

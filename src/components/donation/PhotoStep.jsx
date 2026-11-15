@@ -1,3 +1,6 @@
+// FRESH:FILE  Wizard photo step: attach an optional photo.
+// FRESH:AREA  Donations
+
 import {
   ClipboardCheck,
   ImagePlus,

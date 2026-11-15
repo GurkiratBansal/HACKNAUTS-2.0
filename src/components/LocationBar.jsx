@@ -1,3 +1,6 @@
+// FRESH:FILE  Compact header control showing the active place; opens the picker.
+// FRESH:AREA  Location
+
 import { MapPin } from 'lucide-react'
 import { useLocation } from '../context/LocationContext'
 

@@ -1,3 +1,6 @@
+// FRESH:FILE  Site footer with links and disclaimers.
+// FRESH:AREA  Layout
+
 import { Link } from 'react-router-dom'
 import { HeartHandshake, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react'
 import Brand from './Brand'

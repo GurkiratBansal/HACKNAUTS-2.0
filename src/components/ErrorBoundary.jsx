@@ -1,3 +1,6 @@
+// FRESH:FILE  Catches render errors and shows a recovery screen instead of a blank page.
+// FRESH:AREA  Layout
+
 import { Component } from 'react'
 
 export default class ErrorBoundary extends Component {

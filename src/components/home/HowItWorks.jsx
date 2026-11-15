@@ -1,3 +1,6 @@
+// FRESH:FILE  Three-step explainer section on the landing page.
+// FRESH:AREA  Layout
+
 import {
   HandHeart,
   Search,

@@ -1,3 +1,6 @@
+// FRESH:FILE  Shows route distance and ETA; warns when the route passes a hazard zone.
+// FRESH:AREA  Routing
+
 import { AlertTriangle, Car, Loader2 } from 'lucide-react'
 
 /**

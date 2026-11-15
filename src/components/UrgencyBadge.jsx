@@ -1,3 +1,6 @@
+// FRESH:FILE  Colored badge for a listing's urgency level.
+// FRESH:AREA  Donations
+
 import { AlertTriangle, CheckCircle2, Clock, XCircle } from 'lucide-react'
 import { getUrgency } from '../utils/urgency'
 

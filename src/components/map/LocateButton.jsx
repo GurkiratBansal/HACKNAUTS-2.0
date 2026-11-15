@@ -1,3 +1,6 @@
+// FRESH:FILE  Button that triggers GPS detection and recenters the map.
+// FRESH:AREA  Map
+
 import { LocateFixed } from 'lucide-react'
 
 export default function LocateButton({ onClick, active = false, label = 'Re-center' }) {

@@ -1,3 +1,6 @@
+// FRESH:FILE  Impact dashboard: meals saved, kg, CO2 and NGO counts.
+// FRESH:AREA  Impact
+
 import { useMemo } from 'react'
 import {
   Building2,

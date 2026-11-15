@@ -1,3 +1,6 @@
+// FRESH:FILE  Friendly placeholder when a list has nothing to show.
+// FRESH:AREA  Layout
+
 function EmptyPlateArt() {
   return (
     <svg

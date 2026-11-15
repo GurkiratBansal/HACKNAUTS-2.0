@@ -1,3 +1,6 @@
+// FRESH:FILE  Recenters the Leaflet view when the place or filters change.
+// FRESH:AREA  Map
+
 import { useEffect } from 'react'
 import { useMap } from 'react-leaflet'
 

@@ -1,3 +1,6 @@
+// FRESH:FILE  Emergency needs board: lists relief needs with quantity, deadline and pledge progress.
+// FRESH:AREA  Emergency
+
 import { useState } from 'react'
 import { HandHeart, Plus, Users } from 'lucide-react'
 import { useEmergency } from '../context/EmergencyContext'

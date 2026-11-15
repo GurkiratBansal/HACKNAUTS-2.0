@@ -1,3 +1,6 @@
+// FRESH:FILE  Decorative hero artwork with blend effects.
+// FRESH:AREA  Layout
+
 import {
   CheckCircle2,
   Clock3,

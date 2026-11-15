@@ -1,3 +1,6 @@
+// FRESH:FILE  Small tag marking a listing as emergency-relief relevant.
+// FRESH:AREA  Emergency
+
 import { HeartPulse } from 'lucide-react'
 
 export default function ReliefTag({ className = '' }) {

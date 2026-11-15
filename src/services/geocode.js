@@ -1,3 +1,6 @@
+// FRESH:FILE  Geocoding via Nominatim/Photon, India-only: reverse geocode GPS, pincode search and place search, with a small LRU cache.
+// FRESH:AREA  Location
+
 import { inIndiaBox } from '../utils/india'
 
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org'
@@ -6,10 +9,12 @@ const INDIA_BBOX = '68,6,98,38'
 const CACHE_LIMIT = 100
 const cache = new Map()
 
+// FRESH:Location  Cache read helper.
 function readCache(key) {
   return cache.get(key)
 }
 
+// FRESH:Location  Cache write helper with a size cap.
 function writeCache(key, value) {
   if (cache.has(key)) cache.delete(key)
   cache.set(key, value)
@@ -17,12 +22,14 @@ function writeCache(key, value) {
   return value
 }
 
+// FRESH:Location  Builds a user-friendly error for HTTP failures.
 function serviceError(status) {
   return new Error(
     `The location service returned HTTP ${status}. Please check your connection and try again.`,
   )
 }
 
+// FRESH:Location  Fetch helper with abort support and readable errors.
 async function fetchJson(url, signal) {
   let response
   try {
@@ -50,6 +57,7 @@ async function fetchJson(url, signal) {
   }
 }
 
+// FRESH:Location  Maps a Nominatim result to the shared place shape.
 function normalizeNominatim(result) {
   const lat = Number(result?.lat)
   const lng = Number(result?.lon)
@@ -73,6 +81,8 @@ function normalizeNominatim(result) {
   }
 }
 
+// FRESH:Location  Maps a Photon feature to the shared place shape; drops non-India results.
+// WATCH OUT: GeoJSON positions are [lng, lat]; Leaflet needs [lat, lng].
 function normalizePhoton(feature) {
   const coordinates = feature?.geometry?.coordinates || []
   const properties = feature?.properties || {}
@@ -99,12 +109,14 @@ function normalizePhoton(feature) {
   }
 }
 
+// FRESH:Location  Resolves a readable label for a GPS coordinate.
 /** Resolve a readable label for a GPS coordinate. */
 export async function reversePlace(lat, lng, signal) {
   const place = await reversePlaceDetails(lat, lng, signal)
   return place.label
 }
 
+// FRESH:Location  Resolves label, city, state and pincode for GPS; state drives emergency scope.
 /** Resolve a readable place, including the Indian state for emergency scope. */
 export async function reversePlaceDetails(lat, lng, signal) {
   const numberLat = Number(lat)
@@ -130,6 +142,7 @@ export async function reversePlaceDetails(lat, lng, signal) {
   })
 }
 
+// FRESH:Location  Resolves a 6-digit Indian pincode to matching places.
 /** Resolve an Indian pincode to matching places. */
 export async function searchPincode(pin, signal) {
   const pincode = String(pin || '').trim()
@@ -153,6 +166,7 @@ export async function searchPincode(pin, signal) {
   return writeCache(key, places)
 }
 
+// FRESH:Location  Free-text place search inside the India bounding box.
 /** Search for an area, street or city inside India. */
 export async function searchPlaces(query, signal) {
   const text = String(query || '').trim()
@@ -171,6 +185,7 @@ export async function searchPlaces(query, signal) {
   return writeCache(key, places)
 }
 
+// FRESH:Location  Empties the geocode cache.
 export function clearGeocodeCache() {
   cache.clear()
 }

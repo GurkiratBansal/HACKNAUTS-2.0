@@ -1,3 +1,6 @@
+// FRESH:FILE  Small stat card used across dashboards.
+// FRESH:AREA  Donations
+
 import { formatNumber } from '../../utils/format'
 
 const TONES = {

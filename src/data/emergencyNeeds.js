@@ -1,3 +1,7 @@
+// FRESH:FILE  SAMPLE DATA: relief-need categories, pledge math and generated needs for the emergency needs board.
+// FRESH:AREA  Data
+
+// FRESH:Needs  Relief categories with labels.
 export const RELIEF_ITEMS = [
   ['cooked_meals', 'Cooked meals'],
   ['dry_ration', 'Dry ration'],
@@ -6,6 +10,7 @@ export const RELIEF_ITEMS = [
   ['baby_food', 'Baby food'],
 ]
 
+// FRESH:Needs  Validates a pledge and returns the updated need (fulfilled at full pledge).
 export function pledgeNeedAmount(need, amount) {
   const remaining = Math.max(0, Number(need.quantity) - Number(need.pledged || 0))
   const pledge = Number(amount)
@@ -19,6 +24,7 @@ export function pledgeNeedAmount(need, amount) {
   }
 }
 
+// FRESH:Needs  Builds four sample relief needs around the active place.
 export function makeSampleNeeds(place) {
   if (!place) return []
   const points = [

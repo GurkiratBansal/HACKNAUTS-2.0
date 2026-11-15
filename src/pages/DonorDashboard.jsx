@@ -1,3 +1,6 @@
+// FRESH:FILE  Donor dashboard: my listings, statuses and impact.
+// FRESH:AREA  Donations
+
 import { useMemo } from 'react'
 import {
   ArrowRight,

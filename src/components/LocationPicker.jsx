@@ -1,3 +1,6 @@
+// FRESH:FILE  Modal to search area/pincode or use GPS; validates India-only before saving.
+// FRESH:AREA  Location
+
 import { useEffect, useRef, useState } from 'react'
 import { Loader2, MapPin, Navigation, Search, TriangleAlert } from 'lucide-react'
 import { useUserLocation } from '../context/LocationContext'

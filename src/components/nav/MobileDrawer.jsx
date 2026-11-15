@@ -1,3 +1,6 @@
+// FRESH:FILE  Mobile navigation drawer.
+// FRESH:AREA  Layout
+
 import { useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import {

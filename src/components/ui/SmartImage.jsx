@@ -1,3 +1,6 @@
+// FRESH:FILE  Image with skeleton/fallback handling; skips remote images in lite mode.
+// FRESH:AREA  Layout
+
 import { useEffect, useState } from 'react'
 import { ImageOff } from 'lucide-react'
 

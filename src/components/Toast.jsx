@@ -1,3 +1,6 @@
+// FRESH:FILE  Renders transient success/warning/error messages from app state.
+// FRESH:AREA  Layout
+
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 

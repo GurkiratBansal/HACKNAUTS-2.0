@@ -1,3 +1,6 @@
+// FRESH:FILE  Switches the map page between food, partners and combined views.
+// FRESH:AREA  Map
+
 import { Building2, UtensilsCrossed } from 'lucide-react'
 
 const OPTIONS = [

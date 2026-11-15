@@ -1,3 +1,6 @@
+// FRESH:FILE  Heading block for a wizard step.
+// FRESH:AREA  Donations
+
 export default function StepHeading({ eyebrow, title, children }) {
   return (
     <div>

@@ -1,3 +1,6 @@
+// FRESH:FILE  Top banner shown only when an active alert matches the user's state; includes the concern report form.
+// FRESH:AREA  Emergency
+
 import { AlertTriangle, Clock3, ShieldAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useUserLocation } from '../context/LocationContext'

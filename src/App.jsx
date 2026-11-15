@@ -1,3 +1,6 @@
+// FRESH:FILE  Route table and shared page shell: navbar, emergency banner, relief meter, footer, toasts, route guards.
+// FRESH:AREA  Layout
+
 import { useEffect } from 'react'
 import {
   Navigate,

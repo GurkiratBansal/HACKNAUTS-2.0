@@ -1,3 +1,6 @@
+// FRESH:FILE  Main map page: search, filters, results and the Leaflet map with demo routing.
+// FRESH:AREA  Map
+
 import { useMemo, useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { ChevronRight, ShieldCheck } from 'lucide-react'

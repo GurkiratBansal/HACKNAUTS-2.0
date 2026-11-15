@@ -1,3 +1,6 @@
+// FRESH:FILE  Sample-data generator: shifts NGOs, kitchens and donations around the active place so the demo works in any Indian city. Nothing claims a real address.
+// FRESH:AREA  Data
+
 import { haversineKm } from '../utils/distance'
 import { mockNgos } from '../data/mockNgos'
 import { makeMockDonations } from '../data/mockDonations'
@@ -8,11 +11,13 @@ import { makeMockDonations } from '../data/mockDonations'
  * rows rather than hard-coded, and no sample pin claims a real address.
  */
 
+// FRESH:Data  Mean of the sample NGO coordinates; the origin for all offsets.
 export const BASE_CENTER = mockNgos.reduce(
   (acc, ngo) => ({ lat: acc.lat + ngo.lat / mockNgos.length, lng: acc.lng + ngo.lng / mockNgos.length }),
   { lat: 0, lng: 0 },
 )
 
+// FRESH:Data  Moves a sample point by the same offset as the active place.
 export function shiftPoint(point, center) {
   if (!point || !center) return point
   return {
@@ -22,6 +27,7 @@ export function shiftPoint(point, center) {
   }
 }
 
+// FRESH:Data  Rewrites "Delhi" in sample text to the active city.
 export function localiseText(text, center) {
   const city = center?.city || 'your city'
   return String(text || '')
@@ -29,12 +35,14 @@ export function localiseText(text, center) {
     .replace(/Delhi/g, city)
 }
 
+// FRESH:Data  Appends the active city to sample addresses.
 export function localiseAddress(text, center) {
   const base = localiseText(text, center)
   if (!center?.city) return base
   return base.includes(center.city) ? base : `${base}, ${center.city}`
 }
 
+// FRESH:Data  Sample NGOs shifted to the active place.
 export function makeSampleNgos(center) {
   if (!center) return mockNgos
   return mockNgos.map((ngo) => {
@@ -73,6 +81,7 @@ const KITCHEN_TEMPLATES = [
   { id: 'kitchen-8', name: 'Home Kitchen Collective', type: 'individual', focus: 'Home-cooked surplus from local members', area: 'Sarabha Nagar', km: 17.4, bearing: 340, verified: false },
 ]
 
+// FRESH:Data  Sample donor kitchens generated at fixed distances/bearings.
 /** Kitchens and donor partners generated around the active place. */
 export function makeSampleKitchens(center) {
   if (!center) return []
@@ -108,6 +117,7 @@ const DONOR_TYPES = {
   'don-seed-8': 'community_kitchen',
 }
 
+// FRESH:Data  Seed donations shifted around the active place, with donor types.
 /** Seed donations shifted around the active place, with donor types added. */
 export function makeSampleDonations(center) {
   return makeMockDonations().map((donation) => {
@@ -124,6 +134,7 @@ export function makeSampleDonations(center) {
   })
 }
 
+// FRESH:Data  Distance lists used to sanity-check sample spread.
 export function sampleDistanceBands(center) {
   const ngos = makeSampleNgos(center)
   const donations = makeSampleDonations(center)

@@ -1,3 +1,6 @@
+// FRESH:FILE  Unit tests for geocode normalization and India filtering.
+// FRESH:AREA  Location
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   clearGeocodeCache,

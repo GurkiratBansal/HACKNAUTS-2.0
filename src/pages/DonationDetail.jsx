@@ -1,3 +1,6 @@
+// FRESH:FILE  Donation detail page: timeline, route, accept/advance and report actions.
+// FRESH:AREA  Donations
+
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, UtensilsCrossed } from 'lucide-react'

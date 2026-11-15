@@ -1,3 +1,6 @@
+// FRESH:FILE  Wizard step 2: cooked time, storage, deadline and contact phone.
+// FRESH:AREA  Donations
+
 import { Clock } from 'lucide-react'
 import Field from '../ui/Field'
 import StepHeading from './StepHeading'

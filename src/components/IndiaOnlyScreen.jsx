@@ -1,3 +1,6 @@
+// FRESH:FILE  Shared UI component.
+// FRESH:AREA  Layout
+
 import { Globe, MapPin } from 'lucide-react'
 import Button from './ui/Button'
 import { useUserLocation } from '../context/LocationContext'

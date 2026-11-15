@@ -1,5 +1,9 @@
+// FRESH:FILE  India-only gate: coarse bounding-box prefilter, then reverse-geocode country confirmation. Fails closed when unconfirmed.
+// FRESH:AREA  Location
+
 import { inIndiaBox } from './india'
 
+// FRESH:Location  Confirms a candidate is in India before it can be saved or used.
 /**
  * Confirm that a candidate place is in India.
  *

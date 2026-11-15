@@ -1,3 +1,6 @@
+// FRESH:FILE  Top navigation: links, location bar, theme toggles and auth actions.
+// FRESH:AREA  Layout
+
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { LogIn, LogOut, Menu, UserRound } from 'lucide-react'

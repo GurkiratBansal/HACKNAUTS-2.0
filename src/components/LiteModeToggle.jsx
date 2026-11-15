@@ -1,3 +1,6 @@
+// FRESH:FILE  Button that toggles lite mode (less imagery and animation).
+// FRESH:AREA  Layout
+
 import { ImageOff, Image as ImageIcon } from 'lucide-react'
 import { useLiteMode } from '../context/LiteModeContext'
 

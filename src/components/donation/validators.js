@@ -1,5 +1,9 @@
+// FRESH:FILE  Per-step validation for the donation wizard: servings 1-10000, Indian mobile, deadline after cooking, pickup point required.
+// FRESH:AREA  Donations
+
 import { isIndianPhone } from '../../utils/india'
 
+// FRESH:Donation  Field groups per wizard step, used for error routing.
 export const STEP_FIELDS = [
   ['foodName', 'quantity'],
   ['cookedAt', 'deadline', 'contactPhone'],
@@ -7,6 +11,7 @@ export const STEP_FIELDS = [
   [],
 ]
 
+// FRESH:Donation  Returns one validator per step; each returns an errors object.
 /**
  * Validation rules for the donation wizard, grouped by step.
  * FRESH: Servings whole numbers 1 to 10000; contact phone validated with isIndianPhone.
@@ -54,6 +59,7 @@ export function buildStepValidators(form, location) {
   ]
 }
 
+// FRESH:Donation  Runs every step validator and merges the errors.
 export function validateAll(validators) {
   return validators.reduce(
     (next, validator) => ({ ...next, ...validator() }),
@@ -61,6 +67,7 @@ export function validateAll(validators) {
   )
 }
 
+// FRESH:Donation  Finds the earliest step with an error so the wizard can jump back.
 export function firstStepWithErrors(errors) {
   if (errors.foodName || errors.quantity) return 0
   if (errors.cookedAt || errors.deadline || errors.contactPhone) return 1

@@ -1,3 +1,6 @@
+// FRESH:FILE  Grid of UN SDG goals the project maps to.
+// FRESH:AREA  Impact
+
 const SDGS = [
   {
     number: 2,

@@ -1,3 +1,6 @@
+// FRESH:FILE  Generic sidebar panel container.
+// FRESH:AREA  Donations
+
 const TONES = {
   brand: {
     panel: 'border-brand-200/70 bg-brand-50/60 dark:border-brand-800 dark:bg-brand-900/20',

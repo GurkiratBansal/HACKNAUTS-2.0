@@ -1,3 +1,6 @@
+// FRESH:FILE  Detail sidebar: accept button, status timeline and contact reveal rules.
+// FRESH:AREA  Donations
+
 import {
   Phone,
   ShieldAlert,

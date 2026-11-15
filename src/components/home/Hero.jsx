@@ -1,3 +1,6 @@
+// FRESH:FILE  Landing hero: headline, subtext and primary actions.
+// FRESH:AREA  Layout
+
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,

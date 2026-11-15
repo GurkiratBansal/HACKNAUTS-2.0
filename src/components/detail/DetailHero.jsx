@@ -1,3 +1,6 @@
+// FRESH:FILE  Header of the donation detail page (photo, name, badges).
+// FRESH:AREA  Donations
+
 import {
   AlertTriangle,
   CheckCircle2,

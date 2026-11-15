@@ -1,3 +1,6 @@
+// FRESH:FILE  Styled button/link primitive with variants and loading state.
+// FRESH:AREA  Layout
+
 import { Link } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 

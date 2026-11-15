@@ -1,3 +1,6 @@
+// FRESH:FILE  Landing page assembling hero, how-it-works, impact and demo sections.
+// FRESH:AREA  Layout
+
 import { useApp } from '../context/AppContext'
 import Hero from '../components/home/Hero'
 import HowItWorks from '../components/home/HowItWorks'

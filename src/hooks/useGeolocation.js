@@ -1,5 +1,9 @@
+// FRESH:FILE  Continuous GPS watch with permission, insecure-context and error handling; start/stop controlled.
+// FRESH:AREA  Location
+
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+// FRESH:Location  Hook: watchPosition wrapper returning position plus status.
 export function useGeolocation({ enableHighAccuracy = true } = {}) {
   const [state, setState] = useState({
     status: 'idle',

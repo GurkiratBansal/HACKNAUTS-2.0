@@ -1,3 +1,6 @@
+// FRESH:FILE  Radius filter and recommendation helpers for the map page; returns items copied with distanceKm, nearest first.
+// FRESH:AREA  Map
+
 import { DEFAULT_RADIUS_KM, RADIUS_OPTIONS } from '../config'
 import { haversineKm } from './distance'
 import { getUrgency, urgencyRank } from './urgency'
@@ -13,6 +16,7 @@ function pointOf(item) {
     : item
 }
 
+// FRESH:Map  Keeps only items within radiusKm of the centre; bounding-box prefilter keeps it cheap.
 /**
  * Keep only items within `radiusKm` of `center`, hiding everything else.
  * A bounding-box prefilter keeps the Haversine pass cheap for large lists.
@@ -57,6 +61,7 @@ export function nearby(items, center, radiusKm = DEFAULT_RADIUS_KM) {
     .map(({ item, distanceKm }) => ({ ...item, distanceKm }))
 }
 
+// FRESH:Map  Top picks: food by urgency then distance; partners by verified then distance.
 /**
  * Top three recommendations for a strip. Food sorts by urgency first, then
  * distance; NGOs and kitchens sort by verified first, then distance. The word
@@ -80,6 +85,7 @@ export function recommend(items, kind = 'food', limit = 3) {
     .slice(0, limit)
 }
 
+// FRESH:Map  One-line human reason for a recommendation.
 /** One-line, human reason for a recommendation. */
 export function recommendReason(item, kind = 'food') {
   const parts = [formatDistance(item.distanceKm)]

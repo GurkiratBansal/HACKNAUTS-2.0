@@ -1,3 +1,6 @@
+// FRESH:FILE  Donation-flow UI building block.
+// FRESH:AREA  Donations
+
 import { describe, it, expect } from 'vitest'
 import { buildStepValidators } from './validators'
 

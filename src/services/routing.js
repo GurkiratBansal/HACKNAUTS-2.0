@@ -1,3 +1,6 @@
+// FRESH:FILE  OSRM road-routing client. Returns { coords as [lat,lng] pairs for Leaflet, distanceKm, durationMin }; cached, with fallback servers.
+// FRESH:AREA  Routing
+
 import { ROUTING_BASE_URLS } from '../config'
 
 const BASES = ROUTING_BASE_URLS
@@ -10,6 +13,8 @@ const ok = (point) =>
   Math.abs(point.lat) <= 90 &&
   Math.abs(point.lng) <= 180
 
+// FRESH:Routing  Fetches the fastest road route between two { lat, lng } points.
+// WATCH OUT: the OSRM URL needs "lng,lat" order; the returned coords are flipped to "[lat,lng]" for Leaflet.
 /**
  * Fetch the fastest road route between two { lat, lng } points.
  *
@@ -59,6 +64,7 @@ export async function getRoute(from, to, signal) {
   throw lastError
 }
 
+// FRESH:Routing  Empties the in-memory route cache.
 export function clearRouteCache() {
   cache.clear()
 }

@@ -1,3 +1,6 @@
+// FRESH:FILE  Global host that renders LocationPicker when the context opens it.
+// FRESH:AREA  Location
+
 import { useUserLocation } from '../context/LocationContext'
 import LocationPicker from './LocationPicker'
 import Modal from './ui/Modal'

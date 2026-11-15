@@ -1,3 +1,6 @@
+// FRESH:FILE  SAMPLE DATA: seeded food listings with times relative to "now" so the urgency ladder is always visible.
+// FRESH:AREA  Data
+
 import { mockNgos } from './mockNgos'
 import { nearestNgos } from '../utils/distance'
 
@@ -9,10 +12,12 @@ const at = (offsetMs) => new Date(Date.now() + offsetMs).toISOString()
 const photo = (id) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=70`
 
+// FRESH:Data  IDs of the 3 nearest sample NGOs for a listing.
 function alertsFor(location) {
   return nearestNgos(mockNgos, location, 3).map((n) => n.id)
 }
 
+// FRESH:Data  Builds the seeded listings fresh each load.
 /**
  * Seeded listings use times relative to "now" so the urgency ladder is
  * visible whenever the demo is opened. isSeed lets the app refresh stale

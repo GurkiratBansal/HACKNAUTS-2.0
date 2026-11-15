@@ -1,3 +1,6 @@
+// FRESH:FILE  Demo-only control that activates a simulated alert for a chosen state (dev or ?demo=1).
+// FRESH:AREA  Emergency
+
 import { useState } from 'react'
 import { Siren } from 'lucide-react'
 import { EMERGENCY_HAZARDS, useEmergency } from '../context/EmergencyContext'

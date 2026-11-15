@@ -1,3 +1,6 @@
+// FRESH:FILE  Progress stepper across donation statuses (available to distributed).
+// FRESH:AREA  Donations
+
 import {
   Check,
   CheckCircle2,

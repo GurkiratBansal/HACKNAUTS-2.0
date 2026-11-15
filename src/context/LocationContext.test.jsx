@@ -1,3 +1,6 @@
+// FRESH:FILE  Unit tests for stored-place validation and the India-only guard.
+// FRESH:AREA  Location
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { LocationProvider, useUserLocation } from './LocationContext'

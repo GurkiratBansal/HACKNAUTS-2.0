@@ -1,3 +1,6 @@
+// FRESH:FILE  Unit tests for the radius filter and recommendations.
+// FRESH:AREA  Map
+
 import { describe, it, expect } from 'vitest'
 import { nearby, recommend, recommendReason } from './nearby'
 

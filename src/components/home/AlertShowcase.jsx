@@ -1,3 +1,6 @@
+// FRESH:FILE  Landing preview of the emergency alert experience.
+// FRESH:AREA  Emergency
+
 import { BellRing, Building2, CheckCircle2, Timer } from 'lucide-react'
 
 const ALERTS = [

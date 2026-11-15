@@ -1,3 +1,6 @@
+// FRESH:FILE  Registration page for donor and NGO accounts.
+// FRESH:AREA  Auth
+
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {

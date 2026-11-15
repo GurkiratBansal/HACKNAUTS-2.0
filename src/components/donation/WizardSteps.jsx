@@ -1,3 +1,6 @@
+// FRESH:FILE  Step indicator for the donation wizard.
+// FRESH:AREA  Donations
+
 import { Check } from 'lucide-react'
 
 const STEPS = [

@@ -1,3 +1,6 @@
+// FRESH:FILE  Desktop layout for the map page: filters, results and map side by side.
+// FRESH:AREA  Map
+
 import { ChevronRight } from 'lucide-react'
 import Button from '../ui/Button'
 import MapBaseLegend from './MapBaseLegend'

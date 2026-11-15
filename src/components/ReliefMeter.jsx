@@ -1,3 +1,6 @@
+// FRESH:FILE  Slim meter summarising pledged relief during an active emergency.
+// FRESH:AREA  Emergency
+
 import { HandHeart, Users, Utensils } from 'lucide-react'
 import { useUserLocation } from '../context/LocationContext'
 import { useEmergency } from '../context/EmergencyContext'

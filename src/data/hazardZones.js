@@ -1,3 +1,7 @@
+// FRESH:FILE  SAMPLE DATA: two fictional hazard circles generated around the active place for the emergency map.
+// FRESH:AREA  Data
+
+// FRESH:Hazard  Builds sample flood/heat zones near the active place.
 export function makeSampleHazardZones(place) {
   if (!place) return []
   return [

@@ -1,3 +1,6 @@
+// FRESH:FILE  Unit tests for Indian pincode, phone and bounding-box validators.
+// FRESH:AREA  Utils
+
 import { describe, it, expect } from 'vitest'
 import {
   formatIndianPhone,

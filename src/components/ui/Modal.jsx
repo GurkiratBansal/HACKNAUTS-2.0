@@ -1,3 +1,6 @@
+// FRESH:FILE  Accessible dialog primitive (focus handling, escape to close).
+// FRESH:AREA  Layout
+
 import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 

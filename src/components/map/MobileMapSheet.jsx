@@ -1,3 +1,6 @@
+// FRESH:FILE  Mobile bottom-sheet layout for the map page.
+// FRESH:AREA  Map
+
 import { ChevronDown, ChevronRight, ChevronUp, MapPin } from 'lucide-react'
 import Button from '../ui/Button'
 import MapBaseLegend from './MapBaseLegend'

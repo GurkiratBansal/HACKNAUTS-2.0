@@ -1,3 +1,6 @@
+// FRESH:FILE  Filter chips and radius selector for the map listings.
+// FRESH:AREA  Map
+
 import {
   AlertTriangle,
   CheckCircle2,

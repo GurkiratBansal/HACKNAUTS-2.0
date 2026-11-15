@@ -1,3 +1,6 @@
+// FRESH:FILE  Unit tests for emergency activation rules, sample needs and pledge math.
+// FRESH:AREA  Emergency
+
 import { describe, expect, it } from 'vitest'
 import { makeSampleNeeds, pledgeNeedAmount } from '../data/emergencyNeeds'
 import { isEmergencyActive } from './EmergencyContext'

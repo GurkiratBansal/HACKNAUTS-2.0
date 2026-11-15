@@ -1,3 +1,6 @@
+// FRESH:FILE  Shared shell for donor/NGO dashboards: tabs, sidebar and the emergency simulator slot.
+// FRESH:AREA  Donations
+
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {

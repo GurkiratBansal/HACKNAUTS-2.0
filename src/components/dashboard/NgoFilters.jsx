@@ -1,3 +1,6 @@
+// FRESH:FILE  Filter controls for the NGO dashboard queue.
+// FRESH:AREA  Donations
+
 import { RotateCcw, Search, SlidersHorizontal } from 'lucide-react'
 import Button from '../ui/Button'
 import Field, { controlClass } from '../ui/Field'

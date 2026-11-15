@@ -1,3 +1,6 @@
+// FRESH:FILE  Labeled input/select primitive with error text.
+// FRESH:AREA  Layout
+
 import { AlertCircle } from 'lucide-react'
 
 /**

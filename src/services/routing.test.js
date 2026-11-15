@@ -1,3 +1,6 @@
+// FRESH:FILE  Unit tests for the routing service (fetch mocked).
+// FRESH:AREA  Routing
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { clearRouteCache, getRoute } from './routing'
 

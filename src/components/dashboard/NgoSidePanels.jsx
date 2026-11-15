@@ -1,3 +1,6 @@
+// FRESH:FILE  Sidebar panels for the NGO dashboard (needs board, simulator).
+// FRESH:AREA  Donations
+
 import { ArrowRight, ListChecks, MapPin, ShieldCheck } from 'lucide-react'
 import Button from '../ui/Button'
 import SidePanel from './SidePanel'

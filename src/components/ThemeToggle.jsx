@@ -1,3 +1,6 @@
+// FRESH:FILE  Button toggling dark/light theme.
+// FRESH:AREA  Layout
+
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 
