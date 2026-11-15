@@ -215,14 +215,26 @@ export const FOOD_DATABASE = [
 export function identifyFoodFromImage(file, filename = '') {
   const cleanName = (filename || file?.name || '').toLowerCase()
 
+  let bestMatch = null
+  let maxScore = 0
+
   for (const item of FOOD_DATABASE) {
-    if (item.keywords.some((kw) => cleanName.includes(kw))) {
-      return item
+    let score = 0
+    for (const kw of item.keywords) {
+      if (cleanName.includes(kw)) {
+        // Specific dish keywords (e.g. paneer, rajma, biryani, makhani) score higher than generic words
+        const isGeneric = ['rice', 'curry', 'veg', 'vegetable', 'bean', 'beans'].includes(kw)
+        score += isGeneric ? 2 : 10
+      }
+    }
+    if (score > maxScore) {
+      maxScore = score
+      bestMatch = item
     }
   }
 
   // Default to Vegetable Biryani with Raita (most common banquet / catered donation in Punjab)
-  return FOOD_DATABASE[0]
+  return bestMatch || FOOD_DATABASE[0]
 }
 
 /**

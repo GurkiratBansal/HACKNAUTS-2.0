@@ -13,6 +13,8 @@ import donationRoutes from './routes/donations.js'
 import needRoutes from './routes/needs.js'
 import emergencyRoutes from './routes/emergency.js'
 import statsRoutes from './routes/stats.js'
+import { voiceRouter } from './routes/voice.js'
+import { aiExtractionRouter } from './routes/aiExtraction.js'
 
 // FRESH:API  Build the Express app: security headers, CORS, JSON parsing, rate limit, logging.
 export const app = express()
@@ -39,6 +41,12 @@ app.use('/api/needs', needRoutes)
 app.use('/api/emergency', emergencyRoutes)
 // FRESH:STATS  Aggregate impact numbers for dashboards.
 app.use('/api/stats', statsRoutes)
+// FRESH:VOICE  Speech-to-text and audio fallback transcription.
+app.use('/api/v1/voice', voiceRouter)
+app.use('/api/voice', voiceRouter)
+// FRESH:AI  Food parameter extraction from speech transcripts.
+app.use('/api/v1/ai-extraction', aiExtractionRouter)
+app.use('/api/ai-extraction', aiExtractionRouter)
 
 app.use(notFound)
 app.use(errorHandler)

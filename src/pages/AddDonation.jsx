@@ -14,7 +14,7 @@ import HandlingStep from '../components/donation/HandlingStep'
 import ListingPreview from '../components/donation/ListingPreview'
 import PhotoStep from '../components/donation/PhotoStep'
 import PickupStep from '../components/donation/PickupStep'
-import VoiceDonationAssistant from '../components/donation/VoiceDonationAssistant'
+import VoiceListingModal from '../components/donation/VoiceListingModal'
 import AiScanModal from '../components/donation/AiScanModal'
 import WizardNav from '../components/donation/WizardNav'
 import WizardSteps from '../components/donation/WizardSteps'
@@ -201,18 +201,35 @@ export default function AddDonation() {
     setDeclarationOpen(true)
   }
 
-  const applyVoiceValues = (values) => {
+  const applyVoiceValues = (updates, rawExtracted) => {
+    let formattedCookedAt
+    let formattedDeadline
+
+    try {
+      if (updates.cookedAt) formattedCookedAt = toLocalDateTimeInput(new Date(updates.cookedAt))
+    } catch {}
+    try {
+      if (updates.deadline) formattedDeadline = toLocalDateTimeInput(new Date(updates.deadline))
+    } catch {}
+
     setForm((prev) => ({
       ...prev,
-      ...(values.foodName ? { foodName: values.foodName } : {}),
-      ...(values.quantity ? { quantity: values.quantity } : {}),
-      ...(values.cookedAt ? { cookedAt: values.cookedAt } : {}),
-      ...(values.deadline ? { deadline: values.deadline } : {}),
-      ...(values.address ? { address: values.address } : {}),
-      ...(values.contactPhone ? { contactPhone: values.contactPhone } : {}),
+      ...(updates.foodName ? { foodName: updates.foodName } : {}),
+      ...(updates.quantity ? { quantity: String(updates.quantity) } : {}),
+      ...(updates.category ? { category: updates.category } : {}),
+      ...(updates.diet ? { diet: updates.diet } : {}),
+      ...(updates.storage ? { storage: updates.storage } : {}),
+      ...(formattedCookedAt ? { cookedAt: formattedCookedAt } : {}),
+      ...(formattedDeadline ? { deadline: formattedDeadline } : {}),
+      ...(updates.address ? { address: updates.address } : {}),
+      ...(updates.contactPhone ? { contactPhone: updates.contactPhone } : {}),
     }))
     setErrors({})
-    addToast('Voice details applied to donation form!', 'success')
+    addToast(
+      `✨ Voice details applied: ${rawExtracted?.foodName || updates.foodName || 'Listing data'}!`,
+      'success',
+    )
+    goTo(1)
   }
 
   const applyAiAnalysis = (analysis) => {
@@ -403,10 +420,11 @@ export default function AddDonation() {
         foodName={form.foodName}
       />
 
-      <VoiceDonationAssistant
+      <VoiceListingModal
         open={voiceAssistantOpen}
         onClose={() => setVoiceAssistantOpen(false)}
-        onApplyValues={applyVoiceValues}
+        onApplyExtractedData={applyVoiceValues}
+        currentForm={form}
       />
 
       <AiScanModal
