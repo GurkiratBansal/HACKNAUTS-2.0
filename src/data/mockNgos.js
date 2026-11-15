@@ -142,7 +142,7 @@ export const mockNgos = [
     verified: true,
     type: 'ngo',
     size: 'Grassroots',
-    description: 'Public fridges where verified volunteers place safe surplus food.',
+    description: 'Public fridges where verified volunteers place surplus food.',
   },
   {
     id: 'ngo-12',

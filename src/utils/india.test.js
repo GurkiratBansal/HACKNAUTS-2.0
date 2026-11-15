@@ -34,9 +34,12 @@ describe('india validators', () => {
     expect(isIndianPhone('+91 98765 43210')).toBe(true)
     expect(isIndianPhone('+919876543210')).toBe(true)
     expect(isIndianPhone('98765 43210')).toBe(true)
+    // Product rule: optional 0 prefix allowed for Indian mobiles
+    expect(isIndianPhone('09876543210')).toBe(true)
     expect(isIndianPhone('5876543210')).toBe(false)
     expect(isIndianPhone('987654321')).toBe(false)
-    expect(isIndianPhone('09876543210')).toBe(false)
+    // Product rule: 123 must be rejected
+    expect(isIndianPhone('123')).toBe(false)
     expect(isIndianPhone('')).toBe(false)
   })
 
@@ -44,6 +47,7 @@ describe('india validators', () => {
     expect(formatIndianPhone('9876543210')).toBe('+91 98765 43210')
     expect(formatIndianPhone('+919876543210')).toBe('+91 98765 43210')
     expect(formatIndianPhone('+91 98765 43210')).toBe('+91 98765 43210')
+    expect(formatIndianPhone('09876543210')).toBe('+91 98765 43210')
     expect(formatIndianPhone('123')).toBe('123')
   })
 })

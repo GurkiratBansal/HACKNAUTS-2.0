@@ -1,3 +1,5 @@
+import { isIndianPhone } from '../../utils/india'
+
 export const STEP_FIELDS = [
   ['foodName', 'quantity'],
   ['cookedAt', 'deadline', 'contactPhone'],
@@ -6,8 +8,8 @@ export const STEP_FIELDS = [
 ]
 
 /**
- * Validation rules carried over unchanged from the original single-page form,
- * grouped by the wizard step that owns each field.
+ * Validation rules for the donation wizard, grouped by step.
+ * FRESH: Servings whole numbers 1 to 10000; contact phone validated with isIndianPhone.
  */
 export function buildStepValidators(form, location) {
   return [
@@ -17,8 +19,8 @@ export function buildStepValidators(form, location) {
       const qty = Number(form.quantity)
       if (!form.quantity || !Number.isFinite(qty) || qty <= 0) {
         next.quantity = 'Enter the number of servings.'
-      } else if (qty < 1 || qty > 250) {
-        next.quantity = 'Servings must be between 1 and 250.'
+      } else if (!Number.isInteger(qty) || qty < 1 || qty > 10000) {
+        next.quantity = 'Servings must be a whole number between 1 and 10000.'
       }
       return next
     },
@@ -36,11 +38,10 @@ export function buildStepValidators(form, location) {
       if (form.deadline && new Date(form.deadline).getTime() <= Date.now()) {
         next.deadline = 'Pickup deadline must be in the future.'
       }
-      if (
-        !form.contactPhone.trim() ||
-        form.contactPhone.replace(/\D/g, '').length < 10
-      ) {
-        next.contactPhone = 'Enter a phone number with at least 10 digits.'
+      if (!form.contactPhone.trim()) {
+        next.contactPhone = 'Enter a contact phone number.'
+      } else if (!isIndianPhone(form.contactPhone)) {
+        next.contactPhone = 'Enter a valid Indian mobile number (e.g. 9876543210 or +91 98765 43210).'
       }
       return next
     },

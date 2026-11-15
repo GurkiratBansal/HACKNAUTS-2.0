@@ -42,7 +42,7 @@ export const INDIAN_STATES = [
 ]
 
 const PIN_RE = /^[1-9][0-9]{5}$/
-const PHONE_RE = /^(?:\+?91)?[6-9]\d{9}$/
+const PHONE_RE = /^(?:91|0)?[6-9]\d{9}$/
 
 export function isValidPin(value) {
   return PIN_RE.test(String(value ?? '').trim())
@@ -74,6 +74,7 @@ export function normalizePhoneDigits(value) {
 export function formatIndianPhone(value) {
   let digits = normalizePhoneDigits(value)
   if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2)
+  else if (digits.length === 11 && digits.startsWith('0')) digits = digits.slice(1)
   if (!/^[6-9]\d{9}$/.test(digits)) return String(value ?? '').trim()
   return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`
 }

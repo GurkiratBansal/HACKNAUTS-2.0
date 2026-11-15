@@ -215,19 +215,25 @@ test('expired listing hidden from NGOs, validation errors, two accepts, logout/b
   await page.goto('/donor/add')
   await expect(page.getByRole('heading', { name: /list surplus food/i })).toBeVisible()
   await page.locator('#food-name').fill('Bad Form Meal')
-  await page.locator('#food-quantity').fill('500') // out of range
+  // FRESH: Product rule specifies servings 1-10000. 500 is valid; 20000 is the out-of-range test value.
+  await page.locator('#food-quantity').fill('20000') // out of range
   await page.getByRole('button', { name: /continue/i }).click()
-  await expect(page.getByText(/servings must be between/i)).toBeVisible()
+  await expect(page.getByText(/servings must be between|servings must be a whole number/i)).toBeVisible()
 
   await page.locator('#food-quantity').fill('10')
   await page.getByRole('button', { name: /continue/i }).click()
   const now = Date.now()
   await page.locator('#food-cooked').fill(dtLocal(now - 10 * 60 * 1000))
   await page.locator('#food-deadline').fill(dtLocal(now - 30 * 60 * 1000)) // past deadline
-  await page.locator('#food-phone').fill('123') // bad phone
+  await page.locator('#food-phone').fill('123') // bad phone (rejected per product rule)
   await page.getByRole('button', { name: /continue/i }).click()
   await expect(page.getByText(/pickup deadline must be in the future|pickup deadline must be after/i).first()).toBeVisible()
   await expect(page.getByText(/at least 10 digits|valid .*phone|valid .*mobile/i)).toBeVisible()
+  // FRESH: Product rule: valid Indian mobile (10 digits starting 6-9, optional +91 or 0 prefix) clears phone error
+  await page.locator('#food-phone').fill('09876543210')
+  await page.locator('#food-deadline').fill(dtLocal(now + 60 * 60 * 1000))
+  await page.getByRole('button', { name: /continue/i }).click()
+  await expect(page.getByText(/valid .*mobile|valid .*phone/i)).toHaveCount(0)
 
   // create two donations for two accepts in a row (clear previous broken inputs by fresh wizard flow)
   await fillDonationForm(page, { name: 'Accept Row A', qty: '12', deadlineOffsetMin: 180 })
