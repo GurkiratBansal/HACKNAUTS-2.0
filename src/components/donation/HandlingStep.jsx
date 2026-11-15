@@ -1,7 +1,7 @@
 // FRESH:FILE  Wizard step 2: cooked time, storage, deadline and contact phone.
 // FRESH:AREA  Donations
 
-import { Clock } from 'lucide-react'
+import { Clock, Sparkles } from 'lucide-react'
 import Field from '../ui/Field'
 import StepHeading from './StepHeading'
 
@@ -11,12 +11,21 @@ const STORAGE = [
   { value: 'hot-holding', label: 'Hot holding' },
 ]
 
-export default function HandlingStep({ form, set, errors, safetyHint }) {
+export default function HandlingStep({ form, set, errors, safetyHint, nutrition }) {
   return (
     <section aria-labelledby="wizard-step-title">
       <StepHeading eyebrow="Step 2 · Timing" title="Handling & pickup window">
         The deadline drives urgency on NGO dashboards, so keep it realistic.
       </StepHeading>
+
+      {nutrition && (
+        <div className="mt-4 flex items-center gap-2.5 rounded-2xl border border-emerald-300/80 bg-gradient-to-r from-emerald-50 via-teal-50 to-brand-50 p-3.5 text-xs text-emerald-950 dark:border-emerald-700/60 dark:from-emerald-950/40 dark:to-teal-950/30 dark:text-emerald-200 shadow-2xs">
+          <Sparkles className="h-4 w-4 shrink-0 text-emerald-600" />
+          <span>
+            <strong>AI Auto-Fill Active:</strong> Food name, portion count, and nutrition chart have been configured from your photo! Only set <strong>Cooked at</strong> and <strong>Pickup deadline</strong> below.
+          </span>
+        </div>
+      )}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <Field

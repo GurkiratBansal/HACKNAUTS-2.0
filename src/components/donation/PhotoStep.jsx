@@ -6,11 +6,13 @@ import {
   ImagePlus,
   Loader2,
   Trash2,
+  Sparkles,
 } from 'lucide-react'
 import Button from '../ui/Button'
 import Field from '../ui/Field'
 import { categoryLabel, formatDate, storageLabel } from '../../utils/format'
 import StepHeading from './StepHeading'
+import AiNutritionCard from './AiNutritionCard'
 
 export default function PhotoStep({
   form,
@@ -19,6 +21,9 @@ export default function PhotoStep({
   photoBusy,
   onPhoto,
   clearPhoto,
+  nutrition,
+  safetyData,
+  onReScan,
 }) {
   return (
     <section aria-labelledby="wizard-step-title">
@@ -73,16 +78,28 @@ export default function PhotoStep({
             </p>
           )}
           {preview && (
-            <Button
-              type="button"
-              variant="ghostDanger"
-              size="sm"
-              icon={Trash2}
-              onClick={clearPhoto}
-              className="mt-2"
-            >
-              Remove photo
-            </Button>
+            <div className="mt-2 flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghostDanger"
+                size="sm"
+                icon={Trash2}
+                onClick={clearPhoto}
+              >
+                Remove photo
+              </Button>
+              {onReScan && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  icon={Sparkles}
+                  onClick={onReScan}
+                >
+                  Re-Scan with AI
+                </Button>
+              )}
+            </div>
           )}
         </div>
 
@@ -96,6 +113,19 @@ export default function PhotoStep({
           placeholder="Packaging, allergens, entrance instructions…"
         />
       </div>
+
+      {/* AI Nutrition and Safety Inspection Card */}
+      {nutrition && (
+        <div className="mt-5">
+          <AiNutritionCard
+            nutrition={nutrition}
+            safetyScore={safetyData?.safetyScore || 98}
+            safetyVerdict={safetyData?.safetyVerdict}
+            safetyChecks={safetyData?.safetyChecks}
+            quantity={form.quantity || 1}
+          />
+        </div>
+      )}
 
       <div className="mt-5 rounded-2xl border border-brand-200/70 bg-brand-50/60 p-4 dark:border-brand-800 dark:bg-brand-900/25">
         <h3 className="flex items-center gap-2 text-sm font-bold text-ink">

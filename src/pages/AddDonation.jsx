@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Mic } from 'lucide-react'
+import { Mic, Sparkles } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useUserLocation } from '../context/LocationContext'
 // CHANGED: removed an unused Button import that failed lint; nothing else touched.
@@ -15,6 +15,7 @@ import ListingPreview from '../components/donation/ListingPreview'
 import PhotoStep from '../components/donation/PhotoStep'
 import PickupStep from '../components/donation/PickupStep'
 import VoiceDonationAssistant from '../components/donation/VoiceDonationAssistant'
+import AiScanModal from '../components/donation/AiScanModal'
 import WizardNav from '../components/donation/WizardNav'
 import WizardSteps from '../components/donation/WizardSteps'
 import {
@@ -82,6 +83,11 @@ export default function AddDonation() {
   const [errors, setErrors] = useState({})
   const [declarationOpen, setDeclarationOpen] = useState(false)
   const [voiceAssistantOpen, setVoiceAssistantOpen] = useState(false)
+  const [aiScanOpen, setAiScanOpen] = useState(false)
+  const [scanFile, setScanFile] = useState(null)
+  const [nutrition, setNutrition] = useState(null)
+  const [safetyData, setSafetyData] = useState(null)
+  const fileInputRef = useRef(null)
   const objectUrlRef = useRef('')
   const cardRef = useRef(null)
   const panelRef = useRef(null)
@@ -130,10 +136,14 @@ export default function AddDonation() {
     const objectUrl = URL.createObjectURL(file)
     objectUrlRef.current = objectUrl
     setPreview(objectUrl) // instant preview via object URL
+    setScanFile(file)
     setPhotoBusy(true)
     const compressed = await compressImage(file)
     setPhoto(compressed) // persisted copy, kept small for localStorage
     setPhotoBusy(false)
+
+    // Trigger AI Food Safety & Nutrition Vision Scanner!
+    setAiScanOpen(true)
   }
 
   const clearPhoto = () => {
@@ -141,6 +151,8 @@ export default function AddDonation() {
     objectUrlRef.current = ''
     setPreview('')
     setPhoto('')
+    setNutrition(null)
+    setSafetyData(null)
   }
 
   const useCurrentLocation = () => {
@@ -203,8 +215,38 @@ export default function AddDonation() {
     addToast('Voice details applied to donation form!', 'success')
   }
 
+  const applyAiAnalysis = (analysis) => {
+    setForm((prev) => ({
+      ...prev,
+      foodName: analysis.foodName,
+      category: analysis.category,
+      diet: analysis.diet,
+      quantity: analysis.quantity,
+      storage: analysis.storage,
+      notes: analysis.suggestedNotes,
+    }))
+    setNutrition(analysis.nutrition)
+    setSafetyData({
+      safetyScore: analysis.safetyScore,
+      safetyVerdict: analysis.safetyVerdict,
+      safetyChecks: analysis.safetyChecks,
+    })
+    setErrors({})
+    addToast(
+      `✨ AI analyzed "${analysis.foodName}"! Everything is filled — now set Made Time & Expiry Time.`,
+      'success',
+    )
+    goTo(1)
+  }
+
   const publish = () => {
-    const donation = addDonation({ ...form, location, photo })
+    const donation = addDonation({
+      ...form,
+      location,
+      photo,
+      nutrition,
+      safetyData,
+    })
     setDeclarationOpen(false)
     navigate(`/donation/${donation.id}`)
   }
@@ -229,7 +271,27 @@ export default function AddDonation() {
               NGOs decide quickly and collect safely.
             </p>
           </div>
-          <div className="shrink-0">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                if (preview) {
+                  setAiScanOpen(true)
+                } else {
+                  fileInputRef.current?.click()
+                }
+              }}
+              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-2xl border border-emerald-300/80 bg-gradient-to-r from-emerald-50 via-teal-50 to-brand-50 px-4 py-2.5 text-sm font-bold text-emerald-950 shadow-soft transition-all duration-300 hover:border-emerald-500 hover:shadow-card active:scale-[0.98] dark:border-emerald-700/60 dark:from-emerald-950/60 dark:via-teal-950/40 dark:to-brand-950/40 dark:text-emerald-100"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-xs transition-transform group-hover:scale-110">
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span className="flex flex-col text-left">
+                <span className="leading-tight">AI Food &amp; Safety Scan</span>
+                <span className="text-[10px] font-semibold text-emerald-700/80 dark:text-emerald-300/80">Auto-Fills Food &amp; Nutrition</span>
+              </span>
+            </button>
+
             <button
               type="button"
               onClick={() => setVoiceAssistantOpen(true)}
@@ -243,6 +305,15 @@ export default function AddDonation() {
                 <span className="text-[10px] font-semibold text-brand-700/80 dark:text-brand-300/80">Speech-to-Text Setup</span>
               </span>
             </button>
+
+            <input
+              ref={fileInputRef}
+              id="ai-photo-upload-input"
+              type="file"
+              accept="image/*"
+              onChange={onPhoto}
+              className="sr-only"
+            />
           </div>
         </div>
 
@@ -266,7 +337,13 @@ export default function AddDonation() {
                 className="animate-fade-up focus:outline-none"
               >
                 {step === 0 && (
-                  <BasicsStep form={form} set={set} errors={errors} emergencyActive={emergencyActive} />
+                  <BasicsStep
+                    form={form}
+                    set={set}
+                    errors={errors}
+                    emergencyActive={emergencyActive}
+                    onTriggerAiScan={() => fileInputRef.current?.click()}
+                  />
                 )}
                 {step === 1 && (
                   <HandlingStep
@@ -274,6 +351,7 @@ export default function AddDonation() {
                     set={set}
                     errors={errors}
                     safetyHint={safetyHint}
+                    nutrition={nutrition}
                   />
                 )}
                 {step === 2 && (
@@ -298,6 +376,9 @@ export default function AddDonation() {
                     photoBusy={photoBusy}
                     onPhoto={onPhoto}
                     clearPhoto={clearPhoto}
+                    nutrition={nutrition}
+                    safetyData={safetyData}
+                    onReScan={() => setAiScanOpen(true)}
                   />
                 )}
               </div>
@@ -306,7 +387,12 @@ export default function AddDonation() {
             </div>
           </div>
 
-          <ListingPreview form={form} preview={preview} />
+          <ListingPreview
+            form={form}
+            preview={preview}
+            nutrition={nutrition}
+            safetyData={safetyData}
+          />
         </form>
       </div>
 
@@ -321,6 +407,14 @@ export default function AddDonation() {
         open={voiceAssistantOpen}
         onClose={() => setVoiceAssistantOpen(false)}
         onApplyValues={applyVoiceValues}
+      />
+
+      <AiScanModal
+        open={aiScanOpen}
+        onClose={() => setAiScanOpen(false)}
+        file={scanFile}
+        previewUrl={preview}
+        onApplyAnalysis={applyAiAnalysis}
       />
     </main>
   )

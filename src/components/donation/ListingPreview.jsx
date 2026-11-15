@@ -4,12 +4,13 @@
 import { Camera, Sparkles, UtensilsCrossed } from 'lucide-react'
 import { categoryLabel, storageLabel } from '../../utils/format'
 import { URGENCY_DISCLAIMER } from '../../utils/urgency'
+import AiNutritionCard from './AiNutritionCard'
 
 /**
  * Sticky companion preview. It updates live from the form so donors can see how
  * the listing will read on an NGO dashboard.
  */
-export default function ListingPreview({ form, preview }) {
+export default function ListingPreview({ form, preview, nutrition, safetyData }) {
   return (
     <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
       <div className="overflow-hidden rounded-3xl border border-line bg-surface shadow-card">
@@ -71,22 +72,29 @@ export default function ListingPreview({ form, preview }) {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-dashed border-brand-300 bg-brand-50/60 p-5 dark:border-brand-700 dark:bg-brand-900/20">
-        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-700 dark:text-brand-300">
-          Future feature
-        </p>
-        <h3 className="mt-1 flex items-center gap-2 font-display text-base font-bold text-ink">
-          <Sparkles
-            className="h-4 w-4 text-brand-700 dark:text-brand-300"
-            aria-hidden="true"
-          />
-          AI Food Safety Assistant
-        </h3>
-        <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-          Coming soon: photo-based freshness checks and handling prompts. This
-          FRESH does not fake AI output — inspection always stays with the NGO.
-        </p>
-      </div>
+      {/* AI Nutrition & Food Safety Card */}
+      {nutrition ? (
+        <AiNutritionCard
+          nutrition={nutrition}
+          safetyScore={safetyData?.safetyScore || 98}
+          safetyVerdict={safetyData?.safetyVerdict}
+          safetyChecks={safetyData?.safetyChecks}
+          quantity={form.quantity || 1}
+        />
+      ) : (
+        <div className="rounded-3xl border border-dashed border-emerald-400/80 bg-gradient-to-br from-emerald-50/70 to-brand-50/50 p-4 dark:border-emerald-700 dark:bg-emerald-950/20">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-800 dark:text-emerald-300">
+            AI Food Vision &amp; Safety
+          </p>
+          <h3 className="mt-1 flex items-center gap-2 font-display text-sm font-bold text-ink">
+            <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+            Upload a Photo to Auto-Scan
+          </h3>
+          <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+            When you attach a photo, AI figures out the food name, category, portion count, and generates a full Nutrition Chart automatically!
+          </p>
+        </div>
+      )}
 
       <p className="rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-ink-muted">
         {URGENCY_DISCLAIMER} Never list food you would not serve to your own

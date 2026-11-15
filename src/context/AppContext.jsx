@@ -383,6 +383,8 @@ export function AppProvider({ children }) {
         photo: data.photo || '',
         contactPhone: data.contactPhone.trim(),
         notes: data.notes?.trim() || '',
+        nutrition: data.nutrition || null,
+        safetyData: data.safetyData || null,
         status: 'available',
         createdAt: now,
         timeline: [{ status: 'available', at: now }],

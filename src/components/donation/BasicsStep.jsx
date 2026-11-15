@@ -17,7 +17,7 @@ const DIETS = [
   { value: 'non-veg', label: 'Non-veg' },
 ]
 
-export default function BasicsStep({ form, set, errors, emergencyActive = false }) {
+export default function BasicsStep({ form, set, errors, emergencyActive = false, onTriggerAiScan }) {
   const activeCategories = emergencyActive ? [
     ...CATEGORIES,
     { value: 'dry_ration', label: 'Dry ration' },
@@ -30,6 +30,31 @@ export default function BasicsStep({ form, set, errors, emergencyActive = false 
       <StepHeading eyebrow="Step 1 · The food" title="What are you sharing?">
         A clear name and an honest quantity help a nearby NGO decide in seconds.
       </StepHeading>
+
+      {onTriggerAiScan && (
+        <button
+          type="button"
+          onClick={onTriggerAiScan}
+          className="mt-4 flex w-full items-center justify-between rounded-2xl border border-dashed border-emerald-400 bg-gradient-to-r from-emerald-50/80 via-teal-50/60 to-brand-50/80 p-3.5 text-left transition hover:border-emerald-600 hover:shadow-soft active:scale-[0.99] dark:border-emerald-700 dark:from-emerald-950/40 dark:via-teal-950/30 dark:to-brand-950/30"
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-2xs">
+              <Sparkles className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-xs font-bold text-emerald-900 dark:text-emerald-200">
+                ✨ Have a food photo? Tap to scan with AI
+              </p>
+              <p className="text-[11px] text-ink-muted">
+                AI detects food item, portion count &amp; nutrition chart automatically!
+              </p>
+            </div>
+          </div>
+          <span className="rounded-xl bg-emerald-600 px-3 py-1 text-xs font-bold text-white shadow-xs">
+            Scan Photo
+          </span>
+        </button>
+      )}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <Field

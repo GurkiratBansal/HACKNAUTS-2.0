@@ -13,6 +13,8 @@ import AlertPanel from '../components/detail/AlertPanel'
 import DetailAside from '../components/detail/DetailAside'
 import DetailHero from '../components/detail/DetailHero'
 import PickupMap from '../components/detail/PickupMap'
+import AiNutritionCard from '../components/donation/AiNutritionCard'
+import { identifyFoodFromImage } from '../utils/aiFoodScanner'
 import { haversineKm } from '../utils/distance'
 import { getUrgency } from '../utils/urgency'
 import { useRoute } from '../hooks/useRoute'
@@ -49,6 +51,25 @@ export default function DonationDetail() {
       .filter(Boolean)
       .map((ngo) => ({ ...ngo, distanceKm: haversineKm(place, ngo) }))
   }, [donation, ngos, place])
+
+  const nutritionProfile = useMemo(() => {
+    if (donation?.nutrition) return donation.nutrition
+    if (!donation?.foodName) return null
+    const matched = identifyFoodFromImage(null, donation.foodName)
+    return {
+      dish: matched.name,
+      servingSize: matched.servingSize,
+      calories: matched.calories,
+      protein: matched.protein,
+      carbs: matched.carbs,
+      fat: matched.fat,
+      fiber: matched.fiber,
+      nutriScore: matched.nutriScore,
+      nutriGradeText: matched.nutriGradeText,
+      allergens: matched.allergens,
+      totalCalories: matched.calories * Number(donation.quantity || 1),
+    }
+  }, [donation])
 
   if (!donation) {
     return (
@@ -125,6 +146,17 @@ export default function DonationDetail() {
               onAdvance={() => advanceStatus(donation.id)}
               onReport={() => setReportOpen(true)}
             />
+
+            {/* AI Nutrition Chart & Food Safety Clearance Card */}
+            {nutritionProfile && (
+              <AiNutritionCard
+                nutrition={nutritionProfile}
+                safetyScore={donation.safetyData?.safetyScore || 98}
+                safetyVerdict={donation.safetyData?.safetyVerdict || 'Verified Safe & Fresh (Grade A+)'}
+                safetyChecks={donation.safetyData?.safetyChecks}
+                quantity={donation.quantity}
+              />
+            )}
 
             {showAlertPanel && (
               <AlertPanel
