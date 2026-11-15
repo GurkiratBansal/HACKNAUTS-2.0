@@ -16,7 +16,7 @@ export default function Footer() {
       <div className="pointer-events-none absolute inset-0 pattern-rings opacity-40" aria-hidden="true" />
       <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.25fr_0.8fr_1fr] lg:px-8">
         <div>
-          <Link to="/" className="inline-block" aria-label="FRESH home">
+          <Link to="/" className="inline-block">
             <Brand tone="dark" />
           </Link>
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-brand-100/75">

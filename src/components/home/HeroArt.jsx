@@ -36,7 +36,7 @@ export default function HeroArt() {
           <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#07513e] p-3 sm:p-4">
             <div className="flex items-center justify-between text-[10px] font-semibold text-emerald-100/70">
               <span>Nearby food map</span>
-              <span className="rounded-full bg-white/10 px-2 py-1">Ludhiana · nearby</span>
+              <span className="rounded-full bg-white/15 px-2 py-1 text-white">Ludhiana · nearby</span>
             </div>
 
             <svg

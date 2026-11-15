@@ -38,7 +38,6 @@ export default function Navbar() {
           to="/"
           onClick={close}
           className="shrink-0 rounded-xl transition hover:opacity-90 focus-visible:outline-brand-500"
-          aria-label="FRESH – Food Reduction and Excess Sharing Hub"
         >
           <Brand />
         </Link>

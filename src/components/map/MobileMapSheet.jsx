@@ -42,7 +42,6 @@ export default function MobileMapSheet({
         onClick={onToggle}
         aria-expanded={open}
         aria-controls="map-sheet-body"
-        aria-label={open ? 'Collapse map results' : 'Expand map results'}
         className="flex w-full shrink-0 flex-col items-center gap-1.5 px-4 pb-2.5 pt-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-500"
       >
         <span className="h-1.5 w-12 rounded-full bg-line-strong" aria-hidden="true" />

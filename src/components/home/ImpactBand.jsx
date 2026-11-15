@@ -15,12 +15,12 @@ function Counter({ metric, value, start }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2.5">
+      <dt className="flex items-center gap-2.5 text-sm font-medium text-brand-100/80">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-saffron-400/15 text-saffron-300 ring-1 ring-inset ring-saffron-400/25">
           <metric.icon className="h-4 w-4" aria-hidden="true" />
         </span>
-        <dt className="text-sm font-medium text-brand-100/80">{metric.label}</dt>
-      </div>
+        <span>{metric.label}</span>
+      </dt>
       <dd className="font-display text-4xl font-extrabold tracking-tight text-white tabular-nums sm:text-[2.75rem]">
         <span aria-hidden="true">{formatNumber(display)}</span>
         <span className="sr-only">{formatNumber(value)}</span>
