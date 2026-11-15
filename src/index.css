@@ -402,6 +402,79 @@ body {
   .fresh-pin--you::after { animation: none; opacity: 0.55; }
 }
 
+/* Moving Blip for Live Route Navigation */
+.fresh-moving-blip-marker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fresh-moving-blip-pulse {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.28);
+  border: 1.5px solid rgba(16, 185, 129, 0.65);
+  animation: fresh-blip-radar 1.8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  pointer-events: none;
+}
+
+.fresh-moving-blip-core {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #ffffff;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.5), 0 0 0 3px rgba(16, 185, 129, 0.35);
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease-out;
+  z-index: 10;
+}
+
+.fresh-moving-blip-pill {
+  position: absolute;
+  bottom: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: rgba(15, 23, 42, 0.92);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 20;
+}
+
+@keyframes fresh-blip-radar {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fresh-moving-blip-pulse {
+    animation: none;
+    opacity: 0.4;
+  }
+}
+
 .leaflet-popup-content-wrapper {
   border: 1px solid rgb(var(--fresh-line));
   border-radius: 1rem;
