@@ -96,12 +96,13 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-[1300] flex items-end justify-center sm:items-center sm:p-4"
+      className="fixed inset-0 z-[1300] flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
       role="presentation"
     >
       <div
-        className="absolute inset-0 animate-fade-in bg-overlay/55 backdrop-blur-sm"
+        className="fixed inset-0 animate-fade-in bg-overlay/60 backdrop-blur-sm"
         aria-hidden="true"
+        onClick={onClose}
       />
       <div
         ref={dialogRef}
@@ -109,7 +110,7 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={labelledBy}
         tabIndex={-1}
-        className={`relative z-10 max-h-[92vh] w-full animate-scale-in overflow-y-auto rounded-t-3xl border border-line bg-surface shadow-lift focus:outline-none sm:rounded-3xl ${SIZES[size] || SIZES.md}`}
+        className={`relative z-10 my-auto max-h-[90vh] w-full animate-scale-in overflow-y-auto rounded-3xl border border-line bg-surface shadow-2xl focus:outline-none ${SIZES[size] || SIZES.md}`}
       >
         <button
           type="button"
