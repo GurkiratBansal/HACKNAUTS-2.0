@@ -21,24 +21,24 @@ const DISTANCES = [
 ]
 
 const URGENCY_CHIPS = [
-  { value: 'all', label: 'All urgency', icon: SlidersHorizontal, active: 'bg-brand-600 text-white' },
+  { value: 'all', label: 'All urgency', icon: SlidersHorizontal, active: 'border-fresh-mint/40 bg-fresh-mint text-fresh-cta' },
   {
     value: 'fresh',
     label: 'Fresh',
     icon: CheckCircle2,
-    active: 'bg-brand-600 text-white',
+    active: 'border-emerald-600/40 bg-emerald-600 text-white',
   },
   {
     value: 'soon',
     label: 'Soon',
     icon: Clock,
-    active: 'bg-warning-500 text-brand-950',
+    active: 'border-amber-500/40 bg-amber-500 text-black',
   },
   {
     value: 'urgent',
     label: 'Urgent',
     icon: AlertTriangle,
-    active: 'bg-danger-600 text-white',
+    active: 'border-red-600/40 bg-red-600 text-white',
   },
 ]
 
@@ -100,7 +100,7 @@ export default function MapFilters({
           <button
             type="button"
             onClick={onReset}
-            className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-xl px-2 text-xs font-bold text-brand-700 transition hover:bg-brand-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 dark:text-brand-300 dark:hover:bg-brand-900/30"
+            className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-[8px] px-2 text-xs font-bold text-fresh-mint transition hover:bg-black/5 dark:hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-fresh-mint"
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
             Clear
@@ -119,10 +119,10 @@ export default function MapFilters({
                 type="button"
                 onClick={() => onUrgencyChange(chip.value)}
                 aria-pressed={active}
-                className={`inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-[11px] font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 ${
+                className={`inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-[11px] font-bold border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-fresh-mint ${
                   active
-                    ? `${chip.active} shadow-soft`
-                    : 'bg-elevated text-ink-soft ring-1 ring-inset ring-line hover:bg-surface hover:text-ink'
+                    ? `${chip.active} shadow-fresh-sm`
+                    : 'border-fresh-border bg-black/5 text-fresh-ink-muted hover:text-fresh-ink dark:bg-white/5 dark:text-fresh-ink-soft dark:hover:text-fresh-light-bg'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" aria-hidden="true" />

@@ -33,23 +33,23 @@ export default function MapPanel({
   return (
     <aside
       aria-label="Map filters and results"
-      className="absolute bottom-4 left-4 top-4 z-[1001] hidden w-[360px] flex-col overflow-hidden rounded-3xl border border-line bg-surface/95 shadow-lift backdrop-blur-md lg:flex"
+      className="absolute bottom-4 left-4 top-4 z-[1001] hidden w-[360px] flex-col overflow-hidden rounded-[12px] border border-fresh-border bg-fresh-light-card/95 shadow-fresh-sm backdrop-blur-md dark:bg-fresh-dark-card/95 lg:flex"
     >
-      <div className="shrink-0 border-b border-line p-4">
+      <div className="shrink-0 border-b border-fresh-border p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-fresh-mint">
               Live network map
             </p>
-            <h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight text-ink">
+            <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-fresh-ink dark:text-fresh-light-bg">
               Nearby map
             </h1>
           </div>
-          <span className="inline-flex shrink-0 items-center rounded-full border border-line bg-elevated px-2.5 py-1 text-[11px] font-bold text-ink-soft">
+          <span className="inline-flex shrink-0 items-center rounded-full border border-fresh-border bg-black/5 px-2.5 py-1 text-[11px] font-bold text-fresh-ink-muted dark:bg-white/5 dark:text-fresh-ink-soft">
             {count} {ngoView ? 'NGOs' : count === 1 ? 'listing' : 'listings'}
           </span>
         </div>
-        <p className="mt-1.5 text-xs leading-relaxed text-ink-soft">
+        <p className="mt-1.5 text-xs leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
           {ngoView
            ? 'Verified NGO bases nearby. Pick a result to show it on the map.'
             : 'Open surplus, colour-coded by pickup urgency. Pick a result to open its pin.'}
@@ -63,7 +63,7 @@ export default function MapPanel({
         )}
       </div>
 
-      <div className="shrink-0 border-b border-line p-4">
+      <div className="shrink-0 border-b border-fresh-border p-4">
         <MapFilters
           query={query}
           onQueryChange={onQueryChange}
@@ -88,7 +88,7 @@ export default function MapPanel({
       </div>
 
       {!ngoView && showDashboardCta && (
-        <div className="shrink-0 border-t border-line p-3">
+        <div className="shrink-0 border-t border-fresh-border p-3">
           <Button
             to="/ngo"
             variant="secondary"

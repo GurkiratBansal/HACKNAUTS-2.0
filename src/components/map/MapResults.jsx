@@ -7,12 +7,12 @@ import { formatDistance } from '../../utils/format'
 
 function EmptyResults({ view }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line bg-elevated/60 p-6 text-center">
-      <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-surface text-brand-700 ring-1 ring-inset ring-line dark:text-brand-300">
+    <div className="rounded-[10px] border border-fresh-border bg-black/5 p-6 text-center dark:bg-white/5">
+      <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-[8px] bg-fresh-mint/15 text-fresh-mint">
         <MapPin className="h-5 w-5" aria-hidden="true" />
       </span>
-      <p className="mt-3 text-sm font-bold text-ink">No pins match these filters</p>
-      <p className="mt-1 text-xs leading-relaxed text-ink-muted">
+      <p className="mt-3 text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">No pins match these filters</p>
+      <p className="mt-1 text-xs leading-relaxed text-fresh-ink-muted dark:text-fresh-ink-soft">
         {view === 'ngos'
           ? 'Try a wider distance or a different NGO name.'
           : 'Try a wider distance, another urgency or a different dish.'}
@@ -34,25 +34,25 @@ export default function MapResults({ view, items, selectedId, onSelect }) {
               type="button"
               onClick={() => onSelect(item.id)}
               aria-pressed={selected}
-              className={`w-full rounded-2xl border p-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 ${
+              className={`w-full rounded-[10px] border p-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fresh-mint ${
                 selected
-                  ? 'border-brand-400 bg-brand-50/80 shadow-soft dark:border-brand-600 dark:bg-brand-900/30'
-                  : 'border-transparent hover:border-line hover:bg-elevated/70'
+                  ? 'border-fresh-mint/40 bg-fresh-mint/15 shadow-fresh-sm'
+                  : 'border-transparent hover:border-fresh-border hover:bg-black/5 dark:hover:bg-white/5'
               }`}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-ink">
+                  <p className="truncate text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">
                     {view === 'ngos' ? item.name : item.foodName}
                   </p>
-                  <p className="mt-0.5 truncate text-xs text-ink-soft">
+                  <p className="mt-0.5 truncate text-xs text-fresh-ink-muted dark:text-fresh-ink-soft">
                     {view === 'ngos'
                       ? item.focus
                       : `${item.quantity} servings · ${item.address}`}
                   </p>
                 </div>
                 {view === 'ngos' ? (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-50 px-2 py-1 text-[10px] font-bold text-brand-700 ring-1 ring-inset ring-brand-200 dark:bg-brand-900/40 dark:text-brand-200 dark:ring-brand-700">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-fresh-mint/30 bg-fresh-mint/15 px-2 py-0.5 text-[10px] font-bold text-fresh-mint">
                     <ShieldCheck className="h-3 w-3" aria-hidden="true" />
                     Verified
                   </span>
@@ -61,7 +61,7 @@ export default function MapResults({ view, items, selectedId, onSelect }) {
                 )}
               </div>
 
-              <p className="mt-2 inline-flex items-center gap-1 text-[11px] text-ink-muted">
+              <p className="mt-2 inline-flex items-center gap-1 text-[11px] text-fresh-ink-muted dark:text-fresh-ink-soft">
                 <MapPin className="h-3 w-3" aria-hidden="true" />
                 {view === 'ngos'
                   ? `${item.city} · ${formatDistance(item.distanceKm)} away`

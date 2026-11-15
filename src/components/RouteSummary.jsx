@@ -34,16 +34,14 @@ export default function RouteSummary({
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none absolute right-3 top-20 z-[1001] w-[min(calc(100vw-1.5rem),380px)] rounded-2xl border border-line bg-surface/95 px-4 py-3 shadow-lift backdrop-blur-md sm:right-4 sm:w-[min(calc(100vw-2rem),380px)]"
+      className="pointer-events-none absolute right-3 top-20 z-[1001] w-[min(calc(100vw-1.5rem),380px)] rounded-[12px] border border-fresh-border bg-fresh-light-card/95 px-4 py-3 shadow-fresh-sm backdrop-blur-md dark:bg-fresh-dark-card/95 sm:right-4 sm:w-[min(calc(100vw-2rem),380px)]"
     >
       <div className="flex items-start gap-3">
         <span
-          className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+          className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] ${
             error
-              ? 'bg-warning-50 text-warning-700 dark:bg-warning-900/30 dark:text-warning-200'
-              : loading
-              ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200'
-              : 'bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200'
+              ? 'bg-amber-500/15 text-amber-500 dark:text-amber-400'
+              : 'bg-fresh-mint/15 text-fresh-mint'
           }`}
           aria-hidden="true"
         >
@@ -57,20 +55,20 @@ export default function RouteSummary({
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-fresh-mint">
             {loading ? 'Finding route' : error ? 'Route unavailable' : 'Road route'}
           </p>
 
           {loading && (
-            <p className="mt-0.5 text-sm font-bold text-ink">Finding a road route…</p>
+            <p className="mt-0.5 text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">Finding a road route…</p>
           )}
 
           {error && (
             <>
-              <p className="mt-0.5 text-sm font-bold text-ink">
+              <p className="mt-0.5 text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">
                 Could not load a road route
               </p>
-              <p className="mt-1 text-[11px] leading-snug text-ink-muted">
+              <p className="mt-1 text-[11px] leading-snug text-fresh-ink-muted dark:text-fresh-ink-soft">
                 {info.message || 'The routing service did not return a usable route.'}
               </p>
             </>
@@ -78,22 +76,22 @@ export default function RouteSummary({
 
           {success && (
             <>
-              <p className="mt-0.5 text-sm font-bold text-ink">
+              <p className="mt-0.5 text-sm font-bold text-fresh-ink dark:text-fresh-light-bg">
                 {info.distanceKm.toFixed(1)} km by road, about{' '}
                 {info.durationMin} min drive (estimate)
               </p>
-              <p className="mt-0.5 text-[11px] text-ink-muted">
+              <p className="mt-0.5 text-[11px] text-fresh-ink-muted dark:text-fresh-ink-soft">
                 Driving route - OpenStreetMap
               </p>
               {info.hazardWarning && (
-                <p className="mt-2 rounded-xl border border-warning-300 bg-warning-50 p-2 text-[11px] font-semibold leading-snug text-warning-950 dark:border-warning-700 dark:bg-warning-900/30 dark:text-warning-100">
+                <p className="mt-2 rounded-[8px] border border-amber-500/30 bg-amber-500/10 p-2 text-[11px] font-semibold leading-snug text-amber-900 dark:text-amber-200">
                   This route passes near a reported hazard area. Check local updates before travelling. Routes may not reflect road closures.
                 </p>
               )}
             </>
           )}
 
-          <p className="mt-0.5 text-[11px] text-ink-muted">
+          <p className="mt-0.5 text-[11px] text-fresh-ink-muted dark:text-fresh-ink-soft">
             {fromLabel} to {toLabel}
           </p>
 
@@ -101,7 +99,7 @@ export default function RouteSummary({
             <button
               type="button"
               onClick={onStart}
-              className="pointer-events-auto mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+              className="pointer-events-auto mt-3 inline-flex min-h-11 items-center justify-center rounded-[8px] bg-gradient-to-r from-fresh-mint to-fresh-teal px-4 text-xs font-bold text-fresh-cta shadow-fresh-sm transition hover:opacity-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fresh-mint"
               aria-label={`Route to ${toLabel}`}
             >
               Route to {toLabel}
@@ -113,7 +111,7 @@ export default function RouteSummary({
               <button
                 type="button"
                 onClick={onRetry}
-                className="pointer-events-auto inline-flex min-h-11 w-24 items-center justify-center rounded-xl border border-line bg-surface px-3 text-xs font-bold text-ink transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+                className="pointer-events-auto inline-flex min-h-11 w-24 items-center justify-center rounded-[8px] border border-fresh-border bg-fresh-light-card px-3 text-xs font-semibold text-fresh-ink transition hover:bg-black/5 dark:bg-fresh-dark-card dark:text-fresh-light-bg dark:hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fresh-mint"
                 aria-label="Try again for a road route"
               >
                 Try again
@@ -126,7 +124,7 @@ export default function RouteSummary({
               href={googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="pointer-events-auto mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-surface px-3 text-xs font-bold text-brand-700 transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-brand-300"
+              className="pointer-events-auto mt-3 inline-flex min-h-11 items-center justify-center rounded-[8px] border border-fresh-border bg-fresh-light-card px-3 text-xs font-semibold text-fresh-mint transition hover:bg-black/5 dark:bg-fresh-dark-card dark:hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fresh-mint"
               aria-label="Open in Google Maps"
             >
               Open in Google Maps
@@ -137,7 +135,7 @@ export default function RouteSummary({
             <button
               type="button"
               onClick={onClear}
-              className="pointer-events-auto mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-surface px-3 text-xs font-bold text-ink transition hover:bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+              className="pointer-events-auto mt-3 inline-flex min-h-11 items-center justify-center rounded-[8px] border border-fresh-border bg-fresh-light-card px-3 text-xs font-semibold text-fresh-ink transition hover:bg-black/5 dark:bg-fresh-dark-card dark:text-fresh-light-bg dark:hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fresh-mint"
               aria-label="Clear route"
             >
               Clear route

@@ -198,7 +198,7 @@ export default function MapPage() {
                     event.stopPropagation()
                     requestRouteFor(ngo.id)
                   }}
-                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand-600 px-3 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-[8px] bg-gradient-to-r from-fresh-mint to-fresh-teal px-3 text-xs font-bold text-fresh-cta shadow-fresh-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fresh-mint"
                 >
                   Route to NGO
                 </button>
@@ -234,7 +234,7 @@ export default function MapPage() {
                 )}
                 <Link
                   to={`/donation/${donation.id}`}
-                  className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-brand-700 hover:underline dark:text-brand-300"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-fresh-mint hover:underline"
                 >
                   View details
                   <ChevronRight className="h-3 w-3" aria-hidden="true" />
@@ -246,7 +246,7 @@ export default function MapPage() {
                     event.stopPropagation()
                     requestRouteFor(donation.id)
                   }}
-                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand-600 px-3 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-[8px] bg-gradient-to-r from-fresh-mint to-fresh-teal px-3 text-xs font-bold text-fresh-cta shadow-fresh-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fresh-mint"
                 >
                   Show route to pickup
                 </button>
