@@ -69,4 +69,32 @@ describe('aiExtractionService', () => {
 
     global.fetch = originalFetch
   })
+
+  it('calls researchExpiry endpoint and returns research findings', async () => {
+    const fakeResearch = {
+      success: true,
+      data: {
+        foodName: 'Paneer Butter Masala',
+        safeHoursTotal: 3,
+        safeRemainingHours: 2,
+        scientificReason: 'Dairy proteins vulnerable to lactic fermentation.',
+        authorityStandards: 'FSSAI Guidance',
+      },
+    }
+    const originalFetch = global.fetch
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => fakeResearch,
+    })
+
+    const result = await aiExtractionService.researchExpiry({
+      foodName: 'Paneer Butter Masala',
+      storage: 'room',
+    })
+    expect(result.foodName).toBe('Paneer Butter Masala')
+    expect(result.safeHoursTotal).toBe(3)
+    expect(result.scientificReason).toContain('Dairy')
+
+    global.fetch = originalFetch
+  })
 })
