@@ -230,15 +230,19 @@ export default function AddDonation() {
             </p>
           </div>
           <div className="shrink-0">
-            <Button
+            <button
               type="button"
-              variant="secondary"
               onClick={() => setVoiceAssistantOpen(true)}
-              className="inline-flex items-center gap-2 border-brand-200 bg-brand-50/80 text-brand-800 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-200"
+              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-2xl border border-brand-300/80 bg-gradient-to-r from-brand-50 via-emerald-50 to-teal-50 px-4 py-2.5 text-sm font-bold text-brand-900 shadow-soft transition-all duration-300 hover:border-brand-500 hover:shadow-card active:scale-[0.98] dark:border-brand-700/60 dark:from-brand-950/60 dark:via-emerald-950/40 dark:to-teal-950/40 dark:text-brand-100"
             >
-              <Mic className="h-4 w-4 text-brand-600 dark:text-brand-400" aria-hidden="true" />
-              Fill by Voice
-            </Button>
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-brand-600 text-white shadow-xs transition-transform group-hover:scale-110 group-hover:bg-brand-500">
+                <Mic className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span className="flex flex-col text-left">
+                <span className="leading-tight">Fill by Voice AI</span>
+                <span className="text-[10px] font-semibold text-brand-700/80 dark:text-brand-300/80">Speech-to-Text Setup</span>
+              </span>
+            </button>
           </div>
         </div>
 
